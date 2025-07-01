@@ -21,6 +21,8 @@ class OrbitMultiSelectDropdown<T extends DropdownOption> extends StatefulWidget 
   final double borderRadius;
   final ValueChanged<List<T>>? onChanged;
   final bool isCompact;
+  final EdgeInsetsGeometry? padding;
+  final double? verticalMargin;
 
   const OrbitMultiSelectDropdown({
     required this.orbitKey,
@@ -35,6 +37,8 @@ class OrbitMultiSelectDropdown<T extends DropdownOption> extends StatefulWidget 
     this.borderRadius = 12.0,
     this.onChanged,
     this.isCompact = false,
+    this.padding,
+    this.verticalMargin,
     super.key,
   });
 
@@ -248,19 +252,22 @@ class _OrbitMultiSelectDropdownState<T extends DropdownOption> extends State<Orb
     final avatarRadius = isCompact ? 14.r : 16.r;
     final borderWidth = isCompact ? 1.1.w : 1.2.w;
 
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        key: _inputKey,
-        decoration: BoxDecoration(color: Colors.grey[300], border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5), width: borderWidth), borderRadius: BorderRadius.circular(widget.borderRadius.r)),
-        padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
-        child: Row(
-          children: [
-            CircleAvatar(radius: avatarRadius, backgroundColor: Colors.grey[300]),
-            SizedBox(width: 8.w),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Container(width: 100.w, height: 16.h, color: Colors.grey[300]), SizedBox(height: 4.h), Container(width: 60.w, height: 12.h, color: Colors.grey[300])])),
-          ],
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.verticalMargin ?? 0),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          key: _inputKey,
+          decoration: BoxDecoration(color: Colors.grey[300], border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5), width: borderWidth), borderRadius: BorderRadius.circular(widget.borderRadius.r)),
+          padding: widget.padding ?? EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
+          child: Row(
+            children: [
+              CircleAvatar(radius: avatarRadius, backgroundColor: Colors.grey[300]),
+              SizedBox(width: 8.w),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Container(width: 100.w, height: 16.h, color: Colors.grey[300]), SizedBox(height: 4.h), Container(width: 60.w, height: 12.h, color: Colors.grey[300])])),
+            ],
+          ),
         ),
       ),
     );
@@ -288,103 +295,109 @@ class _OrbitMultiSelectDropdownState<T extends DropdownOption> extends State<Orb
     final errorPadding = isCompact ? 3.h : 4.h;
     final borderWidth = isCompact ? 1.1.w : 1.2.w;
 
-    return FormField<List<T>>(
-      key: _fieldKey,
-      validator:
-          widget.validator ??
-          (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please select at least one option';
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.verticalMargin ?? 0),
+      child: FormField<List<T>>(
+        key: _fieldKey,
+        validator:
+            widget.validator ??
+            (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please select at least one option';
+              }
+              return null;
+            },
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        initialValue: _selectedOptions,
+        builder: (FormFieldState<List<T>> field) {
+          // This is a defensive check to ensure that the error state is in sync.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _hasError != field.hasError) {
+              setState(() {
+                _hasError = field.hasError;
+              });
             }
-            return null;
-          },
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      initialValue: _selectedOptions,
-      builder: (FormFieldState<List<T>> field) {
-        // This is a defensive check to ensure that the error state is in sync.
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _hasError != field.hasError) {
-            setState(() {
-              _hasError = field.hasError;
-            });
-          }
-        });
+          });
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            InkWell(
-              onTap: () {
-                if (_overlayEntry == null) {
-                  _showDropdown();
-                } else {
-                  _removeOverlay();
-                }
-              },
-              child: Container(
-                key: _inputKey,
-                decoration: BoxDecoration(
-                  color: _focusNode.hasFocus || _selectedOptions.isNotEmpty ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                  border: Border.all(
-                    color:
-                        _hasError
-                            ? Theme.of(context).colorScheme.error
-                            : _focusNode.hasFocus || _selectedOptions.isNotEmpty
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
-                    width: borderWidth,
-                  ),
-                  borderRadius: BorderRadius.circular(widget.borderRadius.r),
-                ),
-                padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.labelText != null)
+                Column(
                   children: [
-                    if (widget.labelText != null)
-                      Text(widget.labelText!, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _hasError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant, fontSize: labelFontSize)),
-                    Row(
-                      children: [
-                        if (_selectedOptions.isNotEmpty && _selectedOptions.first.profileImageUrl != null)
-                          Padding(
-                            padding: EdgeInsets.only(right: 8.w),
-                            child: CircleAvatar(radius: avatarRadius, backgroundImage: NetworkImage(_selectedOptions.first.profileImageUrl!), onBackgroundImageError: (_, __) => Icon(Icons.error, size: avatarRadius)),
-                          ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _selectedOptions.isNotEmpty ? _selectedOptions.map((e) => e.title).join(', ') : (widget.hintText ?? 'Choose options'),
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w400,
-                                  color: _selectedOptions.isEmpty ? Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(_focusNode.hasFocus ? 0.9 : 0.7) : Theme.of(context).colorScheme.onSurface,
-                                  fontSize: textFontSize,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (_selectedOptions.isNotEmpty && _selectedOptions.any((e) => e.subtitle != null))
-                                Text(
-                                  _selectedOptions.firstWhere((e) => e.subtitle != null).subtitle!,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: subtitleFontSize),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                            ],
-                          ),
-                        ),
-                        Icon(_overlayEntry != null ? Icons.arrow_drop_up : Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize),
-                      ],
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(widget.labelText!, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _hasError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant, fontSize: labelFontSize)),
                     ),
+                    SizedBox(height: 4.h), // Small spacing between label and input
                   ],
                 ),
+              InkWell(
+                onTap: () {
+                  if (_overlayEntry == null) {
+                    _showDropdown();
+                  } else {
+                    _removeOverlay();
+                  }
+                },
+                child: Container(
+                  key: _inputKey,
+                  decoration: BoxDecoration(
+                    color: _focusNode.hasFocus || _selectedOptions.isNotEmpty ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                    border: Border.all(
+                      color:
+                          _hasError
+                              ? Theme.of(context).colorScheme.error
+                              : _focusNode.hasFocus || _selectedOptions.isNotEmpty
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+                      width: borderWidth,
+                    ),
+                    borderRadius: BorderRadius.circular(widget.borderRadius.r),
+                  ),
+                  padding: widget.padding ?? EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
+                  child: Row(
+                    children: [
+                      if (_selectedOptions.isNotEmpty && _selectedOptions.first.profileImageUrl != null)
+                        Padding(
+                          padding: EdgeInsets.only(right: 8.w),
+                          child: CircleAvatar(radius: avatarRadius, backgroundImage: NetworkImage(_selectedOptions.first.profileImageUrl!), onBackgroundImageError: (_, __) => Icon(Icons.error, size: avatarRadius)),
+                        ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _selectedOptions.isNotEmpty ? _selectedOptions.map((e) => e.title).join(', ') : (widget.hintText ?? 'Choose options'),
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w400,
+                                color: _selectedOptions.isEmpty ? Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(_focusNode.hasFocus ? 0.9 : 0.7) : Theme.of(context).colorScheme.onSurface,
+                                fontSize: textFontSize,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (_selectedOptions.isNotEmpty && _selectedOptions.any((e) => e.subtitle != null))
+                              Text(
+                                _selectedOptions.firstWhere((e) => e.subtitle != null).subtitle!,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: subtitleFontSize),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
+                      ),
+                      Icon(_overlayEntry != null ? Icons.arrow_drop_up : Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            if (_hasError && field.errorText != null)
-              Padding(padding: EdgeInsets.only(top: errorPadding, left: 12.w), child: Text(field.errorText!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: errorFontSize))),
-          ],
-        );
-      },
+              if (_hasError && field.errorText != null)
+                Padding(padding: EdgeInsets.only(top: errorPadding, left: horizontalPadding), child: Text(field.errorText!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: errorFontSize))),
+            ],
+          );
+        },
+      ),
     );
   }
 }

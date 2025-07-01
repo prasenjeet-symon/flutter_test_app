@@ -13,8 +13,24 @@ class OrbitDateInput extends StatefulWidget {
   final DateTime? firstDate;
   final DateTime? lastDate;
   final DateFormat? dateFormat;
+  final EdgeInsetsGeometry? padding;
+  final double? verticalMargin;
 
-  const OrbitDateInput({super.key, required this.controller, this.labelText, this.hintText, this.validator, this.borderRadius = 12.0, this.onDateSelected, this.isCompact = false, this.firstDate, this.lastDate, this.dateFormat});
+  const OrbitDateInput({
+    super.key,
+    required this.controller,
+    this.labelText,
+    this.hintText,
+    this.validator,
+    this.borderRadius = 12.0,
+    this.onDateSelected,
+    this.isCompact = false,
+    this.firstDate,
+    this.lastDate,
+    this.dateFormat,
+    this.padding,
+    this.verticalMargin,
+  });
 
   @override
   State<OrbitDateInput> createState() => _OrbitDateInputState();
@@ -101,67 +117,73 @@ class _OrbitDateInputState extends State<OrbitDateInput> {
     final errorPadding = isCompact ? 2.h : 4.h;
     final borderWidth = isCompact ? 1.w : 1.2.w;
 
-    return FormField<String>(
-      key: _fieldKey,
-      validator: widget.validator,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      builder: (FormFieldState<String> field) {
-        _hasError = field.hasError;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () => _selectDate(context),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: _focusNode.hasFocus || widget.controller.text.isNotEmpty ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                  border: Border.all(
-                    color:
-                        _hasError
-                            ? Theme.of(context).colorScheme.error
-                            : _focusNode.hasFocus || widget.controller.text.isNotEmpty
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
-                    width: borderWidth,
-                  ),
-                  borderRadius: BorderRadius.circular(widget.borderRadius.r),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.verticalMargin ?? 0),
+      child: FormField<String>(
+        key: _fieldKey,
+        validator: widget.validator,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        builder: (FormFieldState<String> field) {
+          _hasError = field.hasError;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.labelText != null)
+                Column(
                   children: [
-                    if (widget.labelText != null)
-                      Text(widget.labelText!, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _hasError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant, fontSize: labelFontSize)),
-                    Row(
-                      children: [
-                        Padding(padding: EdgeInsets.only(right: 8.w), child: Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize)),
-                        Expanded(
-                          child: TextField(
-                            controller: widget.controller,
-                            focusNode: _focusNode,
-                            readOnly: true, // Prevent manual text input
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface, fontSize: textFontSize, fontWeight: FontWeight.w400),
-                            decoration: InputDecoration(
-                              hintText: widget.hintText ?? 'Select a date',
-                              hintStyle: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(_focusNode.hasFocus ? 0.9 : 0.7), fontSize: textFontSize, fontWeight: FontWeight.w400),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            onTap: () => _selectDate(context),
-                            onTapOutside: (event) => _focusNode.unfocus(),
-                          ),
-                        ),
-                      ],
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(widget.labelText!, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _hasError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant, fontSize: labelFontSize)),
                     ),
+                    SizedBox(height: 4.h), // Small spacing between label and input
                   ],
                 ),
+              GestureDetector(
+                onTap: () => _selectDate(context),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _focusNode.hasFocus || widget.controller.text.isNotEmpty ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                    border: Border.all(
+                      color:
+                          _hasError
+                              ? Theme.of(context).colorScheme.error
+                              : _focusNode.hasFocus || widget.controller.text.isNotEmpty
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+                      width: borderWidth,
+                    ),
+                    borderRadius: BorderRadius.circular(widget.borderRadius.r),
+                  ),
+                  padding: widget.padding ?? EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
+                  child: Row(
+                    children: [
+                      Padding(padding: EdgeInsets.only(right: 8.w), child: Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize)),
+                      Expanded(
+                        child: TextField(
+                          controller: widget.controller,
+                          focusNode: _focusNode,
+                          readOnly: true, // Prevent manual text input
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface, fontSize: textFontSize, fontWeight: FontWeight.w400),
+                          decoration: InputDecoration(
+                            hintText: widget.hintText ?? 'Select a date',
+                            hintStyle: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(_focusNode.hasFocus ? 0.9 : 0.7), fontSize: textFontSize, fontWeight: FontWeight.w400),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          onTap: () => _selectDate(context),
+                          onTapOutside: (event) => _focusNode.unfocus(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            if (_hasError && field.errorText != null)
-              Padding(padding: EdgeInsets.only(top: errorPadding, left: 12.w), child: Text(field.errorText!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: errorFontSize))),
-          ],
-        );
-      },
+              if (_hasError && field.errorText != null)
+                Padding(padding: EdgeInsets.only(top: errorPadding, left: horizontalPadding), child: Text(field.errorText!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: errorFontSize))),
+            ],
+          );
+        },
+      ),
     );
   }
 }

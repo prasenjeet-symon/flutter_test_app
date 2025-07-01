@@ -15,7 +15,7 @@ class SearchResult {
 
   SearchResult({required this.id, required this.title, this.subtitle, this.profilePicture, this.isVerified, this.data});
 
-  Map<String, dynamic> toJson() => {'id': id, 'title': title, 'subtitle': subtitle, 'profilePicture': profilePicture, 'isVerified': isVerified, 'data': data is String ? data : jsonEncode(data)};
+  Map<String, dynamic> toJson() => {'id': id, 'title': title, 'subtitle': subtitle, 'profilePicture': profilePicture, 'isVerified': isVerified, 'GMT': data is String ? data : jsonEncode(data)};
 
   static SearchResult fromJson(Map<String, dynamic> json) =>
       SearchResult(id: json['id'] as String, title: json['title'] as String, subtitle: json['subtitle'] as String?, profilePicture: json['profilePicture'] as String?, isVerified: json['isVerified'] as bool?, data: json['data']);
@@ -33,6 +33,8 @@ class OrbitSearchInput<T extends SearchResult> extends StatefulWidget {
   final bool isCompact;
   final bool isLocal;
   final Future<List<T>> Function(String) onSearch;
+  final EdgeInsetsGeometry? padding;
+  final double? verticalMargin;
 
   const OrbitSearchInput({
     super.key,
@@ -47,6 +49,8 @@ class OrbitSearchInput<T extends SearchResult> extends StatefulWidget {
     this.isCompact = false,
     this.isLocal = false,
     required this.onSearch,
+    this.padding,
+    this.verticalMargin,
   });
 
   @override
@@ -375,102 +379,111 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
     final errorPadding = isCompact ? 2.h : 4.h;
     final borderWidth = isCompact ? 1.0.w : 1.2.w;
 
-    return FormField<String>(
-      key: _fieldKey,
-      validator: widget.validator,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      builder: (FormFieldState<String> field) {
-        _hasError = field.hasError;
-        return AnimatedBuilder(
-          animation: _animationController!,
-          builder: (context, child) {
-            final borderColor =
-                _hasError
-                    ? Theme.of(context).colorScheme.error
-                    : _isSearching
-                    ? Theme.of(context).colorScheme.secondary.withOpacity(_borderOpacityAnimation!.value)
-                    : _focusNode.hasFocus || widget.controller.text.isNotEmpty
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5);
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  key: _inputKey,
-                  decoration: BoxDecoration(
-                    color: _focusNode.hasFocus || _isResultSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                    border: Border.all(color: borderColor, width: borderWidth),
-                    borderRadius: BorderRadius.circular(widget.borderRadius.r),
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (widget.labelText != null)
-                        Text(widget.labelText!, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _hasError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant, fontSize: labelFontSize)),
-                      Row(
-                        children: [
-                          if (_isResultSelected && _selectedResult != null && _selectedResult!.profilePicture != null)
-                            Padding(padding: EdgeInsets.only(right: 8.w), child: CircleAvatar(radius: avatarRadius, backgroundImage: NetworkImage(_selectedResult!.profilePicture!)))
-                          else if (!_isResultSelected)
-                            Padding(padding: EdgeInsets.only(right: 8.w), child: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize)),
-                          Expanded(
-                            child:
-                                _isResultSelected && _selectedResult != null
-                                    ? Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.verticalMargin ?? 0),
+      child: FormField<String>(
+        key: _fieldKey,
+        validator: widget.validator,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        builder: (FormFieldState<String> field) {
+          _hasError = field.hasError;
+          return AnimatedBuilder(
+            animation: _animationController!,
+            builder: (context, child) {
+              final borderColor =
+                  _hasError
+                      ? Theme.of(context).colorScheme.error
+                      : _isSearching
+                      ? Theme.of(context).colorScheme.secondary.withOpacity(_borderOpacityAnimation!.value)
+                      : _focusNode.hasFocus || widget.controller.text.isNotEmpty
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.labelText != null)
+                    Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(widget.labelText!, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _hasError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant, fontSize: labelFontSize)),
+                        ),
+                        SizedBox(height: 4.h), // Small spacing between label and input
+                      ],
+                    ),
+                  Container(
+                    key: _inputKey,
+                    decoration: BoxDecoration(
+                      color: _focusNode.hasFocus || _isResultSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                      border: Border.all(color: borderColor, width: borderWidth),
+                      borderRadius: BorderRadius.circular(widget.borderRadius.r),
+                    ),
+                    padding: widget.padding ?? EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
+                    child: Row(
+                      children: [
+                        if (_isResultSelected && _selectedResult != null && _selectedResult!.profilePicture != null)
+                          Padding(padding: EdgeInsets.only(right: 8.w), child: CircleAvatar(radius: avatarRadius, backgroundImage: NetworkImage(_selectedResult!.profilePicture!)))
+                        else if (!_isResultSelected)
+                          Padding(padding: EdgeInsets.only(right: 8.w), child: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize)),
+                        Expanded(
+                          child:
+                              _isResultSelected && _selectedResult != null
+                                  ? Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _selectedResult!.title,
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface, fontSize: textFontSize, fontWeight: FontWeight.w400),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      if (_selectedResult!.subtitle != null)
                                         Text(
-                                          _selectedResult!.title,
-                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface, fontSize: textFontSize, fontWeight: FontWeight.w400),
+                                          _selectedResult!.subtitle!,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: subtitleFontSize),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        if (_selectedResult!.subtitle != null)
-                                          Text(
-                                            _selectedResult!.subtitle!,
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: subtitleFontSize),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                      ],
-                                    )
-                                    : TextField(
-                                      controller: widget.controller,
-                                      focusNode: _focusNode,
-                                      readOnly: _isResultSelected,
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface, fontSize: textFontSize, fontWeight: FontWeight.w400),
-                                      decoration: InputDecoration(
-                                        hintText: widget.hintText ?? 'Search...',
-                                        hintStyle: Theme.of(
-                                          context,
-                                        ).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(_focusNode.hasFocus ? 0.9 : 0.7), fontSize: textFontSize, fontWeight: FontWeight.w400),
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                      onChanged: (value) {
-                                        if (!_isResultSelected) {
-                                          field.didChange(value);
-                                          _performSearch(value);
-                                        }
-                                      },
-                                      onTap: _isResultSelected ? _clearSelection : null,
-                                      onTapOutside: (_) {},
+                                    ],
+                                  )
+                                  : TextField(
+                                    controller: widget.controller,
+                                    focusNode: _focusNode,
+                                    readOnly: _isResultSelected,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface, fontSize: textFontSize, fontWeight: FontWeight.w400),
+                                    decoration: InputDecoration(
+                                      hintText: widget.hintText ?? 'Search...',
+                                      hintStyle: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(_focusNode.hasFocus ? 0.9 : 0.7), fontSize: textFontSize, fontWeight: FontWeight.w400),
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.zero,
                                     ),
-                          ),
-                          if (_isResultSelected) GestureDetector(onTap: _clearSelection, child: Padding(padding: EdgeInsets.only(left: 8.w), child: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize))),
-                        ],
-                      ),
-                    ],
+                                    onChanged: (value) {
+                                      if (!_isResultSelected) {
+                                        field.didChange(value);
+                                        _performSearch(value);
+                                      }
+                                    },
+                                    onTap: _isResultSelected ? _clearSelection : null,
+                                    onTapOutside: (_) {},
+                                  ),
+                        ),
+                        if (_isResultSelected) GestureDetector(onTap: _clearSelection, child: Padding(padding: EdgeInsets.only(left: 8.w), child: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize))),
+                      ],
+                    ),
                   ),
-                ),
-                if (_hasError && field.errorText != null)
-                  Padding(padding: EdgeInsets.only(top: errorPadding, left: 12.w), child: Text(field.errorText!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: errorFontSize))),
-              ],
-            );
-          },
-        );
-      },
+                  if (_hasError && field.errorText != null)
+                    Padding(
+                      padding: EdgeInsets.only(top: errorPadding, left: horizontalPadding),
+                      child: Text(field.errorText!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: errorFontSize)),
+                    ),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

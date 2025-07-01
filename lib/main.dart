@@ -133,178 +133,199 @@ class _TestFormScreenState extends State<TestFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Test Orbit Inputs')),
-      body: Padding(
-        padding: EdgeInsets.all(16.w),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              OrbitSearchInput(
-                orbitKey: 'search',
-                orbitParentKey: 'category',
-                orbitFormManager: _formManager,
-                controller: _searchController,
-                isCompact: true,
-                hintText: 'Search items...',
-                isLocal: false,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a search query';
-                  }
-                  return null;
-                },
-                onSearch: _mockSearch,
-              ),
-              SizedBox(height: 16.h),
-              OrbitTextInput(
-                controller: _textController,
-                isCompact: true,
-                hintText: 'Enter your name',
-                leftIcon: Icons.person,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Name is required';
-                  }
-                  if (value.length < 3) {
-                    return 'Name must be at least 3 characters';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  print('Text input: $value');
-                },
-              ),
-              SizedBox(height: 16.h),
-              OrbitTextArea(
-                controller: _descriptionController,
-                isCompact: true,
-                hintText: 'Enter a description',
-                leftIcon: Icons.description,
-                minLines: 3,
-                maxLines: 5,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Description is required';
-                  }
-                  if (value.length < 10) {
-                    return 'Description must be at least 10 characters';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  print('Description: $value');
-                },
-              ),
-              SizedBox(height: 16.h),
-              OrbitDateInput(
-                controller: _dateController,
-                isCompact: true,
-                hintText: 'Select a date',
-                labelText: 'Event Date',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a date';
-                  }
-                  return null;
-                },
-                onDateSelected: (date) {
-                  print('Date selected: $date');
-                },
-                firstDate: DateTime(2020),
-                lastDate: DateTime(2030),
-              ),
-              SizedBox(height: 16.h),
-              OrbitTimeInput(
-                controller: _timeController,
-                isCompact: true,
-                hintText: 'Select a time',
-                labelText: 'Event Time',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a time';
-                  }
-                  return null;
-                },
-                onTimeSelected: (time) {
-                  print('Time selected: ${time.format(context)}');
-                },
-                initialTime: const TimeOfDay(hour: 12, minute: 0),
-              ),
-              SizedBox(height: 16.h),
-              OrbitFileInput(
-                controller: _fileController,
-                isCompact: true,
-                hintText: 'Select an image or PDF',
-                labelText: 'Upload File',
-                allowedMimeTypes: ['image/*', 'application/pdf'],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please upload a file';
-                  }
-                  return null;
-                },
-                onFileUploaded: (result, file) {
-                  print('File uploaded: ${result.name}, S3 Key: ${result.s3Key}, Type: ${result.type}, Progress: ${result.progress}');
-                },
-              ),
-              SizedBox(height: 16.h),
-              OrbitDropdown<DropdownOption>(
-                orbitKey: 'category',
-                options: _categoryOptions,
-                isCompact: true,
-                controller: _categoryController,
-                hintText: 'Select a category',
-                orbitFormManager: _formManager,
-                validator: (value) {
-                  if (value == null) {
-                    return 'Please select a category';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  print('Category selected: ${value?.title}');
-                },
-              ),
-              SizedBox(height: 16.h),
-              OrbitMultiSelectDropdown<DropdownOption>(
-                orbitKey: 'subcategory',
-                orbitParentKey: 'category',
-                data: (p) => _fetchSubCategories(p),
-                options: const [],
-                isCompact: true,
-                controller: _subCategoryController,
-                hintText: 'Select subcategories',
-                orbitFormManager: _formManager,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select at least one subcategory';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  print('Subcategories selected: ${value.map((e) => e.title).join(', ')}');
-                },
-              ),
-              SizedBox(height: 24.h),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    print('Form is valid');
-                    print('Search Query: ${_searchController.text}');
-                    print('Name: ${_textController.text}');
-                    print('Description: ${_descriptionController.text}');
-                    print('Date: ${_dateController.text}');
-                    print('Time: ${_timeController.text}');
-                    print('File S3 Key: ${_fileController.text}');
-                    print('Category: ${_categoryController.text}');
-                    print('Subcategories: ${_subCategoryController.text}');
-                  } else {
-                    print('Form has errors');
-                  }
-                },
-                child: const Text('Submit'),
-              ),
-            ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                OrbitSearchInput(
+                  orbitKey: 'search',
+                  orbitParentKey: 'category',
+                  orbitFormManager: _formManager,
+                  controller: _searchController,
+                  isCompact: true,
+                  hintText: 'Search items...',
+                  labelText: 'Search Query',
+                  isLocal: false,
+                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                  verticalMargin: 8.h,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a search query';
+                    }
+                    return null;
+                  },
+                  onSearch: _mockSearch,
+                ),
+                SizedBox(height: 16.h),
+                OrbitTextInput(
+                  controller: _textController,
+                  isCompact: true,
+                  hintText: 'Enter your name',
+                  labelText: 'Event Name',
+                  leftIcon: Icons.person,
+                  padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 12.w),
+                  verticalMargin: 10.h,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Name is required';
+                    }
+                    if (value.length < 3) {
+                      return 'Name must be at least 3 characters';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    print('Text input: $value');
+                  },
+                ),
+                SizedBox(height: 16.h),
+                OrbitTextArea(
+                  controller: _descriptionController,
+                  isCompact: true,
+                  hintText: 'Enter a description',
+                  labelText: 'Event Description',
+                  leftIcon: Icons.description,
+                  minLines: 3,
+                  maxLines: 5,
+                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                  verticalMargin: 8.h,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Description is required';
+                    }
+                    if (value.length < 10) {
+                      return 'Description must be at least 10 characters';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    print('Description: $value');
+                  },
+                ),
+                SizedBox(height: 16.h),
+                OrbitDateInput(
+                  controller: _dateController,
+                  isCompact: true,
+                  hintText: 'Select a date',
+                  labelText: 'Event Date',
+                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                  verticalMargin: 8.h,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a date';
+                    }
+                    return null;
+                  },
+                  onDateSelected: (date) {
+                    print('Date selected: $date');
+                  },
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
+                ),
+                SizedBox(height: 16.h),
+                OrbitTimeInput(
+                  controller: _timeController,
+                  isCompact: true,
+                  hintText: 'Select a time',
+                  labelText: 'Event Time',
+                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                  verticalMargin: 8.h,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a time';
+                    }
+                    return null;
+                  },
+                  onTimeSelected: (time) {
+                    print('Time selected: ${time.format(context)}');
+                  },
+                  initialTime: const TimeOfDay(hour: 12, minute: 0),
+                ),
+                SizedBox(height: 16.h),
+                OrbitFileInput(
+                  controller: _fileController,
+                  isCompact: true,
+                  hintText: 'Select an image or PDF',
+                  labelText: 'Event Document',
+                  allowedMimeTypes: ['image/*', 'application/pdf'],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please upload a file';
+                    }
+                    return null;
+                  },
+                  onFileUploaded: (result, file) {
+                    print('File uploaded: ${result.name}, S3 Key: ${result.s3Key}, Type: ${result.type}, Progress: ${result.progress}');
+                  },
+                ),
+                SizedBox(height: 16.h),
+                OrbitDropdown<DropdownOption>(
+                  orbitKey: 'category',
+                  options: _categoryOptions,
+                  isCompact: true,
+                  controller: _categoryController,
+                  hintText: 'Select a category',
+                  labelText: 'Category',
+                  orbitFormManager: _formManager,
+                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                  verticalMargin: 8.h,
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select a category';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    print('Category selected: ${value?.title}');
+                  },
+                ),
+                SizedBox(height: 16.h),
+                OrbitMultiSelectDropdown<DropdownOption>(
+                  orbitKey: 'subcategory',
+                  orbitParentKey: 'category',
+                  data: (p) => _fetchSubCategories(p),
+                  options: const [],
+                  isCompact: true,
+                  controller: _subCategoryController,
+                  hintText: 'Select subcategories',
+                  labelText: 'Subcategories',
+                  orbitFormManager: _formManager,
+                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                  verticalMargin: 8.h,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select at least one subcategory';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    print('Subcategories selected: ${value.map((e) => e.title).join(', ')}');
+                  },
+                ),
+                SizedBox(height: 24.h),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      print('Form is valid');
+                      print('Search Query: ${_searchController.text}');
+                      print('Name: ${_textController.text}');
+                      print('Description: ${_descriptionController.text}');
+                      print('Date: ${_dateController.text}');
+                      print('Time: ${_timeController.text}');
+                      print('File S3 Key: ${_fileController.text}');
+                      print('Category: ${_categoryController.text}');
+                      print('Subcategories: ${_subCategoryController.text}');
+                    } else {
+                      print('Form has errors');
+                    }
+                  },
+                  child: const Text('Submit'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

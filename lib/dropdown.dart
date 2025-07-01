@@ -19,6 +19,8 @@ class OrbitDropdown<T extends DropdownOption> extends StatefulWidget {
   final double borderRadius;
   final ValueChanged<T?>? onChanged;
   final bool isCompact;
+  final EdgeInsetsGeometry? padding;
+  final double? verticalMargin;
 
   const OrbitDropdown({
     required this.orbitKey,
@@ -33,6 +35,8 @@ class OrbitDropdown<T extends DropdownOption> extends StatefulWidget {
     this.borderRadius = 12.0,
     this.onChanged,
     this.isCompact = false,
+    this.padding,
+    this.verticalMargin,
     super.key,
   });
 
@@ -229,7 +233,7 @@ class _OrbitDropdownState<T extends DropdownOption> extends State<OrbitDropdown<
       child: Container(
         key: _inputKey,
         decoration: BoxDecoration(color: Colors.grey[300], border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5), width: borderWidth), borderRadius: BorderRadius.circular(widget.borderRadius.r)),
-        padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
+        padding: widget.padding ?? EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
         child: Row(
           children: [
             CircleAvatar(radius: avatarRadius, backgroundColor: Colors.grey[300]),
@@ -263,93 +267,99 @@ class _OrbitDropdownState<T extends DropdownOption> extends State<OrbitDropdown<
     final errorPadding = isCompact ? 3.h : 4.h;
     final borderWidth = isCompact ? 1.1.w : 1.2.w;
 
-    return FormField<T>(
-      key: _fieldKey,
-      validator:
-          widget.validator ??
-          (value) {
-            if (_selectedOption == null) {
-              return 'Please select an option';
-            }
-            return null;
-          },
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      builder: (FormFieldState<T> field) {
-        _hasError = field.hasError;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            InkWell(
-              onTap: () {
-                if (_overlayEntry == null) {
-                  _showDropdown();
-                } else {
-                  _removeOverlay();
-                }
-                if (mounted) {
-                  setState(() {
-                    _hasError = false;
-                    field.didChange(_selectedOption);
-                  });
-                }
-              },
-              child: Container(
-                key: _inputKey,
-                decoration: BoxDecoration(
-                  color: _focusNode.hasFocus || _selectedOption != null ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                  border: Border.all(
-                    color:
-                        _hasError
-                            ? Theme.of(context).colorScheme.error
-                            : _focusNode.hasFocus || _selectedOption != null
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
-                    width: borderWidth,
-                  ),
-                  borderRadius: BorderRadius.circular(widget.borderRadius.r),
-                ),
-                padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.verticalMargin ?? 0),
+      child: FormField<T>(
+        key: _fieldKey,
+        validator:
+            widget.validator ??
+            (value) {
+              if (_selectedOption == null) {
+                return 'Please select an option';
+              }
+              return null;
+            },
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        builder: (FormFieldState<T> field) {
+          _hasError = field.hasError;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.labelText != null)
+                Column(
                   children: [
-                    if (widget.labelText != null)
-                      Text(widget.labelText!, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _hasError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant, fontSize: labelFontSize)),
-                    Row(
-                      children: [
-                        if (_selectedOption != null && _selectedOption!.profileImageUrl != null)
-                          Padding(
-                            padding: EdgeInsets.only(right: 8.w),
-                            child: CircleAvatar(radius: avatarRadius, backgroundImage: NetworkImage(_selectedOption!.profileImageUrl!), onBackgroundImageError: (_, __) => Icon(Icons.error, size: avatarRadius)),
-                          ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _selectedOption?.title ?? (widget.hintText ?? 'Choose an option'),
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w400,
-                                  color: _selectedOption == null ? Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(_focusNode.hasFocus ? 0.9 : 0.7) : Theme.of(context).colorScheme.onSurface,
-                                  fontSize: textFontSize,
-                                ),
-                              ),
-                              if (_selectedOption != null && _selectedOption!.subtitle != null)
-                                Text(_selectedOption!.subtitle!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: subtitleFontSize)),
-                            ],
-                          ),
-                        ),
-                        Icon(_overlayEntry != null ? Icons.arrow_drop_up : Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize),
-                      ],
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(widget.labelText!, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _hasError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant, fontSize: labelFontSize)),
                     ),
+                    SizedBox(height: 4.h), // Small spacing between label and input
                   ],
                 ),
+              InkWell(
+                onTap: () {
+                  if (_overlayEntry == null) {
+                    _showDropdown();
+                  } else {
+                    _removeOverlay();
+                  }
+                  if (mounted) {
+                    setState(() {
+                      _hasError = false;
+                      field.didChange(_selectedOption);
+                    });
+                  }
+                },
+                child: Container(
+                  key: _inputKey,
+                  decoration: BoxDecoration(
+                    color: _focusNode.hasFocus || _selectedOption != null ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                    border: Border.all(
+                      color:
+                          _hasError
+                              ? Theme.of(context).colorScheme.error
+                              : _focusNode.hasFocus || _selectedOption != null
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+                      width: borderWidth,
+                    ),
+                    borderRadius: BorderRadius.circular(widget.borderRadius.r),
+                  ),
+                  padding: widget.padding ?? EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
+                  child: Row(
+                    children: [
+                      if (_selectedOption != null && _selectedOption!.profileImageUrl != null)
+                        Padding(
+                          padding: EdgeInsets.only(right: 8.w),
+                          child: CircleAvatar(radius: avatarRadius, backgroundImage: NetworkImage(_selectedOption!.profileImageUrl!), onBackgroundImageError: (_, __) => Icon(Icons.error, size: avatarRadius)),
+                        ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _selectedOption?.title ?? (widget.hintText ?? 'Choose an option'),
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w400,
+                                color: _selectedOption == null ? Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(_focusNode.hasFocus ? 0.9 : 0.7) : Theme.of(context).colorScheme.onSurface,
+                                fontSize: textFontSize,
+                              ),
+                            ),
+                            if (_selectedOption != null && _selectedOption!.subtitle != null)
+                              Text(_selectedOption!.subtitle!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: subtitleFontSize)),
+                          ],
+                        ),
+                      ),
+                      Icon(_overlayEntry != null ? Icons.arrow_drop_up : Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            if (_hasError && field.errorText != null)
-              Padding(padding: EdgeInsets.only(top: errorPadding, left: 12.w), child: Text(field.errorText!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: errorFontSize))),
-          ],
-        );
-      },
+              if (_hasError && field.errorText != null)
+                Padding(padding: EdgeInsets.only(top: errorPadding, left: 12.w), child: Text(field.errorText!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: errorFontSize))),
+            ],
+          );
+        },
+      ),
     );
   }
 }
