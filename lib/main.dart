@@ -5,9 +5,11 @@ import 'package:flutter_test_app/dropdown.dart' show OrbitDropdown, DropdownOpti
 import 'package:flutter_test_app/file-input.dart';
 import 'package:flutter_test_app/orbit-multi-select.dart';
 import 'package:flutter_test_app/orbit-time.dart';
+import 'package:flutter_test_app/phone_input.dart';
 import 'package:flutter_test_app/search-input.dart';
 import 'package:flutter_test_app/text-input.dart';
 import 'package:flutter_test_app/text-area.dart';
+import 'package:flutter_test_app/under-development.dart';
 import 'package:flutter_test_app/utils.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
           home: child,
         );
       },
-      child: const TestFormScreen(),
+      child: const ProgressScreen(),
     );
   }
 }
@@ -58,6 +60,7 @@ class _TestFormScreenState extends State<TestFormScreen> {
   final _descriptionController = TextEditingController(text: 'Lorem ipsum dolor sit amet');
   final _dateController = TextEditingController();
   final _timeController = TextEditingController();
+  final _phoneController = TextEditingController(text: '2025550123'); // Sample phone number without country code
   final _fileController = TextEditingController();
   final _searchController = TextEditingController(text: "1");
   final _categoryController = TextEditingController(text: 'electronics');
@@ -122,6 +125,7 @@ class _TestFormScreenState extends State<TestFormScreen> {
     _descriptionController.dispose();
     _dateController.dispose();
     _timeController.dispose();
+    _phoneController.dispose();
     _fileController.dispose();
     _searchController.dispose();
     _categoryController.dispose();
@@ -163,9 +167,9 @@ class _TestFormScreenState extends State<TestFormScreen> {
                 OrbitTextInput(
                   controller: _textController,
                   isCompact: true,
-                  hintText: 'Enter your name',
+                  hintText: 'Enter event name',
                   labelText: 'Event Name',
-                  leftIcon: Icons.person,
+                  leftIcon: Icons.event,
                   padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 12.w),
                   verticalMargin: 10.h,
                   validator: (value) {
@@ -178,7 +182,7 @@ class _TestFormScreenState extends State<TestFormScreen> {
                     return null;
                   },
                   onChanged: (value) {
-                    print('Text input: $value');
+                    print('Event Name: $value');
                   },
                 ),
                 SizedBox(height: 16.h),
@@ -243,6 +247,24 @@ class _TestFormScreenState extends State<TestFormScreen> {
                     print('Time selected: ${time.format(context)}');
                   },
                   initialTime: const TimeOfDay(hour: 12, minute: 0),
+                ),
+                SizedBox(height: 16.h),
+                OrbitPhoneInput(
+                  controller: _phoneController,
+                  isCompact: true,
+                  hintText: 'Enter phone number',
+                  labelText: 'Contact Number',
+                  padding: EdgeInsets.symmetric(vertical: 3.h, horizontal: 12.w),
+                  verticalMargin: 8.h,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a phone number';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    print('Phone Number: $value');
+                  },
                 ),
                 SizedBox(height: 16.h),
                 OrbitFileInput(
@@ -311,10 +333,11 @@ class _TestFormScreenState extends State<TestFormScreen> {
                     if (_formKey.currentState!.validate()) {
                       print('Form is valid');
                       print('Search Query: ${_searchController.text}');
-                      print('Name: ${_textController.text}');
+                      print('Event Name: ${_textController.text}');
                       print('Description: ${_descriptionController.text}');
                       print('Date: ${_dateController.text}');
                       print('Time: ${_timeController.text}');
+                      print('Phone Number: ${_phoneController.text}');
                       print('File S3 Key: ${_fileController.text}');
                       print('Category: ${_categoryController.text}');
                       print('Subcategories: ${_subCategoryController.text}');
