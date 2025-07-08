@@ -44,6 +44,46 @@ class _OrbitPhoneInputState extends State<OrbitPhoneInput> {
     CountryCode(code: '+81', country: 'Japan', flag: '🇯🇵'),
   ];
 
+  // Country-specific phone number length validation
+  String? _defaultValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a phone number';
+    }
+    final phoneNumber = value.replaceFirst(RegExp(r'^\+\d+'), '').trim();
+    switch (_selectedCountryCode.code) {
+      case '+1': // United States: 10 digits
+        if (phoneNumber.length != 10) {
+          return 'US phone number must be 10 digits';
+        }
+        break;
+      case '+44': // United Kingdom: 10 digits
+        if (phoneNumber.length != 10) {
+          return 'UK phone number must be 10 digits';
+        }
+        break;
+      case '+91': // India: 10 digits
+        if (phoneNumber.length != 10) {
+          return 'Indian phone number must be 10 digits';
+        }
+        break;
+      case '+86': // China: 11 digits
+        if (phoneNumber.length != 11) {
+          return 'Chinese phone number must be 11 digits';
+        }
+        break;
+      case '+81': // Japan: 10 digits
+        if (phoneNumber.length != 10) {
+          return 'Japanese phone number must be 10 digits';
+        }
+        break;
+      default:
+        if (phoneNumber.length < 7) {
+          return 'Phone number must be at least 7 digits';
+        }
+    }
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -51,15 +91,15 @@ class _OrbitPhoneInputState extends State<OrbitPhoneInput> {
     if (widget.controller.text.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          _fieldKey.currentState?.didChange(widget.controller.text);
-          setState(() {
-            _hasError = _fieldKey.currentState?.hasError ?? false;
-          });
-          // Extract country code from initial value if present
           final initialValue = widget.controller.text;
           final matchedCode = _countryCodes.firstWhere((code) => initialValue.startsWith(code.code), orElse: () => _countryCodes.first);
-          _selectedCountryCode = matchedCode;
-          widget.controller.text = initialValue.replaceFirst(RegExp(r'^\+\d+'), '').trim();
+          setState(() {
+            _selectedCountryCode = matchedCode;
+            // Keep full number in controller
+            widget.controller.text = initialValue;
+            _fieldKey.currentState?.didChange(initialValue);
+            _hasError = _fieldKey.currentState?.hasError ?? false;
+          });
         }
       });
     }
@@ -72,7 +112,7 @@ class _OrbitPhoneInputState extends State<OrbitPhoneInput> {
       if (_hasError && mounted) {
         setState(() {
           _hasError = false;
-          _fieldKey.currentState?.didChange(_getFullPhoneNumber());
+          _fieldKey.currentState?.didChange(widget.controller.text);
         });
       }
     });
@@ -85,8 +125,14 @@ class _OrbitPhoneInputState extends State<OrbitPhoneInput> {
     super.dispose();
   }
 
-  String _getFullPhoneNumber() {
-    return '${_selectedCountryCode.code} ${widget.controller.text}'.trim();
+  String _getDisplayPhoneNumber() {
+    // Display only the digits after the country code
+    return widget.controller.text.replaceFirst(RegExp(r'^\+\d+'), '').trim();
+  }
+
+  void _updateControllerWithCountryCode(CountryCode newCountryCode) {
+    final currentPhoneNumber = widget.controller.text.replaceFirst(RegExp(r'^\+\d+'), '').trim();
+    widget.controller.text = '${newCountryCode.code}$currentPhoneNumber';
   }
 
   void _showCountryCodePicker() {
@@ -136,9 +182,10 @@ class _OrbitPhoneInputState extends State<OrbitPhoneInput> {
                               if (mounted) {
                                 setState(() {
                                   _selectedCountryCode = countryCode;
+                                  _updateControllerWithCountryCode(countryCode);
                                   _hasError = false;
-                                  _fieldKey.currentState?.didChange(_getFullPhoneNumber());
-                                  widget.onChanged?.call(_getFullPhoneNumber());
+                                  _fieldKey.currentState?.didChange(widget.controller.text);
+                                  widget.onChanged?.call(widget.controller.text);
                                 });
                               }
                               _removeOverlay();
@@ -183,17 +230,7 @@ class _OrbitPhoneInputState extends State<OrbitPhoneInput> {
       padding: EdgeInsets.symmetric(vertical: widget.verticalMargin ?? 0),
       child: FormField<String>(
         key: _fieldKey,
-        validator:
-            widget.validator ??
-            (value) {
-              if (value == null || value.isEmpty || value.trim() == _selectedCountryCode.code) {
-                return 'Please enter a phone number';
-              }
-              if (value.replaceFirst(RegExp(r'^\+\d+'), '').trim().length < 7) {
-                return 'Phone number must be at least 7 digits';
-              }
-              return null;
-            },
+        validator: widget.validator ?? _defaultValidator,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         builder: (FormFieldState<String> field) {
           _hasError = field.hasError;
@@ -256,10 +293,19 @@ class _OrbitPhoneInputState extends State<OrbitPhoneInput> {
                           contentPadding: EdgeInsets.zero,
                         ),
                         onChanged: (value) {
-                          widget.onChanged?.call(_getFullPhoneNumber());
-                          field.didChange(_getFullPhoneNumber());
+                          // Prepend country code when user types
+                          final newValue = value.startsWith(_selectedCountryCode.code) ? value : '${_selectedCountryCode.code}$value';
+                          if (newValue != widget.controller.text) {
+                            widget.controller.text = newValue;
+                            widget.controller.selection = TextSelection.collapsed(offset: newValue.length);
+                          }
+                          widget.onChanged?.call(newValue);
+                          field.didChange(newValue);
                         },
                         onTapOutside: (event) => _focusNode.unfocus(),
+                        inputFormatters: [
+                          // Optional: Add a formatter to prevent manual country code edits if needed
+                        ],
                       ),
                     ),
                   ],

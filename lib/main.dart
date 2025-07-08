@@ -5,11 +5,11 @@ import 'package:flutter_test_app/dropdown.dart' show OrbitDropdown, DropdownOpti
 import 'package:flutter_test_app/file-input.dart';
 import 'package:flutter_test_app/orbit-multi-select.dart';
 import 'package:flutter_test_app/orbit-time.dart';
+import 'package:flutter_test_app/password.widget.dart';
 import 'package:flutter_test_app/phone_input.dart';
 import 'package:flutter_test_app/search-input.dart';
 import 'package:flutter_test_app/text-input.dart';
 import 'package:flutter_test_app/text-area.dart';
-import 'package:flutter_test_app/under-development.dart';
 import 'package:flutter_test_app/utils.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
           home: child,
         );
       },
-      child: const ProgressScreen(),
+      child: const TestFormScreen(),
     );
   }
 }
@@ -60,9 +60,10 @@ class _TestFormScreenState extends State<TestFormScreen> {
   final _descriptionController = TextEditingController(text: 'Lorem ipsum dolor sit amet');
   final _dateController = TextEditingController();
   final _timeController = TextEditingController();
-  final _phoneController = TextEditingController(text: '2025550123'); // Sample phone number without country code
+  final _phoneController = TextEditingController(text: '+12025550123'); // Full phone number with country code
+  final _passwordController = TextEditingController(text: 'Password123!');
   final _fileController = TextEditingController();
-  final _searchController = TextEditingController(text: "1");
+  final _searchController = TextEditingController(text: '1');
   final _categoryController = TextEditingController(text: 'electronics');
   final _subCategoryController = TextEditingController(text: 'smartphones,laptops');
   final _formManager = OrbitFormManager();
@@ -126,6 +127,7 @@ class _TestFormScreenState extends State<TestFormScreen> {
     _dateController.dispose();
     _timeController.dispose();
     _phoneController.dispose();
+    _passwordController.dispose();
     _fileController.dispose();
     _searchController.dispose();
     _categoryController.dispose();
@@ -254,16 +256,23 @@ class _TestFormScreenState extends State<TestFormScreen> {
                   isCompact: true,
                   hintText: 'Enter phone number',
                   labelText: 'Contact Number',
-                  padding: EdgeInsets.symmetric(vertical: 3.h, horizontal: 12.w),
+                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
                   verticalMargin: 8.h,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a phone number';
-                    }
-                    return null;
-                  },
                   onChanged: (value) {
                     print('Phone Number: $value');
+                  },
+                ),
+                SizedBox(height: 16.h),
+                OrbitPasswordInput(
+                  controller: _passwordController,
+                  isCompact: true,
+                  hintText: 'Enter password',
+                  labelText: 'Password',
+                  leftIcon: Icons.lock,
+                  padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
+                  verticalMargin: 8.h,
+                  onChanged: (value) {
+                    print('Password: $value');
                   },
                 ),
                 SizedBox(height: 16.h),
@@ -338,6 +347,7 @@ class _TestFormScreenState extends State<TestFormScreen> {
                       print('Date: ${_dateController.text}');
                       print('Time: ${_timeController.text}');
                       print('Phone Number: ${_phoneController.text}');
+                      print('Password: ${_passwordController.text}');
                       print('File S3 Key: ${_fileController.text}');
                       print('Category: ${_categoryController.text}');
                       print('Subcategories: ${_subCategoryController.text}');
