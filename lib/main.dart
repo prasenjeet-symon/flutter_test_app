@@ -8,6 +8,7 @@ import 'package:flutter_test_app/orbit-time.dart';
 import 'package:flutter_test_app/password.widget.dart';
 import 'package:flutter_test_app/phone_input.dart';
 import 'package:flutter_test_app/search-input.dart';
+import 'package:flutter_test_app/test/japa_history.dart';
 import 'package:flutter_test_app/text-input.dart';
 import 'package:flutter_test_app/text-area.dart';
 import 'package:flutter_test_app/utils.dart';
@@ -42,7 +43,36 @@ class MyApp extends StatelessWidget {
           home: child,
         );
       },
-      child: const TestFormScreen(),
+      child: JapaHistoryScreen(
+        defaultDateRange: DateTimeRange(start: DateTime.now().subtract(const Duration(days: 7)), end: DateTime.now()),
+        transactions: [
+          MalaTransaction(startDateTime: DateTime(2023, 8, 1, 9, 0), endDateTime: DateTime(2023, 8, 1, 11, 0), malaCount: 5, id: '1'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 2, 9, 0), endDateTime: DateTime(2023, 8, 2, 11, 0), malaCount: 10, id: '2'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 3, 9, 0), endDateTime: DateTime(2023, 8, 3, 11, 0), malaCount: 15, id: '3'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 4, 9, 0), endDateTime: DateTime(2023, 8, 4, 11, 0), malaCount: 20, id: '4'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 5, 9, 0), endDateTime: DateTime(2023, 8, 5, 11, 0), malaCount: 25, id: '5'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 6, 9, 0), endDateTime: DateTime(2023, 8, 6, 11, 0), malaCount: 30, id: '6'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 7, 9, 0), endDateTime: DateTime(2023, 8, 7, 11, 0), malaCount: 35, id: '7'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 8, 9, 0), endDateTime: DateTime(2023, 8, 8, 11, 0), malaCount: 40, id: '8'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 9, 9, 0), endDateTime: DateTime(2023, 8, 9, 11, 0), malaCount: 45, id: '9'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 10, 9, 0), endDateTime: DateTime(2023, 8, 10, 11, 0), malaCount: 50, id: '10'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 11, 9, 0), endDateTime: DateTime(2023, 8, 11, 11, 0), malaCount: 55, id: '11'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 12, 9, 0), endDateTime: DateTime(2023, 8, 12, 11, 0), malaCount: 60, id: '12'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 13, 9, 0), endDateTime: DateTime(2023, 8, 13, 11, 0), malaCount: 65, id: '13'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 14, 9, 0), endDateTime: DateTime(2023, 8, 14, 11, 0), malaCount: 70, id: '14'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 15, 9, 0), endDateTime: DateTime(2023, 8, 15, 11, 0), malaCount: 75, id: '15'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 16, 9, 0), endDateTime: DateTime(2023, 8, 16, 11, 0), malaCount: 80, id: '16'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 17, 9, 0), endDateTime: DateTime(2023, 8, 17, 11, 0), malaCount: 85, id: '17'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 18, 9, 0), endDateTime: DateTime(2023, 8, 18, 11, 0), malaCount: 90, id: '18'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 19, 9, 0), endDateTime: DateTime(2023, 8, 19, 11, 0), malaCount: 95, id: '19'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 20, 9, 0), endDateTime: DateTime(2023, 8, 20, 11, 0), malaCount: 100, id: '20'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 21, 9, 0), endDateTime: DateTime(2023, 8, 21, 11, 0), malaCount: 105, id: '21'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 22, 9, 0), endDateTime: DateTime(2023, 8, 22, 11, 0), malaCount: 110, id: '22'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 23, 9, 0), endDateTime: DateTime(2023, 8, 23, 11, 0), malaCount: 115, id: '23'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 24, 9, 0), endDateTime: DateTime(2023, 8, 24, 11, 0), malaCount: 120, id: '24'),
+          MalaTransaction(startDateTime: DateTime(2023, 8, 25, 9, 0), endDateTime: DateTime(2023, 8, 25, 11, 0), malaCount: 125, id: '25'),
+        ],
+      ),
     );
   }
 }
