@@ -240,8 +240,42 @@ class DashboardController extends GetxController {
     } else {
       selectedIndex.value = index;
       isExpanded.value = true;
-      currentTabId.value = tabConfig[index]!['id'] as int;
-      currentChildId.value = tabConfig[index]!['children']![0]['routeId'] as int;
+
+      // Safely access tabConfig
+      final tab = tabConfig[index];
+      if (tab == null) {
+        print('Error: tabConfig[$index] is null');
+        return;
+      }
+
+      // Handle 'id'
+      final tabId = tab['id'];
+      if (tabId is String) {
+        currentTabId.value = int.tryParse(tabId) ?? 0; // Fallback to 0 if parsing fails
+      } else if (tabId is int) {
+        currentTabId.value = tabId; // Already an int
+      } else {
+        print('Error: tabConfig[$index]["id"] is of type ${tabId.runtimeType}, expected String or int');
+        currentTabId.value = 0; // Fallback
+      }
+
+      // Handle 'children' and 'routeId'
+      final children = tab['children'] as List<dynamic>?;
+      if (children == null || children.isEmpty) {
+        print('Error: tabConfig[$index]["children"] is null or empty');
+        currentChildId.value = 0; // Fallback
+        return;
+      }
+
+      final childRouteId = children[0]['routeId'];
+      if (childRouteId is String) {
+        currentChildId.value = int.tryParse(childRouteId) ?? 0; // Fallback to 0 if parsing fails
+      } else if (childRouteId is int) {
+        currentChildId.value = childRouteId; // Already an int
+      } else {
+        print('Error: tabConfig[$index]["children"][0]["routeId"] is of type ${childRouteId.runtimeType}, expected String or int');
+        currentChildId.value = 0; // Fallback
+      }
     }
   }
 
@@ -254,6 +288,7 @@ class DashboardController extends GetxController {
   }
 
   void selectChildRoute(String route, String idString, String routeId) {
+    print('Selected Child Route: $route, ID: $idString, Route ID: $routeId');
     isExpanded.value = false;
     final id = int.parse(idString); // Convert string ID to int
     final routeIdInt = int.parse(routeId);
