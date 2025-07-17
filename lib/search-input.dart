@@ -2,24 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_test_app/aws-image.dart';
 import 'package:flutter_test_app/utils.dart';
-
-class SearchResult {
-  final String id;
-  final String title;
-  final String? subtitle;
-  final String? profilePicture;
-  final bool? isVerified;
-  final dynamic data;
-
-  SearchResult({required this.id, required this.title, this.subtitle, this.profilePicture, this.isVerified, this.data});
-
-  Map<String, dynamic> toJson() => {'id': id, 'title': title, 'subtitle': subtitle, 'profilePicture': profilePicture, 'isVerified': isVerified, 'GMT': data is String ? data : jsonEncode(data)};
-
-  static SearchResult fromJson(Map<String, dynamic> json) =>
-      SearchResult(id: json['id'] as String, title: json['title'] as String, subtitle: json['subtitle'] as String?, profilePicture: json['profilePicture'] as String?, isVerified: json['isVerified'] as bool?, data: json['data']);
-}
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrbitSearchInput<T extends SearchResult> extends StatefulWidget {
   final String orbitKey;
@@ -35,6 +20,10 @@ class OrbitSearchInput<T extends SearchResult> extends StatefulWidget {
   final Future<List<T>> Function(String) onSearch;
   final EdgeInsetsGeometry? padding;
   final double? verticalMargin;
+  final VoidCallback? onFocused;
+  final VoidCallback? onBlur;
+  final IconData? leftIcon;
+  final ValueChanged<T?>? onChanged;
 
   const OrbitSearchInput({
     super.key,
@@ -51,6 +40,10 @@ class OrbitSearchInput<T extends SearchResult> extends StatefulWidget {
     required this.onSearch,
     this.padding,
     this.verticalMargin,
+    this.onFocused,
+    this.onBlur,
+    this.leftIcon = Icons.search,
+    this.onChanged,
   });
 
   @override
@@ -62,7 +55,6 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
   final _fieldKey = GlobalKey<FormFieldState<String>>();
   final _inputKey = GlobalKey();
   bool _hasError = false;
-  bool _isSearching = false;
   List<T> _searchResults = [];
   List<T> _allResults = [];
   Timer? _debounceTimer;
@@ -72,6 +64,7 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
   T? _selectedResult;
   AnimationController? _animationController;
   Animation<double>? _borderOpacityAnimation;
+  Timer? _overlayDelayTimer;
 
   @override
   void initState() {
@@ -87,21 +80,29 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
     } else {
       widget.orbitFormManager?.set(widget.orbitKey, null);
     }
-    if (widget.isLocal || widget.orbitParentKey != null) {
+    // Load initial data for isLocal: true in initState
+    if (widget.isLocal && widget.orbitParentKey == null) {
       _initializeData();
+    }
+    // Subscribe to parent changes for parent-dependent inputs
+    if (widget.orbitParentKey != null) {
+      _subscribeToParent();
     }
     _focusNode.addListener(() {
       if (mounted) {
-        if (_focusNode.hasFocus && !_isResultSelected) {
-          if (widget.isLocal && _allResults.isNotEmpty && widget.controller.text.isEmpty) {
+        if (_focusNode.hasFocus) {
+          widget.onFocused?.call();
+          if (_allResults.isNotEmpty && widget.controller.text.isEmpty) {
             setState(() {
               _searchResults = _allResults;
             });
-            _showOverlay();
-          } else if (_searchResults.isNotEmpty) {
-            _showOverlay();
+            _delayedShowOverlay();
+          } else if (_searchResults.isNotEmpty || widget.controller.text.isNotEmpty) {
+            _delayedShowOverlay();
           }
         } else {
+          widget.onBlur?.call();
+          _cancelOverlayDelay();
           _hideOverlay();
         }
         setState(() {});
@@ -140,6 +141,7 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
           _selectedResult = initialResult;
         });
         widget.orbitFormManager?.set(widget.orbitKey, initialResult);
+        widget.onChanged?.call(initialResult);
       } else {
         widget.controller.clear();
         _fieldKey.currentState?.didChange('');
@@ -149,53 +151,54 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
           _selectedResult = null;
         });
         widget.orbitFormManager?.set(widget.orbitKey, null);
+        widget.onChanged?.call(null);
       }
     }
   }
 
-  void _initializeData() async {
-    if (widget.orbitParentKey != null && widget.orbitFormManager != null) {
-      if (mounted) {
-        setState(() => _isSearching = true);
-      }
+  void _subscribeToParent() {
+    if (widget.orbitFormManager != null && widget.orbitParentKey != null) {
       _parentSubscription = widget.orbitFormManager!.get(widget.orbitParentKey!).listen((parentValue) async {
         if (parentValue == null) {
           if (mounted) {
             setState(() {
               _searchResults = [];
               _allResults = [];
-              _isSearching = false;
+              _isResultSelected = false;
+              _selectedResult = null;
+              widget.controller.clear();
+              _fieldKey.currentState?.didChange('');
+              _hasError = _fieldKey.currentState?.hasError ?? false;
             });
+            widget.orbitFormManager?.set(widget.orbitKey, null);
+            widget.onChanged?.call(null);
             _hideOverlay();
           }
-        } else {
-          if (mounted) {
-            setState(() => _isSearching = true);
-          }
+        } else if (widget.isLocal) {
           final results = await widget.onSearch('');
           if (mounted) {
             setState(() {
               _allResults = results;
               _searchResults = results;
-              _isSearching = false;
             });
             if (_focusNode.hasFocus && !_isResultSelected) {
-              _showOverlay();
+              _delayedShowOverlay();
             }
           }
         }
       });
-    } else if (widget.isLocal) {
-      if (mounted) {
-        setState(() => _isSearching = true);
-      }
-      final results = await widget.onSearch('');
-      if (mounted) {
-        setState(() {
-          _allResults = results;
-          _searchResults = results;
-          _isSearching = false;
-        });
+    }
+  }
+
+  Future<void> _initializeData() async {
+    final results = await widget.onSearch('');
+    if (mounted) {
+      setState(() {
+        _allResults = results;
+        _searchResults = results;
+      });
+      if (_focusNode.hasFocus && !_isResultSelected) {
+        _delayedShowOverlay();
       }
     }
   }
@@ -207,7 +210,22 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
     _animationController?.dispose();
     _hideOverlay();
     _parentSubscription?.cancel();
+    _overlayDelayTimer?.cancel();
     super.dispose();
+  }
+
+  void _delayedShowOverlay() {
+    _cancelOverlayDelay();
+    _overlayDelayTimer = Timer(const Duration(seconds: 1), () {
+      if (mounted && _focusNode.hasFocus && !_isResultSelected) {
+        _showOverlay();
+      }
+    });
+  }
+
+  void _cancelOverlayDelay() {
+    _overlayDelayTimer?.cancel();
+    _overlayDelayTimer = null;
   }
 
   void _performSearch(String query) {
@@ -218,8 +236,10 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
         _selectedResult = null;
         _searchResults = widget.isLocal ? _allResults : [];
       });
+      widget.orbitFormManager?.set(widget.orbitKey, null);
+      widget.onChanged?.call(null);
       if (widget.isLocal && _allResults.isNotEmpty && _focusNode.hasFocus) {
-        _showOverlay();
+        _delayedShowOverlay();
       } else {
         _hideOverlay();
       }
@@ -227,20 +247,16 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
     }
     if (widget.isLocal && _allResults.isNotEmpty) {
       setState(() {
-        _isSearching = false;
-        _searchResults = _allResults.where((result) => result.title.toLowerCase().contains(query.toLowerCase()) || (result.subtitle?.toLowerCase().contains(query.toLowerCase()) ?? false)).toList();
+        _searchResults = query.isEmpty ? _allResults : _allResults.where((result) => result.title.toLowerCase().contains(query.toLowerCase()) || (result.subtitle?.toLowerCase().contains(query.toLowerCase()) ?? false)).toList();
       });
-      if (_focusNode.hasFocus && (_searchResults.isNotEmpty || query.isEmpty) && !_isResultSelected) {
-        _showOverlay();
+      if (_focusNode.hasFocus && !_isResultSelected) {
+        _delayedShowOverlay();
       } else {
         _hideOverlay();
       }
     } else {
       _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
         if (mounted) {
-          setState(() {
-            _isSearching = true;
-          });
           try {
             final results = await widget.onSearch(query);
             if (mounted) {
@@ -249,10 +265,9 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
                 if (widget.isLocal && query.isEmpty) {
                   _allResults = results;
                 }
-                _isSearching = false;
               });
-              if (_focusNode.hasFocus && _searchResults.isNotEmpty && !_isResultSelected) {
-                _showOverlay();
+              if (_focusNode.hasFocus && !_isResultSelected) {
+                _delayedShowOverlay();
               } else {
                 _hideOverlay();
               }
@@ -260,10 +275,13 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
           } catch (e) {
             if (mounted) {
               setState(() {
-                _isSearching = false;
                 _searchResults = [];
               });
-              _hideOverlay();
+              if (_focusNode.hasFocus && !_isResultSelected) {
+                _delayedShowOverlay();
+              } else {
+                _hideOverlay();
+              }
             }
           }
         }
@@ -286,7 +304,14 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
       builder:
           (context) => Stack(
             children: [
-              GestureDetector(onTap: _hideOverlay, behavior: HitTestBehavior.translucent, child: Container(color: Colors.transparent)),
+              GestureDetector(
+                onTap: () {
+                  _hideOverlay();
+                  widget.onBlur?.call();
+                },
+                behavior: HitTestBehavior.translucent,
+                child: Container(color: Colors.transparent),
+              ),
               Positioned(
                 left: position.dx,
                 top: position.dy + size.height + 4.h,
@@ -302,35 +327,51 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
                       borderRadius: BorderRadius.circular(widget.borderRadius.r),
                     ),
                     child: SingleChildScrollView(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _searchResults.length,
-                        itemBuilder: (context, index) {
-                          final result = _searchResults[index];
-                          return ListTile(
-                            onTap: () async {
-                              final prefs = await SharedPreferences.getInstance();
-                              await prefs.setString('search_result_${widget.orbitKey}_${result.id}', jsonEncode(result.toJson()));
-                              widget.controller.text = result.id;
-                              widget.orbitFormManager?.set(widget.orbitKey, result);
-                              setState(() {
-                                _isResultSelected = true;
-                                _selectedResult = result;
-                                _searchResults = [];
-                                _hasError = false;
-                                _fieldKey.currentState?.didChange(widget.controller.text);
-                              });
-                              _hideOverlay();
-                              _focusNode.unfocus();
-                            },
-                            leading: result.profilePicture != null ? CircleAvatar(radius: avatarRadius, backgroundImage: NetworkImage(result.profilePicture!)) : Icon(Icons.person, size: 16.sp),
-                            title: Text(result.title, style: TextStyle(fontSize: titleFontSize)),
-                            subtitle: result.subtitle != null ? Text(result.subtitle!, style: TextStyle(fontSize: subtitleFontSize)) : null,
-                            trailing: result.isVerified == true ? Icon(Icons.verified, color: Theme.of(context).colorScheme.primary, size: 16.sp) : null,
-                          );
-                        },
-                      ),
+                      child:
+                          _searchResults.isEmpty && widget.controller.text.isNotEmpty
+                              ? Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.search_off, color: Theme.of(context).colorScheme.onSurfaceVariant, size: isCompact ? 20.sp : 24.sp),
+                                    SizedBox(width: 8.w),
+                                    Text('No results found', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: isCompact ? 14.sp : 16.sp)),
+                                  ],
+                                ),
+                              )
+                              : ListView.builder(
+                                padding: EdgeInsets.only(bottom: 8.h, left: 8.w, right: 8.w),
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: _searchResults.length,
+                                itemBuilder: (context, index) {
+                                  final result = _searchResults[index];
+                                  return ListTile(
+                                    onTap: () async {
+                                      final prefs = await SharedPreferences.getInstance();
+                                      await prefs.setString('search_result_${widget.orbitKey}_${result.id}', jsonEncode(result.toJson()));
+                                      widget.controller.text = result.id;
+                                      widget.orbitFormManager?.set(widget.orbitKey, result);
+                                      widget.onChanged?.call(result);
+                                      setState(() {
+                                        _isResultSelected = true;
+                                        _selectedResult = result;
+                                        _searchResults = [];
+                                        _hasError = false;
+                                        _fieldKey.currentState?.didChange(widget.controller.text);
+                                      });
+                                      _hideOverlay();
+                                      _focusNode.unfocus();
+                                      widget.onBlur?.call();
+                                    },
+                                    leading: result.profilePicture != null ? AwsImageCommonWidget(radius: avatarRadius, imageKey: result.profilePicture!, key: Key(result.id ?? '')) : Icon(Icons.person, size: 16.sp),
+                                    title: Text(result.title, style: TextStyle(fontSize: titleFontSize)),
+                                    subtitle: result.subtitle != null ? Text(result.subtitle!, style: TextStyle(fontSize: subtitleFontSize)) : null,
+                                    trailing: result.isVerified == true ? Icon(Icons.verified, color: Theme.of(context).colorScheme.primary, size: 16.sp) : null,
+                                  );
+                                },
+                              ),
                     ),
                   ),
                 ),
@@ -351,6 +392,7 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
     await prefs.remove('search_result_${widget.orbitKey}_${widget.controller.text}');
     widget.controller.clear();
     widget.orbitFormManager?.set(widget.orbitKey, null);
+    widget.onChanged?.call(null);
     setState(() {
       _isResultSelected = false;
       _selectedResult = null;
@@ -361,12 +403,20 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
     _hideOverlay();
     _focusNode.requestFocus();
     if (widget.isLocal && _allResults.isNotEmpty) {
-      _showOverlay();
+      _delayedShowOverlay();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Hide child input if parent value is null
+    if (widget.orbitParentKey != null && widget.orbitFormManager != null) {
+      final parentValue = widget.orbitFormManager!.get(widget.orbitParentKey!).value;
+      if (parentValue == null) {
+        return const SizedBox.shrink();
+      }
+    }
+
     final isCompact = widget.isCompact;
     final verticalPadding = isCompact ? 4.h : 8.h;
     final horizontalPadding = isCompact ? 8.w : 12.w;
@@ -393,8 +443,6 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
               final borderColor =
                   _hasError
                       ? Theme.of(context).colorScheme.error
-                      : _isSearching
-                      ? Theme.of(context).colorScheme.secondary.withOpacity(_borderOpacityAnimation!.value)
                       : _focusNode.hasFocus || widget.controller.text.isNotEmpty
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5);
@@ -408,7 +456,7 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
                           alignment: Alignment.centerLeft,
                           child: Text(widget.labelText!, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: _hasError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant, fontSize: labelFontSize)),
                         ),
-                        SizedBox(height: 4.h), // Small spacing between label and input
+                        SizedBox(height: 4.h),
                       ],
                     ),
                   Container(
@@ -422,9 +470,9 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
                     child: Row(
                       children: [
                         if (_isResultSelected && _selectedResult != null && _selectedResult!.profilePicture != null)
-                          Padding(padding: EdgeInsets.only(right: 8.w), child: CircleAvatar(radius: avatarRadius, backgroundImage: NetworkImage(_selectedResult!.profilePicture!)))
+                          Padding(padding: EdgeInsets.only(right: 8.w), child: AwsImageCommonWidget(radius: avatarRadius, imageKey: _selectedResult!.profilePicture!, key: Key(_selectedResult?.id ?? '')))
                         else if (!_isResultSelected)
-                          Padding(padding: EdgeInsets.only(right: 8.w), child: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize)),
+                          Padding(padding: EdgeInsets.only(right: 8.w), child: Icon(widget.leftIcon, color: Theme.of(context).colorScheme.onSurfaceVariant, size: iconSize)),
                         Expanded(
                           child:
                               _isResultSelected && _selectedResult != null
@@ -458,6 +506,7 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
                                       ).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(_focusNode.hasFocus ? 0.9 : 0.7), fontSize: textFontSize, fontWeight: FontWeight.w400),
                                       border: InputBorder.none,
                                       contentPadding: EdgeInsets.zero,
+                                      isCollapsed: true,
                                     ),
                                     onChanged: (value) {
                                       if (!_isResultSelected) {
