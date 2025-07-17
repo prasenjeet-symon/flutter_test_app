@@ -226,7 +226,9 @@ class DashboardController extends GetxController {
   var notificationCount = 3.obs;
   var isExpanded = false.obs;
   var currentTabId = 1.obs;
+  var currentTabID = 1;
   var currentChildId = 1.obs;
+  var currentChildID = 1;
 
   final Map<int, Map<String, dynamic>> tabConfig = {
     0: {'id': 1, 'children': OrgsTab.childRoutes},
@@ -252,11 +254,14 @@ class DashboardController extends GetxController {
       final tabId = tab['id'];
       if (tabId is String) {
         currentTabId.value = int.tryParse(tabId) ?? 0; // Fallback to 0 if parsing fails
+        currentTabID = int.tryParse(tabId) ?? 0;
       } else if (tabId is int) {
         currentTabId.value = tabId; // Already an int
+        currentTabID = tabId;
       } else {
         print('Error: tabConfig[$index]["id"] is of type ${tabId.runtimeType}, expected String or int');
         currentTabId.value = 0; // Fallback
+        currentTabID = 0;
       }
 
       // Handle 'children' and 'routeId'
@@ -292,7 +297,13 @@ class DashboardController extends GetxController {
     isExpanded.value = false;
     final id = int.parse(idString); // Convert string ID to int
     final routeIdInt = int.parse(routeId);
+    if (currentChildID == routeIdInt && currentTabID == id) return;
+
     currentChildId.value = routeIdInt;
+    currentChildID = routeIdInt;
+
+    print(currentChildID);
+
     Get.toNamed(route, id: id); // Push child route onto the stack
   }
 
