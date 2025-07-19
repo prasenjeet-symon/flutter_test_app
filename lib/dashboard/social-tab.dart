@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SocialTab {
   static final List<Map<String, String>> childRoutes = [
-    {'routeId': '1', 'name': 'Post Details', 'route': '/social/post', 'id': '3'},
-    {'routeId': '2', 'name': 'Messages', 'route': '/social/messages', 'id': '3'},
+    {'routeId': '14', 'name': 'Post Details', 'route': '/social/post', 'id': '3'},
+    {'routeId': '15', 'name': 'Messages', 'route': '/social/messages', 'id': '3'},
   ];
 
   static Route? onGenerateRoute(RouteSettings settings) {

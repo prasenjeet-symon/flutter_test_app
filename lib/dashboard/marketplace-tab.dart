@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MarketPlaceTab {
   static final List<Map<String, String>> childRoutes = [
-    {'routeId': '1', 'name': 'Product Details', 'route': '/marketplace/product', 'id': '2'},
-    {'routeId': '2', 'name': 'Cart', 'route': '/marketplace/cart', 'id': '2'},
+    {'routeId': '12', 'name': 'Product Details', 'route': '/marketplace/product', 'id': '2'},
+    {'routeId': '13', 'name': 'Cart', 'route': '/marketplace/cart', 'id': '2'},
   ];
 
   static Route? onGenerateRoute(RouteSettings settings) {

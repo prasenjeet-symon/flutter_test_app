@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_app/dashboard/dashbaord.dart';
 import 'package:flutter_test_app/dashboard/initial.dart';
+import 'package:flutter_test_app/dashboard/profile.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         return GetMaterialApp(
           initialRoute: '/',
           getPages: [GetPage(name: '/', page: () => const DashboardScreen()), GetPage(name: '/loading', page: () => const LoadingScreen()), GetPage(name: '/login', page: () => const LoginScreen())],
-          home: const DashboardScreen(),
+          home: DashboardScreen(),
         );
       },
     );

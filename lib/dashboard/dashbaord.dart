@@ -5,14 +5,19 @@ import 'package:flutter_test_app/dashboard/social-tab.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.put(DashboardController());
-    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
 
+class _DashboardScreenState extends State<DashboardScreen> {
+  final controller = Get.put(DashboardController(), permanent: true);
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -168,10 +173,10 @@ class DashboardScreen extends StatelessWidget {
                                     return Padding(
                                       padding: EdgeInsets.symmetric(horizontal: 3.w),
                                       child: ActionChip(
-                                        backgroundColor: controller.currentChildId.value == int.parse(route['routeId']!) ? Theme.of(context).primaryColor : Theme.of(context).scaffoldBackgroundColor,
+                                        backgroundColor: controller.currentChildId[int.parse(route['id']!)] == int.parse(route['routeId']!) ? Theme.of(context).primaryColor : Theme.of(context).scaffoldBackgroundColor,
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100.r)),
-                                        side: BorderSide(color: controller.currentChildId.value == int.parse(route['routeId']!) ? Theme.of(context).primaryColor : Theme.of(context).primaryColor),
-                                        labelStyle: TextStyle(color: controller.currentChildId.value == int.parse(route['routeId']!) ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).primaryColor),
+                                        side: BorderSide(color: controller.currentChildId[int.parse(route['id']!)] == int.parse(route['routeId']!) ? Theme.of(context).primaryColor : Theme.of(context).primaryColor),
+                                        labelStyle: TextStyle(color: controller.currentChildId[int.parse(route['id']!)] == int.parse(route['routeId']!) ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).primaryColor),
                                         label: Text(route['name']!, style: TextStyle(fontSize: 12.sp)),
                                         onPressed: () {
                                           controller.selectChildRoute(route['route']!, route['id']!, route['routeId']!);
@@ -225,10 +230,7 @@ class DashboardController extends GetxController {
   var selectedIndex = 0.obs;
   var notificationCount = 3.obs;
   var isExpanded = false.obs;
-  var currentTabId = 1.obs;
-  var currentTabID = 1;
-  var currentChildId = 1.obs;
-  var currentChildID = 1;
+  var currentChildId = {1: 0, 2: 0, 3: 0}.obs;
 
   final Map<int, Map<String, dynamic>> tabConfig = {
     0: {'id': 1, 'children': OrgsTab.childRoutes},
@@ -236,75 +238,39 @@ class DashboardController extends GetxController {
     2: {'id': 3, 'children': SocialTab.childRoutes},
   };
 
+  // Toggle main tab
   void toggleTab(int index) {
     if (selectedIndex.value == index && isExpanded.value) {
       isExpanded.value = false;
     } else {
       selectedIndex.value = index;
       isExpanded.value = true;
-
-      // Safely access tabConfig
-      final tab = tabConfig[index];
-      if (tab == null) {
-        print('Error: tabConfig[$index] is null');
-        return;
-      }
-
-      // Handle 'id'
-      final tabId = tab['id'];
-      if (tabId is String) {
-        currentTabId.value = int.tryParse(tabId) ?? 0; // Fallback to 0 if parsing fails
-        currentTabID = int.tryParse(tabId) ?? 0;
-      } else if (tabId is int) {
-        currentTabId.value = tabId; // Already an int
-        currentTabID = tabId;
-      } else {
-        print('Error: tabConfig[$index]["id"] is of type ${tabId.runtimeType}, expected String or int');
-        currentTabId.value = 0; // Fallback
-        currentTabID = 0;
-      }
-
-      // Handle 'children' and 'routeId'
-      final children = tab['children'] as List<dynamic>?;
-      if (children == null || children.isEmpty) {
-        print('Error: tabConfig[$index]["children"] is null or empty');
-        currentChildId.value = 0; // Fallback
-        return;
-      }
-
-      final childRouteId = children[0]['routeId'];
-      if (childRouteId is String) {
-        currentChildId.value = int.tryParse(childRouteId) ?? 0; // Fallback to 0 if parsing fails
-      } else if (childRouteId is int) {
-        currentChildId.value = childRouteId; // Already an int
-      } else {
-        print('Error: tabConfig[$index]["children"][0]["routeId"] is of type ${childRouteId.runtimeType}, expected String or int');
-        currentChildId.value = 0; // Fallback
-      }
     }
   }
 
   List<Map<String, String>> getChildRoutes() {
     final config = tabConfig[selectedIndex.value];
     if (config == null || config['children'] == null) {
-      return []; // Return empty list to avoid null issues
+      return [];
     }
+
     return config['children'] as List<Map<String, String>>;
   }
 
-  void selectChildRoute(String route, String idString, String routeId) {
-    print('Selected Child Route: $route, ID: $idString, Route ID: $routeId');
+  // Select a child route
+  // route: route name
+  // idString: parent tab id
+  // routeId: child tab id
+  void selectChildRoute(String route, String idString, String routeIdString) {
     isExpanded.value = false;
-    final id = int.parse(idString); // Convert string ID to int
-    final routeIdInt = int.parse(routeId);
-    if (currentChildID == routeIdInt && currentTabID == id) return;
 
-    currentChildId.value = routeIdInt;
-    currentChildID = routeIdInt;
+    final idInt = int.parse(idString);
+    final routeIdInt = int.parse(routeIdString);
 
-    print(currentChildID);
+    if (currentChildId[idInt] == routeIdInt) return;
 
-    Get.toNamed(route, id: id); // Push child route onto the stack
+    currentChildId[idInt] = routeIdInt;
+    Get.toNamed(route, id: idInt);
   }
 
   void clearNotifications() {

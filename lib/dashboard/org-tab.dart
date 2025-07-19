@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class OrgsTab {
   static final List<Map<String, String>> childRoutes = [
-    {'routeId': '1', 'name': 'Org Details', 'route': '/orgs/details', 'id': '1'},
-    {'routeId': '2', 'name': 'Org Settings', 'route': '/orgs/settings', 'id': '1'},
+    {'routeId': '10', 'name': 'Org Details', 'route': '/orgs/details', 'id': '1'},
+    {'routeId': '11', 'name': 'Org Settings', 'route': '/orgs/settings', 'id': '1'},
   ];
 
   static Route? onGenerateRoute(RouteSettings settings) {
