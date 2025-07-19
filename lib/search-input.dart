@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test_app/aws-image.dart';
@@ -17,7 +19,7 @@ class OrbitSearchInput<T extends SearchResult> extends StatefulWidget {
   final double borderRadius;
   final bool isCompact;
   final bool isLocal;
-  final Future<List<T>> Function(String) onSearch;
+  final Future<List<T>> Function(String, T?) onSearch;
   final EdgeInsetsGeometry? padding;
   final double? verticalMargin;
   final VoidCallback? onFocused;
@@ -65,29 +67,29 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
   AnimationController? _animationController;
   Animation<double>? _borderOpacityAnimation;
   Timer? _overlayDelayTimer;
+  T? _parentResult;
 
   @override
   void initState() {
     super.initState();
+
     _animationController = AnimationController(duration: const Duration(milliseconds: 1000), vsync: this)..repeat(reverse: true);
     _borderOpacityAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(CurvedAnimation(parent: _animationController!, curve: Curves.easeInOut));
-    if (widget.controller.text.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (mounted) {
-          await _loadInitialResult();
-        }
-      });
-    } else {
-      widget.orbitFormManager?.set(widget.orbitKey, null);
-    }
-    // Load initial data for isLocal: true in initState
+
+    // Load initial data for isLocal: true and no parent
     if (widget.isLocal && widget.orbitParentKey == null) {
       _initializeData();
     }
+
     // Subscribe to parent changes for parent-dependent inputs
     if (widget.orbitParentKey != null) {
       _subscribeToParent();
     }
+
+    if (widget.controller.text.isNotEmpty && !_isResultSelected && widget.orbitParentKey == null) {
+      _loadInitialResult();
+    }
+
     _focusNode.addListener(() {
       if (mounted) {
         if (_focusNode.hasFocus) {
@@ -108,6 +110,7 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
         setState(() {});
       }
     });
+
     widget.controller.addListener(() {
       if (mounted) {
         if (_hasError) {
@@ -124,14 +127,22 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
     final prefs = await SharedPreferences.getInstance();
     final resultJson = prefs.getString('search_result_${widget.orbitKey}_${widget.controller.text}');
     T? initialResult;
+
     if (resultJson != null) {
       try {
         final jsonData = jsonDecode(resultJson);
         initialResult = SearchResult.fromJson(jsonData) as T;
       } catch (e) {
-        // Handle JSON decode error
+        if (kDebugMode) {
+          print('Error decoding initial result for ${widget.orbitKey}: $e');
+        }
+      }
+    } else {
+      if (kDebugMode) {
+        print('No result found in SharedPreferences for ${widget.orbitKey}_${widget.controller.text}');
       }
     }
+
     if (mounted) {
       if (initialResult != null) {
         _fieldKey.currentState?.didChange(widget.controller.text);
@@ -140,16 +151,19 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
           _isResultSelected = true;
           _selectedResult = initialResult;
         });
+
         widget.orbitFormManager?.set(widget.orbitKey, initialResult);
         widget.onChanged?.call(initialResult);
       } else {
         widget.controller.clear();
         _fieldKey.currentState?.didChange('');
+
         setState(() {
           _hasError = _fieldKey.currentState?.hasError ?? false;
           _isResultSelected = false;
           _selectedResult = null;
         });
+
         widget.orbitFormManager?.set(widget.orbitKey, null);
         widget.onChanged?.call(null);
       }
@@ -158,7 +172,11 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
 
   void _subscribeToParent() {
     if (widget.orbitFormManager != null && widget.orbitParentKey != null) {
-      _parentSubscription = widget.orbitFormManager!.get(widget.orbitParentKey!).listen((parentValue) async {
+      _parentSubscription = widget.orbitFormManager!.get(widget.orbitParentKey!).distinct().skip(1).listen((parentValue) async {
+        if (kDebugMode) {
+          print('Parent value changed for ${widget.orbitKey}: $parentValue');
+        }
+
         if (parentValue == null) {
           if (mounted) {
             setState(() {
@@ -170,17 +188,29 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
               _fieldKey.currentState?.didChange('');
               _hasError = _fieldKey.currentState?.hasError ?? false;
             });
+
             widget.orbitFormManager?.set(widget.orbitKey, null);
             widget.onChanged?.call(null);
             _hideOverlay();
           }
-        } else if (widget.isLocal) {
-          final results = await widget.onSearch('');
+        }
+
+        _parentResult = parentValue;
+
+        // Handle default value in case of parent id is provided
+        if (widget.controller.text.isNotEmpty && !_isResultSelected && parentValue != null) {
+          await _loadInitialResult();
+        }
+
+        if (widget.isLocal && parentValue != null) {
+          final results = await widget.onSearch('', parentValue);
+
           if (mounted) {
             setState(() {
               _allResults = results;
               _searchResults = results;
             });
+
             if (_focusNode.hasFocus && !_isResultSelected) {
               _delayedShowOverlay();
             }
@@ -191,12 +221,14 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
   }
 
   Future<void> _initializeData() async {
-    final results = await widget.onSearch('');
+    final results = await widget.onSearch('', null);
+
     if (mounted) {
       setState(() {
         _allResults = results;
         _searchResults = results;
       });
+
       if (_focusNode.hasFocus && !_isResultSelected) {
         _delayedShowOverlay();
       }
@@ -216,6 +248,7 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
 
   void _delayedShowOverlay() {
     _cancelOverlayDelay();
+
     _overlayDelayTimer = Timer(const Duration(seconds: 1), () {
       if (mounted && _focusNode.hasFocus && !_isResultSelected) {
         _showOverlay();
@@ -236,19 +269,24 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
         _selectedResult = null;
         _searchResults = widget.isLocal ? _allResults : [];
       });
+
       widget.orbitFormManager?.set(widget.orbitKey, null);
       widget.onChanged?.call(null);
+
       if (widget.isLocal && _allResults.isNotEmpty && _focusNode.hasFocus) {
         _delayedShowOverlay();
       } else {
         _hideOverlay();
       }
+
       return;
     }
+
     if (widget.isLocal && _allResults.isNotEmpty) {
       setState(() {
         _searchResults = query.isEmpty ? _allResults : _allResults.where((result) => result.title.toLowerCase().contains(query.toLowerCase()) || (result.subtitle?.toLowerCase().contains(query.toLowerCase()) ?? false)).toList();
       });
+
       if (_focusNode.hasFocus && !_isResultSelected) {
         _delayedShowOverlay();
       } else {
@@ -258,7 +296,7 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
       _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
         if (mounted) {
           try {
-            final results = await widget.onSearch(query);
+            final results = await widget.onSearch(query, _parentResult);
             if (mounted) {
               setState(() {
                 _searchResults = results;
@@ -409,7 +447,6 @@ class _OrbitSearchInputState<T extends SearchResult> extends State<OrbitSearchIn
 
   @override
   Widget build(BuildContext context) {
-    // Hide child input if parent value is null
     if (widget.orbitParentKey != null && widget.orbitFormManager != null) {
       final parentValue = widget.orbitFormManager!.get(widget.orbitParentKey!).value;
       if (parentValue == null) {
