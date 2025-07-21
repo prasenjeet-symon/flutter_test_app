@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_test_app/dashboard/profile.dart';
 import 'package:flutter_test_app/search-input.dart';
+import 'package:flutter_test_app/test/chant_feedback.dart';
 import 'package:flutter_test_app/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,7 +27,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
             textTheme: const TextTheme(titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w400), bodyMedium: TextStyle(fontSize: 14), bodySmall: TextStyle(fontSize: 12), labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
           ),
-          home: const SearchTestScreen(),
+          home: PersonalInformationScreen(),
         );
       },
     );
