@@ -25,8 +25,8 @@ class PersonalInformationScreen extends StatefulWidget {
 }
 
 class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
-  final Map<String, bool> _expandedSections = {'overview': false, 'purpose': false, 'orgs': false, 'experience': false, 'social': false, 'activity': false, 'social_links': false};
-  bool isPrivateMode = false;
+  final Map<String, bool> _expandedSections = {'overview': true, 'purpose': true, 'orgs': true, 'experience': true, 'social': true, 'activity': true, 'social_links': true};
+  bool isPrivateMode = true;
   String connectionStatus = 'Follow'; // Can be 'Follow', 'Following', or 'Connected'
   final TextEditingController _linkedinUrlController = TextEditingController();
   final Map<String, bool> _selectedItems = {};
@@ -408,11 +408,11 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
               childAspectRatio: 2.5,
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
               children: [
-                _buildOverviewItem('Orgs', '0', Icons.business),
-                _buildOverviewItem('Goals', '0', Icons.flag),
+                _buildOverviewItem('Orgs', '3', Icons.business),
+                _buildOverviewItem('Goals', '5', Icons.flag),
                 _buildOverviewItem('Connections', '120', Icons.people),
                 _buildOverviewItem('Followers', '350', Icons.person_add),
-                _buildOverviewItem('Joined Orgs', '0', Icons.group_work),
+                _buildOverviewItem('Joined Orgs', '2', Icons.group_work),
                 _buildOverviewItem('Groups', '5', Icons.group),
                 _buildOverviewItem('Posts', '42', Icons.article),
                 _buildOverviewItem('Following', '180', Icons.person_pin),
@@ -425,17 +425,32 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildPurposeCard(title: 'Ultimate Purpose', data: []),
+                _buildPurposeCard(title: 'Ultimate Purpose', data: ['Category: Social Impact', 'Subcategory: Community Development', 'Description: Empower communities through sustainable initiatives and education.']),
                 SizedBox(height: 12.h),
-                _buildPurposeCard(title: 'Mission Statement', data: []),
+                _buildPurposeCard(title: 'Mission Statement', data: ['Category: Leadership', 'Subcategory: Innovation', 'Description: Drive innovation to create positive change in society.']),
                 SizedBox(height: 12.h),
-                _buildPurposeCard(title: 'Core Values', data: []),
+                _buildPurposeCard(title: 'Core Values', data: ['Integrity, Collaboration, Innovation']),
                 SizedBox(height: 12.h),
-                _buildPurposeCard(title: 'Goals', data: ['Launch a non-profit by 2026|2026-12-31', 'Mentor 100 young professionals|2025-12-31']),
+                _buildPurposeCard(title: 'Goals', data: ['Launch a non-profit by 2026|2026-12-31', 'Mentor 100 young professionals|2025-12-31', 'Raise for charity|2027-06-30']),
               ],
             ),
           ),
-          _buildSection(title: 'Organizations', key: 'orgs', content: Padding(padding: EdgeInsets.all(12.w), child: Text('No contributions available.', style: TextStyle(fontSize: 14.sp, color: const Color(0xFF718096))))),
+          _buildSection(
+            title: 'Organizations',
+            key: 'orgs',
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildExperienceSection(
+                  title: 'Organizations',
+                  items: [
+                    {'title': 'SaveLife', 'subtitle': 'Founder', 'dates': 'Jan 2020 - Present', 'description': 'Leading initiatives to support community welfare.'},
+                    {'title': 'TechOrg', 'subtitle': 'Advisor', 'dates': 'Mar 2022 - Present', 'description': 'Providing strategic guidance on tech projects.'},
+                  ],
+                ),
+              ],
+            ),
+          ),
           _buildSection(
             title: 'Experience',
             key: 'experience',
@@ -443,15 +458,42 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildExperienceSection(title: 'Education', items: [], viewAll: 'View All 5 Education'),
+                _buildExperienceSection(
+                  title: 'Education',
+                  items: [
+                    {'title': 'BSc Computer Science', 'subtitle': 'Stanford University', 'dates': '2015 - 2019', 'description': 'Graduated with honors.'},
+                    {'title': 'MBA', 'subtitle': 'Harvard Business School', 'dates': '2020 - 2022', 'description': 'Focused on entrepreneurship.'},
+                  ],
+                  viewAll: 'View All',
+                ),
                 SizedBox(height: 20.h),
-                _buildExperienceSection(title: 'Experience', items: [], viewAll: 'View All 4 Experience'),
+                _buildExperienceSection(
+                  title: 'Experience',
+                  items: [
+                    {'title': 'Senior Developer', 'subtitle': 'TechCorp', 'dates': '2019 - 2021', 'description': 'Led development of a scalable SaaS platform.'},
+                    {'title': 'Product Manager', 'subtitle': 'Innovate Inc.', 'dates': '2021 - 2023', 'description': 'Managed product lifecycle for mobile apps.'},
+                  ],
+                  viewAll: 'View All',
+                ),
                 SizedBox(height: 20.h),
                 _buildSkillsSection(),
                 SizedBox(height: 20.h),
-                _buildExperienceSection(title: 'Certifications', items: [], viewAll: 'View All 5 Certifications'),
+                _buildExperienceSection(
+                  title: 'Certifications',
+                  items: [
+                    {'title': 'Certified ScrumMaster', 'subtitle': 'Scrum Alliance', 'dates': '2022', 'description': 'Certified in agile project management.'},
+                    {'title': 'AWS Solutions Architect', 'subtitle': 'Amazon Web Services', 'dates': '2023', 'description': 'Expertise in cloud architecture.'},
+                  ],
+                  viewAll: 'View All',
+                ),
                 SizedBox(height: 20.h),
-                _buildExperienceSection(title: 'Others', items: []),
+                _buildExperienceSection(
+                  title: 'Others',
+                  items: [
+                    {'title': 'Volunteer Mentor', 'subtitle': 'Youth Empowerment Program', 'dates': '2020 - Present', 'description': 'Mentoring young professionals.'},
+                    {'title': 'Guest Speaker', 'subtitle': 'Tech Summit 2024', 'dates': '2024', 'description': 'Spoke on AI in social impact.'},
+                  ],
+                ),
               ],
             ),
           ),
@@ -461,17 +503,57 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSocialSection(title: 'Interests', items: []),
+                _buildSocialSection(
+                  title: 'Interests',
+                  items: [
+                    {'name': 'Sustainable Tech', 'org': 'GreenTech'},
+                    {'name': 'AI Ethics', 'org': 'AI4Good'},
+                  ],
+                ),
                 SizedBox(height: 16.h),
-                _buildSocialSection(title: 'Groups', items: []),
+                _buildSocialSection(
+                  title: 'Groups',
+                  items: [
+                    {'name': 'Tech Innovators', 'image': 'https://picsum.photos/seed/group1/80', 'username': '@techinnovators'},
+                    {'name': 'Social Impact Hub', 'image': 'https://picsum.photos/seed/group2/80', 'username': '@socialimpact'},
+                  ],
+                  viewAll: 'View All',
+                ),
                 SizedBox(height: 16.h),
-                _buildSocialSection(title: 'Connections', items: []),
+                _buildSocialSection(
+                  title: 'Connections',
+                  items: [
+                    {'name': 'Jane Smith', 'image': 'https://picsum.photos/seed/jane/80', 'username': '@janesmith', 'status': 'connected'},
+                    {'name': 'Mike Johnson', 'image': 'https://picsum.photos/seed/mike/80', 'username': '@mikejohnson', 'status': 'connected'},
+                  ],
+                  viewAll: 'View All',
+                ),
                 SizedBox(height: 16.h),
-                _buildSocialSection(title: 'Following', items: []),
+                _buildSocialSection(
+                  title: 'Following',
+                  items: [
+                    {'name': 'Tech Trends', 'image': 'https://picsum.photos/seed/tech/80', 'username': '@techtrends', 'status': 'following'},
+                    {'name': 'Innovate Daily', 'image': 'https://picsum.photos/seed/innovate/80', 'username': '@innovatedaily', 'status': 'following'},
+                  ],
+                  viewAll: 'View All',
+                ),
                 SizedBox(height: 16.h),
-                _buildSocialSection(title: 'Followers', items: []),
+                _buildSocialSection(
+                  title: 'Followers',
+                  items: [
+                    {'name': 'Sarah Lee', 'image': 'https://picsum.photos/seed/sarah/80', 'username': '@sarahlee', 'status': 'follow'},
+                    {'name': 'Tom Brown', 'image': 'https://picsum.photos/seed/tom/80', 'username': '@tombrown', 'status': 'follow'},
+                  ],
+                  viewAll: 'View All',
+                ),
                 SizedBox(height: 16.h),
-                _buildSocialSection(title: 'Grow Your Network', items: []),
+                _buildSocialSection(
+                  title: 'Grow Your Network',
+                  items: [
+                    {'name': 'Emily Davis', 'image': 'https://picsum.photos/seed/emily/80', 'username': '@emilydavis', 'status': 'follow'},
+                    {'name': 'David Wilson', 'image': 'https://picsum.photos/seed/david/80', 'username': '@davidwilson', 'status': 'follow'},
+                  ],
+                ),
               ],
             ),
           ),
@@ -483,6 +565,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
               items: [
                 {'platform': 'LinkedIn', 'url': 'https://linkedin.com/in/johndoe'},
                 {'platform': 'Twitter', 'url': 'https://twitter.com/johndoe'},
+                {'platform': 'GitHub', 'url': 'https://github.com/johndoe'},
               ],
             ),
           ),
@@ -570,282 +653,6 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
 
   Widget _buildPurposeCard({required String title, required List<String> data}) {
     if (title == 'Ultimate Purpose' || title == 'Mission Statement') {
-      if (data.isEmpty) {
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(12.w),
-          margin: EdgeInsets.symmetric(horizontal: 12.w),
-          decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 1))], color: Colors.white),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
-                  if (isPrivateMode) // Show buttons only in private mode
-                    Row(children: [IconButton(icon: Icon(Icons.add, size: 16.sp, color: const Color(0xFF2C7BE5)), onPressed: () => _showPurposeBottomSheet(context, section: title), tooltip: 'Add $title')]),
-                ],
-              ),
-              SizedBox(height: 16.h),
-              Center(
-                child: Column(
-                  children: [
-                    Icon(title == 'Ultimate Purpose' ? Icons.info_outline : Icons.lightbulb_outline, size: 48.sp, color: const Color(0xFF718096)),
-                    SizedBox(height: 8.h),
-                    Text(
-                      title == 'Ultimate Purpose' ? 'No purpose defined yet.\nAdd your ultimate purpose to share your vision.' : 'No mission statement defined yet.\nAdd your mission to share your vision and goals.',
-                      style: TextStyle(fontSize: 12.sp, color: const Color(0xFF718096), height: 1.5),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      } else {
-        String category = data.firstWhere((item) => item.startsWith('Category:'), orElse: () => 'Category: Unknown').split(': ')[1];
-        String subcategory = data.firstWhere((item) => item.startsWith('Subcategory:'), orElse: () => 'Subcategory: Unknown').split(': ')[1];
-        String description = data.firstWhere((item) => item.startsWith('Description:'), orElse: () => 'Description: Not provided').split(': ')[1];
-
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(12.w),
-          margin: EdgeInsets.symmetric(horizontal: 12.w),
-          decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 1))], color: Colors.white),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
-                  if (isPrivateMode) // Show buttons only in private mode
-                    Row(
-                      children: [
-                        IconButton(icon: Icon(Icons.add, size: 16.sp, color: const Color(0xFF2C7BE5)), onPressed: () => _showPurposeBottomSheet(context, section: title), tooltip: 'Add $title'),
-                        IconButton(
-                          icon: Icon(Icons.edit, size: 16.sp, color: const Color(0xFF2C7BE5)),
-                          onPressed: () => _showPurposeBottomSheet(context, section: title, isEdit: true, existingData: {'category': category, 'subcategory': subcategory, 'description': description}),
-                          tooltip: 'Edit $title',
-                        ),
-                      ],
-                    ),
-                ],
-              ),
-              SizedBox(height: 8.h),
-              Text(description, style: TextStyle(fontSize: 12.sp, color: const Color(0xFF718096))),
-              SizedBox(height: 8.h),
-              Wrap(
-                spacing: 8.w,
-                runSpacing: 8.h,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(20.r), color: const Color(0xFF2C7BE5)),
-                    child: Text(category, style: TextStyle(fontSize: 12.sp, color: Colors.white)),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(20.r), color: const Color(0xFF2C7BE5)),
-                    child: Text(subcategory, style: TextStyle(fontSize: 12.sp, color: Colors.white)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      }
-    } else if (title == 'Core Values') {
-      if (data.isEmpty) {
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(12.w),
-          margin: EdgeInsets.symmetric(horizontal: 12.w),
-          decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 1))], color: Colors.white),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
-                  if (isPrivateMode) // Show button only in private mode
-                    Row(children: [IconButton(icon: Icon(Icons.add, size: 16.sp, color: const Color(0xFF2C7BE5)), onPressed: () => _showPurposeBottomSheet(context, section: title), tooltip: 'Add Core Values')]),
-                ],
-              ),
-              SizedBox(height: 16.h),
-              Center(
-                child: Column(
-                  children: [
-                    Icon(Icons.star_border, size: 48.sp, color: const Color(0xFF718096)),
-                    SizedBox(height: 8.h),
-                    Text('No core values defined yet.\nAdd your values to showcase your principles.', style: TextStyle(fontSize: 12.sp, color: const Color(0xFF718096), height: 1.5), textAlign: TextAlign.center),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      } else {
-        List<String> values = data[0].split(', ').map((e) => e.trim()).toList();
-
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(12.w),
-          margin: EdgeInsets.symmetric(horizontal: 12.w),
-          decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 1))], color: Colors.white),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
-                  if (isPrivateMode) // Show buttons only in private mode
-                    Row(
-                      children: [
-                        IconButton(icon: Icon(Icons.add, size: 16.sp, color: const Color(0xFF2C7BE5)), onPressed: () => _showPurposeBottomSheet(context, section: title), tooltip: 'Add Core Values'),
-                        IconButton(
-                          icon: Icon(Icons.edit, size: 16.sp, color: const Color(0xFF2C7BE5)),
-                          onPressed: () => _showPurposeBottomSheet(context, section: title, isEdit: true, existingData: {'values': values.join(', ')}),
-                          tooltip: 'Edit Core Values',
-                        ),
-                      ],
-                    ),
-                ],
-              ),
-              SizedBox(height: 8.h),
-              Wrap(
-                spacing: 8.w,
-                runSpacing: 8.h,
-                children:
-                    values
-                        .map(
-                          (value) => Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                            decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(20.r), color: Colors.white),
-                            child: Text(value, style: TextStyle(fontSize: 12.sp, color: const Color(0xFF2D3748))),
-                          ),
-                        )
-                        .toList(),
-              ),
-            ],
-          ),
-        );
-      }
-    } else if (title == 'Goals') {
-      if (data.isEmpty) {
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(12.w),
-          margin: EdgeInsets.symmetric(horizontal: 12.w),
-          decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 1))], color: Colors.white),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
-                  if (isPrivateMode) // Show button only in private mode
-                    Row(children: [IconButton(icon: Icon(Icons.add, size: 16.sp, color: const Color(0xFF2C7BE5)), onPressed: () => _showPurposeBottomSheet(context, section: title), tooltip: 'Add Goal')]),
-                ],
-              ),
-              SizedBox(height: 16.h),
-              Center(
-                child: Column(
-                  children: [
-                    Icon(Icons.flag_outlined, size: 48.sp, color: const Color(0xFF718096)),
-                    SizedBox(height: 8.h),
-                    Text('No goals defined yet.\nAdd your goals to share your aspirations.', style: TextStyle(fontSize: 12.sp, color: const Color(0xFF718096), height: 1.5), textAlign: TextAlign.center),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      } else {
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(12.w),
-          margin: EdgeInsets.symmetric(horizontal: 12.w),
-          decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 1))], color: Colors.white),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
-                  if (isPrivateMode) // Show button only in private mode
-                    Row(children: [IconButton(icon: Icon(Icons.add, size: 16.sp, color: const Color(0xFF2C7BE5)), onPressed: () => _showPurposeBottomSheet(context, section: title), tooltip: 'Add Goal')]),
-                ],
-              ),
-              SizedBox(height: 8.h),
-              Wrap(
-                spacing: 8.w,
-                runSpacing: 8.h,
-                children:
-                    data.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final goalData = entry.value.split('|');
-                      final goalTitle = goalData[0];
-                      final goalDeadline = goalData.length > 1 ? goalData[1] : 'No deadline';
-                      final itemKey = 'goal-$index';
-                      final isSelected = _selectedItems[itemKey] ?? false;
-
-                      return GestureDetector(
-                        onTap:
-                            isPrivateMode
-                                ? () {
-                                  setState(() {
-                                    _selectedItems[itemKey] = !isSelected;
-                                  });
-                                }
-                                : null, // Disable tap in public mode
-                        child: Stack(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                              decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(20.r), color: isSelected ? const Color(0xFF718096).withOpacity(0.7) : Colors.white),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(goalTitle, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
-                                  SizedBox(height: 4.h),
-                                  Text('Achieve by: $goalDeadline', style: TextStyle(fontSize: 10.sp, color: const Color(0xFF718096))),
-                                ],
-                              ),
-                            ),
-                            if (isSelected && isPrivateMode) // Show close button only in private mode
-                              Positioned(
-                                top: 0.5.h,
-                                right: 0.5.w,
-                                child: Container(
-                                  padding: EdgeInsets.all(1.w),
-                                  decoration: const BoxDecoration(color: Color(0xFF2D3748), shape: BoxShape.circle),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _selectedItems.remove(itemKey);
-                                      });
-                                    },
-                                    child: Icon(Icons.close, color: Colors.white, size: 12.w),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-              ),
-            ],
-          ),
-        );
-      }
-    } else {
       String category = data.firstWhere((item) => item.startsWith('Category:'), orElse: () => 'Category: Unknown').split(': ')[1];
       String subcategory = data.firstWhere((item) => item.startsWith('Subcategory:'), orElse: () => 'Subcategory: Unknown').split(': ')[1];
       String description = data.firstWhere((item) => item.startsWith('Description:'), orElse: () => 'Description: Not provided').split(': ')[1];
@@ -858,7 +665,23 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
+                if (isPrivateMode) // Show buttons only in private mode
+                  Row(
+                    children: [
+                      IconButton(icon: Icon(Icons.add, size: 16.sp, color: const Color(0xFF2C7BE5)), onPressed: () => _showPurposeBottomSheet(context, section: title), tooltip: 'Add $title'),
+                      IconButton(
+                        icon: Icon(Icons.edit, size: 16.sp, color: const Color(0xFF2C7BE5)),
+                        onPressed: () => _showPurposeBottomSheet(context, section: title, isEdit: true, existingData: {'category': category, 'subcategory': subcategory, 'description': description}),
+                        tooltip: 'Edit $title',
+                      ),
+                    ],
+                  ),
+              ],
+            ),
             SizedBox(height: 8.h),
             Text(description, style: TextStyle(fontSize: 12.sp, color: const Color(0xFF718096))),
             SizedBox(height: 8.h),
@@ -881,60 +704,135 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
           ],
         ),
       );
-    }
-  }
+    } else if (title == 'Core Values') {
+      List<String> values = data[0].split(', ').map((e) => e.trim()).toList();
 
-  Widget _buildExperienceSection({required String title, required List<Map<String, String>> items, String? viewAll}) {
-    if (items.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      return Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(12.w),
+        margin: EdgeInsets.symmetric(horizontal: 12.w),
+        decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 1))], color: Colors.white),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 12.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
+                if (isPrivateMode) // Show buttons only in private mode
+                  Row(
+                    children: [
+                      IconButton(icon: Icon(Icons.add, size: 16.sp, color: const Color(0xFF2C7BE5)), onPressed: () => _showPurposeBottomSheet(context, section: title), tooltip: 'Add Core Values'),
+                      IconButton(
+                        icon: Icon(Icons.edit, size: 16.sp, color: const Color(0xFF2C7BE5)),
+                        onPressed: () => _showPurposeBottomSheet(context, section: title, isEdit: true, existingData: {'values': values.join(', ')}),
+                        tooltip: 'Edit Core Values',
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children:
+                  values
+                      .map(
+                        (value) => Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                          decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(20.r), color: Colors.white),
+                          child: Text(value, style: TextStyle(fontSize: 12.sp, color: const Color(0xFF2D3748))),
+                        ),
+                      )
+                      .toList(),
+            ),
+          ],
+        ),
+      );
+    } else if (title == 'Goals') {
+      return Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(12.w),
+        margin: EdgeInsets.symmetric(horizontal: 12.w),
+        decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 1))], color: Colors.white),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
                 if (isPrivateMode) // Show button only in private mode
-                  Tooltip(message: 'Add Item', child: IconButton(icon: Icon(Icons.add, color: const Color(0xFF2C7BE5), size: 24.sp), onPressed: () {})),
+                  Row(children: [IconButton(icon: Icon(Icons.add, size: 16.sp, color: const Color(0xFF2C7BE5)), onPressed: () => _showPurposeBottomSheet(context, section: title), tooltip: 'Add Goal')]),
               ],
             ),
-            SizedBox(height: 16.h),
-            Center(
-              child: Column(
-                children: [
-                  Icon(
-                    title == 'Education'
-                        ? Icons.school
-                        : title == 'Experience'
-                        ? Icons.work_outline
-                        : title == 'Certifications'
-                        ? Icons.verified
-                        : Icons.info,
-                    size: 48.sp,
-                    color: const Color(0xFF718096),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    title == 'Education'
-                        ? 'No education details added yet.\nAdd your academic achievements to showcase your background.'
-                        : title == 'Experience'
-                        ? 'No work experience added yet.\nAdd your professional roles to highlight your career.'
-                        : title == 'Certifications'
-                        ? 'No certifications added yet.\nAdd your certifications to demonstrate your expertise.'
-                        : 'No additional details added yet.\nAdd other experiences to enrich your profile.',
-                    style: TextStyle(fontSize: 12.sp, color: const Color(0xFF718096), height: 1.5),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+            SizedBox(height: 8.h),
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children:
+                  data.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final goalData = entry.value.split('|');
+                    final goalTitle = goalData[0];
+                    final goalDeadline = goalData.length > 1 ? goalData[1] : 'No deadline';
+                    final itemKey = 'goal-$index';
+                    final isSelected = _selectedItems[itemKey] ?? false;
+
+                    return GestureDetector(
+                      onTap:
+                          isPrivateMode
+                              ? () {
+                                setState(() {
+                                  _selectedItems[itemKey] = !isSelected;
+                                });
+                              }
+                              : null, // Disable tap in public mode
+                      child: Stack(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                            decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(20.r), color: isSelected ? const Color(0xFF718096).withOpacity(0.7) : Colors.white),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(goalTitle, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
+                                SizedBox(height: 4.h),
+                                Text('Achieve by: $goalDeadline', style: TextStyle(fontSize: 10.sp, color: const Color(0xFF718096))),
+                              ],
+                            ),
+                          ),
+                          if (isSelected && isPrivateMode) // Show close button only in private mode
+                            Positioned(
+                              top: 0.5.h,
+                              right: 0.5.w,
+                              child: Container(
+                                padding: EdgeInsets.all(1.w),
+                                decoration: const BoxDecoration(color: Color(0xFF2D3748), shape: BoxShape.circle),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedItems.remove(itemKey);
+                                    });
+                                  },
+                                  child: Icon(Icons.close, color: Colors.white, size: 12.w),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
             ),
           ],
         ),
       );
     }
+    return Container();
+  }
 
+  Widget _buildExperienceSection({required String title, required List<Map<String, String>> items, String? viewAll}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       child: Column(
@@ -968,8 +866,9 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
               child: Stack(
                 children: [
                   Container(
+                    width: double.infinity, // Ensure full width
                     padding: EdgeInsets.all(12.w),
-                    margin: EdgeInsets.only(bottom: 10.h),
+                    margin: EdgeInsets.only(bottom: 10.h), // Remove horizontal margin
                     decoration: BoxDecoration(
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                       borderRadius: BorderRadius.circular(10.r),
@@ -1078,7 +977,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                   ),
                 );
               }),
-              Padding(padding: EdgeInsets.only(top: 12.h), child: GestureDetector(onTap: () {}, child: Text('View All 10 Skills', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF2C7BE5))))),
+              Padding(padding: EdgeInsets.only(top: 12.h), child: GestureDetector(onTap: () {}, child: Text('View All', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700, color: const Color(0xFF2C7BE5))))),
             ],
           ),
         ],
@@ -1089,58 +988,8 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
   Widget _buildSocialSection({required String title, required List<Map<String, String>> items, String? viewAll}) {
     final displayTitle = title.contains('Interests') || title.contains('Groups') || title.contains('Connections') || title.contains('Following') || title.contains('Followers') ? '$title (${items.length})' : title;
 
-    if (items.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(displayTitle, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: const Color(0xFF2D3748))),
-            SizedBox(height: 16.h),
-            Center(
-              child: Column(
-                children: [
-                  Icon(
-                    title.contains('Interests')
-                        ? Icons.favorite_border
-                        : title.contains('Groups')
-                        ? Icons.group
-                        : title.contains('Connections')
-                        ? Icons.people
-                        : title.contains('Following')
-                        ? Icons.person_pin
-                        : title.contains('Followers')
-                        ? Icons.person_add
-                        : Icons.connect_without_contact,
-                    size: 48.sp,
-                    color: const Color(0xFF718096),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    title.contains('Interests')
-                        ? 'No interests added yet.\nAdd your interests to share your passions.'
-                        : title.contains('Groups')
-                        ? 'No groups joined yet.\nJoin groups to connect with communities.'
-                        : title.contains('Connections')
-                        ? 'No connections added yet.\nBuild your network by connecting with others.'
-                        : title.contains('Following')
-                        ? 'Not following anyone yet.\nFollow users to stay updated.'
-                        : title.contains('Followers')
-                        ? 'No followers yet.\nShare content to attract followers.'
-                        : 'No network suggestions yet.\nExpand your network to discover new connections.',
-                    style: TextStyle(fontSize: 12.sp, color: const Color(0xFF718096), height: 1.5),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12.w),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1152,120 +1001,75 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
             ],
           ),
           SizedBox(height: 8.h),
-          if (title.contains('Interests'))
-            Wrap(
-              spacing: 8.w,
-              runSpacing: 8.h,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
               children:
                   items
                       .map(
-                        (item) => OutlinedButton(
-                          onPressed: () {},
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: const Color(0xFF2C7BE5)),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                            textStyle: TextStyle(fontSize: 12.sp, color: const Color(0xFF2C7BE5)),
-                          ),
+                        (item) => Container(
+                          width: 140.w,
+                          margin: EdgeInsets.only(right: 10.w),
+                          padding: EdgeInsets.all(8.w),
+                          decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), color: Colors.white),
                           child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [Text(item['name']!, style: TextStyle(color: const Color(0xFF2C7BE5), fontSize: 12.sp)), if (item['org'] != null) Text(item['org']!, style: TextStyle(color: const Color(0xFF718096), fontSize: 8.sp))],
+                            children: [
+                              if (item['image'] != null) CircleAvatar(radius: 24.r, backgroundImage: NetworkImage(item['image']!)),
+                              if (item['image'] != null) SizedBox(height: 6.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Flexible(child: Text(item['name']!, style: TextStyle(fontSize: 12.sp, color: const Color(0xFF4A5568)), textAlign: TextAlign.center, overflow: TextOverflow.ellipsis)),
+                                  if (title.contains('Connections') || title.contains('Following') || title.contains('Followers')) Padding(padding: EdgeInsets.only(left: 4.w), child: Icon(Icons.verified, size: 14.sp, color: const Color(0xFF2C7BE5))),
+                                ],
+                              ),
+                              if (item['org'] != null) ...[SizedBox(height: 4.h), Text(item['org']!, style: TextStyle(fontSize: 10.sp, color: const Color(0xFF718096)), textAlign: TextAlign.center)],
+                              if (item['username'] != null) ...[SizedBox(height: 4.h), Text(item['username']!, style: TextStyle(fontSize: 10.sp, color: const Color(0xFF718096)), textAlign: TextAlign.center)],
+                              if (item['status'] != null) ...[
+                                SizedBox(height: 8.h),
+                                ElevatedButton(
+                                  onPressed: () {},
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        item['status'] == 'connected'
+                                            ? const Color(0xFF4CAF50)
+                                            : item['status'] == 'following'
+                                            ? Colors.transparent
+                                            : const Color(0xFF2C7BE5),
+                                    foregroundColor:
+                                        item['status'] == 'connected'
+                                            ? Colors.white
+                                            : item['status'] == 'follow'
+                                            ? Colors.white
+                                            : const Color(0xFF2C7BE5),
+                                    minimumSize: Size(100.w, 28.h),
+                                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r), side: item['status'] == 'following' ? const BorderSide(color: Color(0xFF2C7BE5)) : BorderSide.none),
+                                    elevation: 0,
+                                    textStyle: TextStyle(fontSize: 10.sp),
+                                  ),
+                                  child: Text(
+                                    item['status'] == 'connected'
+                                        ? 'Connected'
+                                        : item['status'] == 'following'
+                                        ? 'Following'
+                                        : 'Follow',
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       )
                       .toList(),
-            )
-          else
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children:
-                    items
-                        .map(
-                          (item) => Container(
-                            width: 140.w,
-                            margin: EdgeInsets.only(right: 10.w),
-                            padding: EdgeInsets.all(8.w),
-                            decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), color: Colors.white),
-                            child: Column(
-                              children: [
-                                if (item['image'] != null) CircleAvatar(radius: 24.r, backgroundImage: NetworkImage(item['image']!)),
-                                if (item['image'] != null) SizedBox(height: 6.h),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Flexible(child: Text(item['name']!, style: TextStyle(fontSize: 12.sp, color: const Color(0xFF4A5568)), textAlign: TextAlign.center, overflow: TextOverflow.ellipsis)),
-                                    if (title.contains('Connections') || title.contains('Following') || title.contains('Followers'))
-                                      Padding(padding: EdgeInsets.only(left: 4.w), child: Icon(Icons.verified, size: 14.sp, color: const Color(0xFF2C7BE5))),
-                                  ],
-                                ),
-                                if (item['username'] != null) ...[SizedBox(height: 4.h), Text(item['username']!, style: TextStyle(fontSize: 10.sp, color: const Color(0xFF718096)), textAlign: TextAlign.center)],
-                                if (item['status'] != null) ...[
-                                  SizedBox(height: 8.h),
-                                  ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          item['status'] == 'connected'
-                                              ? const Color(0xFF4CAF50)
-                                              : item['status'] == 'following'
-                                              ? Colors.transparent
-                                              : const Color(0xFF2C7BE5),
-                                      foregroundColor:
-                                          item['status'] == 'connected'
-                                              ? Colors.white
-                                              : item['status'] == 'follow'
-                                              ? Colors.white
-                                              : const Color(0xFF2C7BE5),
-                                      minimumSize: Size(100.w, 28.h),
-                                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r), side: item['status'] == 'following' ? const BorderSide(color: Color(0xFF2C7BE5)) : BorderSide.none),
-                                      elevation: 0,
-                                      textStyle: TextStyle(fontSize: 10.sp),
-                                    ),
-                                    child: Text(
-                                      item['status'] == 'connected'
-                                          ? 'Connected'
-                                          : item['status'] == 'following'
-                                          ? 'Following'
-                                          : 'Follow',
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        )
-                        .toList(),
-              ),
             ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildSocialLinksSection({required List<Map<String, String>> items}) {
-    if (items.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 16.h),
-            Center(
-              child: Column(
-                children: [
-                  Icon(Icons.link, size: 48.sp, color: const Color(0xFF718096)),
-                  SizedBox(height: 8.h),
-                  Text('No social links added yet.\nAdd your social media profiles to connect with others.', style: TextStyle(fontSize: 12.sp, color: const Color(0xFF718096), height: 1.5), textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       child: Column(
@@ -1301,7 +1105,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
                             children: [
                               Icon(
                                 item['platform'] == 'LinkedIn'
-                                    ? Icons.account_box
+                                    ? Icons.email
                                     : item['platform'] == 'Twitter'
                                     ? Icons.alternate_email
                                     : Icons.link,
@@ -1342,6 +1146,7 @@ class _PersonalInformationScreenState extends State<PersonalInformationScreen> {
 
   Widget _buildActivityItem(String text) {
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.all(12.w),
       margin: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE2E8F0)), borderRadius: BorderRadius.circular(10.r), color: Colors.white),
