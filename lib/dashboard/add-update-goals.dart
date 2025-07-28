@@ -1,185 +1,101 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart'; // For date formatting
 
-void main() {
-  runApp(MyApp());
-}
+// Model for User Goal
+class UserGoal {
+  String id; // Unique ID for each goal, useful for list operations
+  String goalText;
+  DateTime achieveByDate;
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(375, 812),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            brightness: Brightness.light,
-            scaffoldBackgroundColor: Colors.white,
-            primaryColor: const Color(0xFF2C7BE5),
-            colorScheme: ColorScheme.light(
-              primary: const Color(0xFF2C7BE5),
-              secondary: const Color(0xFF1A4971),
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: const Color(0xFF1A202C),
-              onBackground: const Color(0xFF1A202C),
-              outline: const Color(0xFFE2E8F0),
-              error: const Color(0xFFB00020),
-              secondaryContainer: const Color(0xFFEDF2F7),
-            ),
-            textTheme: TextTheme(
-              headlineLarge: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1A202C)),
-              headlineMedium: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: const Color(0xFF1A202C)),
-              bodyLarge: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w400, color: const Color(0xFF4A5568)),
-              bodyMedium: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400, color: const Color(0xFF4A5568)),
-              labelMedium: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color(0xFF6B7280)),
-              labelSmall: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color(0xFF6B7280)),
-            ),
-            inputDecorationTheme: InputDecorationTheme(
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFF2C7BE5), width: 2)),
-              errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFFB00020))),
-              focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFFB00020), width: 2)),
-              labelStyle: TextStyle(fontSize: 14.sp, color: const Color(0xFF6B7280)),
-              helperStyle: TextStyle(fontSize: 12.sp, color: const Color(0xFF6B7280)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-            ),
-            elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, foregroundColor: Colors.white, padding: EdgeInsets.zero, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)), elevation: 0),
-            ),
-            textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: const Color(0xFF6B7280), textStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600))),
-            iconTheme: const IconThemeData(color: Color(0xFF1A202C)),
-            appBarTheme: AppBarTheme(
-              backgroundColor: Colors.white,
-              elevation: 2,
-              shadowColor: const Color(0x1A000000),
-              titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: const Color(0xFF1A202C)),
-              iconTheme: const IconThemeData(color: Color(0xFF1A202C)),
-            ),
-            cardTheme: CardTheme(color: Colors.white, elevation: 3, shadowColor: const Color(0x1A000000), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)), margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h)),
-          ),
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            scaffoldBackgroundColor: const Color(0xFF121212),
-            primaryColor: const Color(0xFF2C7BE5),
-            colorScheme: ColorScheme.dark(
-              primary: const Color(0xFF2C7BE5),
-              secondary: const Color(0xFF1A4971),
-              onPrimary: Colors.white,
-              surface: const Color(0xFF1E1E1E),
-              onSurface: Colors.white,
-              onBackground: Colors.white,
-              outline: const Color(0xFF374151),
-              error: const Color(0xFFCF6679),
-              secondaryContainer: const Color(0xFF2D3748),
-            ),
-            textTheme: TextTheme(
-              headlineLarge: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w700, color: Colors.white),
-              headlineMedium: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Colors.white),
-              bodyLarge: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w400, color: const Color(0xFFD1D5DB)),
-              bodyMedium: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400, color: const Color(0xFFD1D5DB)),
-              labelMedium: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color(0xFF9CA3AF)),
-              labelSmall: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color(0xFF9CA3AF)),
-            ),
-            inputDecorationTheme: InputDecorationTheme(
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFF374151))),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFF2C7BE5), width: 2)),
-              errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFFCF6679))),
-              focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFFCF6679), width: 2)),
-              labelStyle: TextStyle(fontSize: 14.sp, color: const Color(0xFF9CA3AF)),
-              helperStyle: TextStyle(fontSize: 12.sp, color: const Color(0xFF9CA3AF)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-            ),
-            elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, foregroundColor: Colors.white, padding: EdgeInsets.zero, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)), elevation: 0),
-            ),
-            textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: const Color(0xFF9CA3AF), textStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600))),
-            iconTheme: const IconThemeData(color: Colors.white),
-            appBarTheme: AppBarTheme(
-              backgroundColor: const Color(0xFF1E1E1E),
-              elevation: 2,
-              shadowColor: const Color(0x1AFFFFFF),
-              titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Colors.white),
-              iconTheme: const IconThemeData(color: Colors.white),
-            ),
-            cardTheme: CardTheme(
-              color: const Color(0xFF1E1E1E),
-              elevation: 3,
-              shadowColor: const Color(0x1AFFFFFF),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-              margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-            ),
-          ),
-          themeMode: ThemeMode.system,
-          home: GoalsScreen(),
-        );
-      },
-    );
+  UserGoal({required this.id, required this.goalText, required this.achieveByDate});
+
+  // Factory constructor for creating a UserGoal from a JSON map
+  factory UserGoal.fromJson(Map<String, dynamic> json) {
+    return UserGoal(id: json['id'] as String, goalText: json['goalText'] as String, achieveByDate: DateTime.parse(json['achieveByDate'] as String));
+  }
+
+  // Method for converting a UserGoal to a JSON map
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'goalText': goalText,
+      'achieveByDate': achieveByDate.toIso8601String(), // Store as ISO 8601 string
+    };
   }
 }
 
-class GoalsScreen extends StatefulWidget {
-  final String? existingGoals; // For editing existing goals
-  final bool isEdit; // Flag to determine add or edit mode
+class GoalScreen extends StatefulWidget {
+  // Now expects a List of existing goals
+  final List<Map<String, dynamic>>? existingData;
 
-  const GoalsScreen({Key? key, this.existingGoals, this.isEdit = false}) : super(key: key);
+  const GoalScreen({Key? key, this.existingData}) : super(key: key);
 
   @override
-  _GoalsScreenState createState() => _GoalsScreenState();
+  _GoalScreenState createState() => _GoalScreenState();
 }
 
-class _GoalsScreenState extends State<GoalsScreen> {
-  final TextEditingController _newGoalController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
+class _GoalScreenState extends State<GoalScreen> {
+  final TextEditingController _goalTextController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  List<Map<String, dynamic>> _goals = [];
-  Map<String, bool> _showCrossIcon = {};
-  DateTime? _selectedDate;
+  DateTime? _selectedAchieveByDate;
+
+  List<UserGoal> _userGoals = []; // List to hold multiple goals
 
   @override
   void initState() {
     super.initState();
-    if (widget.isEdit && widget.existingGoals != null) {
-      try {
-        final decoded = jsonDecode(widget.existingGoals!) as List<dynamic>;
-        _goals = decoded.map((e) => {'text': e['text'] as String, 'accomplishedDate': e['accomplishedDate'] != null ? DateTime.parse(e['accomplishedDate']) : null}).toList();
-        _goals.forEach((goal) => _showCrossIcon[goal['text']] = false);
-      } catch (e) {
-        // Fallback: treat as comma-separated string
-        _goals = widget.existingGoals!.split(',').map((e) => {'text': e.trim(), 'accomplishedDate': null}).where((e) => e['text']!.isNotEmpty).toList();
-        _goals.forEach((goal) => _showCrossIcon[goal['text']] = false);
-      }
+    _loadGoalData();
+  }
+
+  void _loadGoalData() {
+    if (widget.existingData != null) {
+      _userGoals = widget.existingData!.map((data) => UserGoal.fromJson(data)).toList();
     }
   }
 
   @override
   void dispose() {
-    _newGoalController.dispose();
-    _dateController.dispose();
+    _goalTextController.dispose();
     super.dispose();
   }
 
-  void _toggleCrossIcon(String goalText) {
-    setState(() {
-      _showCrossIcon[goalText] = !_showCrossIcon[goalText]!;
-    });
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedAchieveByDate ?? DateTime.now(),
+      firstDate: DateTime.now(), // Cannot pick a date in the past
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).colorScheme.primary, // Header background color
+              onPrimary: Theme.of(context).colorScheme.onPrimary, // Header text color
+              onSurface: Theme.of(context).colorScheme.onSurface, // Body text color
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.primary, // Button text color
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedAchieveByDate) {
+      setState(() {
+        _selectedAchieveByDate = picked;
+      });
+    }
   }
 
-  void _deleteGoal(String goalText) {
-    setState(() {
-      _goals.removeWhere((goal) => goal['text'] == goalText);
-      _showCrossIcon.remove(goalText);
-    });
-  }
+  // Simplified to only add new goals
+  void _showAddGoalFormBottomSheet() {
+    _goalTextController.clear();
+    _selectedAchieveByDate = null; // Reset date for new entry
 
-  void _showAddGoalBottomSheet() {
-    _selectedDate = null;
-    _dateController.clear();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -187,52 +103,39 @@ class _GoalsScreenState extends State<GoalsScreen> {
       builder:
           (context) => Container(
             margin: EdgeInsets.only(top: 24.h),
-            decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.vertical(top: Radius.circular(16.r))),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.vertical(top: Radius.circular(16.r))),
             child: Padding(
-              padding: EdgeInsets.all(20.w),
+              padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.h, bottom: MediaQuery.of(context).viewInsets.bottom + 16.h),
               child: Form(
                 key: _formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Center(child: Container(width: 40.w, height: 4.h, decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer, borderRadius: BorderRadius.circular(2.r)))),
+                    Center(child: Container(width: 40.w, height: 4.h, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5), borderRadius: BorderRadius.circular(2.r)))),
                     SizedBox(height: 16.h),
-                    Text('Add Goal', style: Theme.of(context).textTheme.headlineMedium),
+                    Text('Add New Goal', style: Theme.of(context).textTheme.headlineMedium),
                     SizedBox(height: 8.h),
-                    Text('Enter a new goal and optionally set an achieved by date.', style: Theme.of(context).textTheme.bodyLarge),
-                    SizedBox(height: 24.h),
+                    Text('Define a specific, measurable goal and when you plan to achieve it.', style: Theme.of(context).textTheme.bodyLarge),
+                    SizedBox(height: 16.h),
                     TextFormField(
-                      controller: _newGoalController,
-                      decoration: InputDecoration(labelText: 'Goal', helperText: 'e.g., Launch a startup', labelStyle: Theme.of(context).textTheme.labelMedium),
+                      controller: _goalTextController,
+                      decoration: InputDecoration(labelText: 'What is your goal?', helperText: 'e.g., Run a marathon, Learn a new language, Save for a down payment', labelStyle: Theme.of(context).textTheme.labelMedium),
                       style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface),
+                      maxLines: 3,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter a goal';
+                          return 'Please enter your goal';
                         }
                         return null;
                       },
                     ),
                     SizedBox(height: 16.h),
-                    TextFormField(
-                      controller: _dateController,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: 'Achieved By',
-                        helperText: 'Optional: Select a target completion date',
-                        labelStyle: Theme.of(context).textTheme.labelMedium,
-                        suffixIcon: Icon(Icons.calendar_today, size: 16.sp, color: Theme.of(context).colorScheme.onSurface),
-                      ),
-                      style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface),
-                      onTap: () async {
-                        final pickedDate = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
-                        if (pickedDate != null) {
-                          setState(() {
-                            _selectedDate = pickedDate;
-                            _dateController.text = DateFormat.yMMMd().format(pickedDate);
-                          });
-                        }
-                      },
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(_selectedAchieveByDate == null ? 'Achieve By: Select Date' : 'Achieve By: ${DateFormat.yMMMd().format(_selectedAchieveByDate!)}', style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface)),
+                      trailing: Icon(Icons.calendar_today, size: 20.sp, color: Theme.of(context).colorScheme.primary),
+                      onTap: () => _selectDate(context),
                     ),
                     SizedBox(height: 32.h),
                     Row(
@@ -241,38 +144,48 @@ class _GoalsScreenState extends State<GoalsScreen> {
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pop();
-                            _newGoalController.clear();
-                            _dateController.clear();
-                            _selectedDate = null;
+                            _goalTextController.clear();
+                            _selectedAchieveByDate = null; // Clear selected date on cancel
                           },
-                          child: Text('Cancel', style: Theme.of(context).textTheme.bodySmall),
+                          child: Text('Cancel', style: Theme.of(context).textTheme.labelMedium),
                         ),
                         SizedBox(width: 16.w),
-                        ElevatedButton(
+                        FilledButton.icon(
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
+                            if (_formKey.currentState!.validate() && _selectedAchieveByDate != null) {
                               setState(() {
-                                _goals.add({'text': _newGoalController.text.trim(), 'accomplishedDate': _selectedDate});
-                                _showCrossIcon[_newGoalController.text.trim()] = false;
+                                _userGoals.add(
+                                  UserGoal(
+                                    id: DateTime.now().microsecondsSinceEpoch.toString(), // Unique ID
+                                    goalText: _goalTextController.text.trim(),
+                                    achieveByDate: _selectedAchieveByDate!,
+                                  ),
+                                );
                               });
                               Navigator.of(context).pop();
-                              _newGoalController.clear();
-                              _dateController.clear();
-                              _selectedDate = null;
+                              _goalTextController.clear();
+                              _selectedAchieveByDate = null; // Clear selected date after saving
+                            } else if (_selectedAchieveByDate == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select an "Achieve By" date.'), backgroundColor: Theme.of(context).colorScheme.error));
                             }
                           },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary], begin: Alignment.centerLeft, end: Alignment.centerRight),
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
                             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-                            child: Text('Save', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onPrimary)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                          ),
+                          icon: Icon(
+                            Icons.add, // Always "Add" icon
+                            size: 18.sp,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          label: Text(
+                            'Add Goal', // Always "Add Goal"
+                            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onPrimary),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
                   ],
                 ),
               ),
@@ -281,100 +194,144 @@ class _GoalsScreenState extends State<GoalsScreen> {
     );
   }
 
-  void _saveGoals() {
-    if (_goals.isNotEmpty) {
-      // Return data as JSON-encoded string
-      final goalsJson = jsonEncode(_goals.map((goal) => {'text': goal['text'], 'accomplishedDate': goal['accomplishedDate']?.toIso8601String()}).toList());
-      Navigator.of(context).pop(goalsJson);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please add at least one goal'), backgroundColor: Theme.of(context).colorScheme.error));
-    }
+  void _confirmDeleteGoal(UserGoal goalToDelete) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Delete Goal?', style: Theme.of(context).textTheme.titleLarge),
+            content: Text('Are you sure you want to delete "${goalToDelete.goalText}"?', style: Theme.of(context).textTheme.bodyMedium),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancel', style: Theme.of(context).textTheme.labelLarge)),
+              FilledButton(
+                onPressed: () {
+                  setState(() {
+                    _userGoals.removeWhere((goal) => goal.id == goalToDelete.id);
+                  });
+                  Navigator.of(context).pop();
+                },
+                style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error, padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r))),
+                child: Text('Delete', style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onError, fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color), onPressed: () => Navigator.of(context).pop()),
-        title: Text(widget.isEdit ? 'Edit Goals' : 'Add Goals', style: Theme.of(context).textTheme.headlineMedium),
-        actions: [IconButton(icon: Icon(Icons.add, color: Theme.of(context).iconTheme.color), onPressed: _showAddGoalBottomSheet)],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 0.w, vertical: 24.h),
-          child: Card(
-            margin: EdgeInsets.symmetric(horizontal: 10.w),
-            color: Theme.of(context).scaffoldBackgroundColor,
-            child: Padding(
-              padding: EdgeInsets.all(20.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Define Your Goals', style: Theme.of(context).textTheme.headlineLarge),
-                  SizedBox(height: 8.h),
-                  Text('List the goals that drive your professional aspirations.', style: Theme.of(context).textTheme.bodyLarge),
-                  SizedBox(height: 24.h),
-                  if (_goals.isEmpty)
-                    Text('No goals added yet. Tap the + icon to add one.', style: Theme.of(context).textTheme.bodyMedium)
-                  else
-                    Wrap(
-                      spacing: 12.w, // Increased spacing for better separation
-                      runSpacing: 12.h, // Increased run spacing for better vertical alignment
-                      alignment: WrapAlignment.start, // Align chips to the start
-                      children:
-                          _goals.map((goal) {
-                            return GestureDetector(
-                              onTap: () => _toggleCrossIcon(goal['text']),
-                              child: Chip(
-                                label: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(goal['text'], style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface)),
-                                    if (goal['accomplishedDate'] != null) Text('By: ${DateFormat.yMMMd().format(goal['accomplishedDate'])}', style: TextStyle(fontSize: 10.sp, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7))),
-                                  ],
-                                ),
-                                backgroundColor: Theme.of(context).colorScheme.surface,
-                                side: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1.w),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
-                                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h), // Increased padding for better readability
-                                deleteIcon: Icon(Icons.close, size: 16.sp, color: Theme.of(context).colorScheme.onSurface),
-                                onDeleted: _showCrossIcon[goal['text']]! ? () => _deleteGoal(goal['text']) : null,
-                              ),
-                            );
-                          }).toList(),
-                    ),
-                  SizedBox(height: 32.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('Cancel', style: Theme.of(context).textTheme.bodySmall),
-                      ),
-                      SizedBox(width: 16.w),
-                      ElevatedButton(
-                        onPressed: _saveGoals,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary], begin: Alignment.centerLeft, end: Alignment.centerRight),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-                          child: Text('Save', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onPrimary)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(56.h),
+        child: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          elevation: 0,
+          bottom: PreferredSize(preferredSize: Size.fromHeight(1.h), child: Container(color: Theme.of(context).colorScheme.outline, height: 1.h)),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, size: 24.sp, color: Theme.of(context).colorScheme.onSurface),
+            onPressed: () {
+              // On back, return the list of goals data
+              Navigator.of(context).pop(_userGoals.map((goal) => goal.toJson()).toList());
+            },
           ),
+          title: Text(
+            'My Goals', // Title adjusted for multiple goals
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add, size: 24.sp, color: Theme.of(context).colorScheme.onSurface),
+              onPressed: () => _showAddGoalFormBottomSheet(), // Always adds a new goal
+            ),
+          ],
         ),
+      ),
+      body:
+          _userGoals.isEmpty
+              ? const EmptyGoalWidget()
+              : SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                child: Wrap(
+                  spacing: 6.w, // Reduced horizontal space between chips
+                  runSpacing: 6.h, // Reduced vertical space between rows of chips
+                  children:
+                      _userGoals.map((goal) {
+                        return Chip(
+                          visualDensity: VisualDensity.compact, // Make the chip itself more compact
+                          avatar: Icon(
+                            Icons.star_outline, // Star icon on the left
+                            size: 18.sp, // Slightly smaller icon
+                            color: Theme.of(context).colorScheme.primary, // Consistent with Core Values avatar color
+                          ),
+                          labelPadding: EdgeInsets.symmetric(horizontal: 4.w), // Reduced padding around label
+                          label: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min, // To keep column compact
+                            children: [
+                              Text(
+                                goal.goalText,
+                                style: TextStyle(
+                                  fontSize: 13.sp, // Slightly smaller font size
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                                maxLines: 2, // Allow goal text to wrap
+                                overflow: TextOverflow.ellipsis, // Add ellipsis if too long
+                              ),
+                              SizedBox(height: 1.h), // Reduced space
+                              Text(
+                                'By: ${DateFormat.yMMMd().format(goal.achieveByDate)}',
+                                style: TextStyle(
+                                  fontSize: 10.sp, // Even smaller for date
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
+                          ),
+                          backgroundColor: Theme.of(context).colorScheme.secondaryContainer, // Same as Core Values chips
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.r), // Slightly more compact rounding
+                          ),
+                          side: BorderSide.none, // No border, consistent with Core Values
+                          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h), // Reduced overall chip padding
+                          onDeleted: () => _confirmDeleteGoal(goal), // Delete icon on the right
+                          deleteIcon: Icon(Icons.close, size: 16.sp, color: Theme.of(context).colorScheme.error), // Cross icon, slightly smaller
+                        );
+                      }).toList(),
+                ),
+              ),
+    );
+  }
+}
+
+class EmptyGoalWidget extends StatelessWidget {
+  const EmptyGoalWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: 48.h, left: 16.w, right: 16.w, bottom: 24.h),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.lightbulb_outline, // Icon for empty state goal
+            size: 64.sp,
+            color: Theme.of(context).colorScheme.tertiary, // tertiary color for goal-related icons
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'Set Your Goals', // Title adjusted for multiple goals
+            style: Theme.of(context).textTheme.headlineMedium,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 8.h),
+          Text('What do you want to achieve? Tap the + icon to add your first goal and set a target date.', style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center),
+        ],
       ),
     );
   }

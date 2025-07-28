@@ -4,121 +4,107 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'dart:math'; // For generating random Picsum IDs
 
-// Education Model (unchanged)
-class Education {
-  final String degree;
-  final String institute;
+// Experience Model
+class Experience {
+  final String title;
+  final String company;
   final String description;
-  final DateTime admissionDate;
-  final DateTime? graduationDate;
-  final String imageUrl;
+  final DateTime startDate;
+  final DateTime? endDate;
+  final String imageUrl; // For company logo/image
 
-  Education({required this.degree, required this.institute, required this.description, required this.admissionDate, this.graduationDate, required this.imageUrl});
+  Experience({required this.title, required this.company, required this.description, required this.startDate, this.endDate, required this.imageUrl});
 
-  factory Education.fromJson(Map<String, dynamic> json) {
-    return Education(
-      degree: json['degree'] as String,
-      institute: json['institute'] as String,
+  factory Experience.fromJson(Map<String, dynamic> json) {
+    return Experience(
+      title: json['title'] as String,
+      company: json['company'] as String,
       description: json['description'] as String,
-      admissionDate: DateTime.parse(json['admissionDate'] as String),
-      graduationDate: json['graduationDate'] != null ? DateTime.parse(json['graduationDate'] as String) : null,
-      imageUrl: json['imageUrl'] as String? ?? '', // Default to empty string
+      startDate: DateTime.parse(json['startDate'] as String),
+      endDate: json['endDate'] != null ? DateTime.parse(json['endDate'] as String) : null,
+      imageUrl: json['imageUrl'] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'degree': degree, 'institute': institute, 'description': description, 'admissionDate': admissionDate.toIso8601String(), 'graduationDate': graduationDate?.toIso8601String(), 'imageUrl': imageUrl};
+    return {'title': title, 'company': company, 'description': description, 'startDate': startDate.toIso8601String(), 'endDate': endDate?.toIso8601String(), 'imageUrl': imageUrl};
   }
 
-  Education copyWith({String? degree, String? institute, String? description, DateTime? admissionDate, DateTime? graduationDate, String? imageUrl}) {
-    return Education(
-      degree: degree ?? this.degree,
-      institute: institute ?? this.institute,
-      description: description ?? this.description,
-      admissionDate: admissionDate ?? this.admissionDate,
-      graduationDate: graduationDate ?? this.graduationDate,
-      imageUrl: imageUrl ?? this.imageUrl,
-    );
+  Experience copyWith({String? title, String? company, String? description, DateTime? startDate, DateTime? endDate, String? imageUrl}) {
+    return Experience(title: title ?? this.title, company: company ?? this.company, description: description ?? this.description, startDate: startDate ?? this.startDate, endDate: endDate ?? this.endDate, imageUrl: imageUrl ?? this.imageUrl);
   }
 }
 
-class EducationScreen extends StatefulWidget {
-  final String? existingEducation;
+class ExperienceScreen extends StatefulWidget {
+  final String? existingExperience;
   final bool isEdit;
 
-  const EducationScreen({Key? key, this.existingEducation, this.isEdit = false}) : super(key: key);
+  const ExperienceScreen({Key? key, this.existingExperience, this.isEdit = false}) : super(key: key);
 
   @override
-  _EducationScreenState createState() => _EducationScreenState();
+  _ExperienceScreenState createState() => _ExperienceScreenState();
 }
 
-class _EducationScreenState extends State<EducationScreen> {
-  final TextEditingController _degreeController = TextEditingController();
-  final TextEditingController _instituteController = TextEditingController();
+class _ExperienceScreenState extends State<ExperienceScreen> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _companyController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _admissionDateController = TextEditingController();
-  final TextEditingController _graduationDateController = TextEditingController();
+  final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  List<Education> _educationEntries = [];
-  String? _cardInDeleteMode; // Stores the degree of the card currently in delete mode
-  DateTime? _admissionDate;
-  DateTime? _graduationDate;
+  List<Experience> _experienceEntries = [];
+  String? _cardInDeleteMode; // Stores the title of the card currently in delete mode
+  DateTime? _startDate;
+  DateTime? _endDate;
   final Random _random = Random(); // For generating random Picsum IDs
 
   @override
   void initState() {
     super.initState();
-    _loadEducationData();
+    _loadExperienceData();
   }
 
-  // Helper to generate a random Picsum image URL
+  // Helper to generate a random Picsum image URL for company logos
   String _generatePicsumUrl() {
     final int imageId = _random.nextInt(1000); // Random ID between 0 and 999
     return 'https://picsum.photos/id/$imageId/200/112'; // 200 width, 112 height for 16:9 aspect
   }
 
-  void _loadEducationData() {
-    if (widget.isEdit && widget.existingEducation != null) {
+  void _loadExperienceData() {
+    if (widget.isEdit && widget.existingExperience != null) {
       try {
-        final List<dynamic> decoded = jsonDecode(widget.existingEducation!);
-        _educationEntries = decoded.map((e) => Education.fromJson(e as Map<String, dynamic>)).toList();
+        final List<dynamic> decoded = jsonDecode(widget.existingExperience!);
+        _experienceEntries = decoded.map((e) => Experience.fromJson(e as Map<String, dynamic>)).toList();
       } catch (e) {
-        _educationEntries = [];
-        print('Error decoding existing education: $e');
+        _experienceEntries = [];
+        print('Error decoding existing experience: $e');
       }
     } else {
-      _educationEntries = [
-        Education(
-          degree: 'B.Sc. Computer Science',
-          institute: 'University of California, Berkeley',
-          description: 'Focused on software development, data structures, and algorithms. Achieved a GPA of 3.8/4.0 and graduated with honors.',
-          admissionDate: DateTime(2018, 9),
-          graduationDate: DateTime(2022, 5),
+      // Dummy data for demonstration
+      _experienceEntries = [
+        Experience(
+          title: 'Senior Software Engineer',
+          company: 'Tech Solutions Inc.',
+          description: 'Led a team of 5 in developing scalable web applications using Flutter and Node.js. Improved system performance by 30%.',
+          startDate: DateTime(2022, 1),
+          endDate: null, // Current job
           imageUrl: _generatePicsumUrl(),
         ),
-        Education(
-          degree: 'M.B.A. Business Administration',
-          institute: 'Stanford University',
-          description: 'Specialized in marketing and finance. Completed a capstone project on market entry strategies for tech startups, leading a team of 5.',
-          admissionDate: DateTime(2014, 9),
-          graduationDate: DateTime(2016, 6),
+        Experience(
+          title: 'Software Developer',
+          company: 'Innovate Co.',
+          description: 'Developed and maintained mobile applications for various clients. Implemented new features and optimized existing codebase.',
+          startDate: DateTime(2019, 6),
+          endDate: DateTime(2021, 12),
           imageUrl: _generatePicsumUrl(),
         ),
-        Education(
-          degree: 'Ph.D. Economics',
-          institute: 'Harvard University',
-          description: 'Doctoral research focused on behavioral economics and policy implications. Published 2 papers in peer-reviewed journals and presented at 3 international conferences.',
-          admissionDate: DateTime(2010, 9),
-          graduationDate: DateTime(2014, 5),
+        Experience(
+          title: 'Junior Developer Intern',
+          company: 'Startup Hub',
+          description: 'Assisted senior developers with front-end development and bug fixing. Gained hands-on experience with Agile methodologies.',
+          startDate: DateTime(2018, 5),
+          endDate: DateTime(2018, 8),
           imageUrl: _generatePicsumUrl(),
-        ),
-        Education(
-          degree: 'High School Diploma',
-          institute: 'Local High School',
-          description: 'Graduated with academic distinction, participating in debate club and chess club.',
-          admissionDate: DateTime(2006, 9),
-          graduationDate: DateTime(2010, 6),
-          imageUrl: _generatePicsumUrl(), // Now generates a Picsum for all examples
         ),
       ];
     }
@@ -126,35 +112,35 @@ class _EducationScreenState extends State<EducationScreen> {
 
   @override
   void dispose() {
-    _degreeController.dispose();
-    _instituteController.dispose();
+    _titleController.dispose();
+    _companyController.dispose();
     _descriptionController.dispose();
-    _admissionDateController.dispose();
-    _graduationDateController.dispose();
+    _startDateController.dispose();
+    _endDateController.dispose();
     super.dispose();
   }
 
-  void _toggleDeleteOverlay(String degree) {
+  void _toggleDeleteOverlay(String title) {
     setState(() {
-      _cardInDeleteMode = (_cardInDeleteMode == degree) ? null : degree;
+      _cardInDeleteMode = (_cardInDeleteMode == title) ? null : title;
     });
   }
 
-  void _deleteEntry(String degree) {
+  void _deleteEntry(String title) {
     setState(() {
-      _educationEntries.removeWhere((entry) => entry.degree == degree);
+      _experienceEntries.removeWhere((entry) => entry.title == title);
       _cardInDeleteMode = null; // Exit delete mode after deletion
     });
   }
 
-  void _showAddEducationBottomSheet() {
-    _degreeController.clear();
-    _instituteController.clear();
+  void _showAddExperienceBottomSheet() {
+    _titleController.clear();
+    _companyController.clear();
     _descriptionController.clear();
-    _admissionDateController.clear();
-    _graduationDateController.clear();
-    _admissionDate = null;
-    _graduationDate = null;
+    _startDateController.clear();
+    _endDateController.clear();
+    _startDate = null;
+    _endDate = null;
 
     showModalBottomSheet(
       context: context,
@@ -174,29 +160,29 @@ class _EducationScreenState extends State<EducationScreen> {
                   children: [
                     Center(child: Container(width: 40.w, height: 4.h, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5), borderRadius: BorderRadius.circular(2.r)))),
                     SizedBox(height: 16.h),
-                    Text('Add Education', style: Theme.of(context).textTheme.headlineMedium),
+                    Text('Add Experience', style: Theme.of(context).textTheme.headlineMedium),
                     SizedBox(height: 8.h),
-                    Text('Enter details for a new education entry.', style: Theme.of(context).textTheme.bodyLarge),
+                    Text('Enter details for a new work experience entry.', style: Theme.of(context).textTheme.bodyLarge),
                     SizedBox(height: 16.h),
                     TextFormField(
-                      controller: _degreeController,
-                      decoration: InputDecoration(labelText: 'Degree', helperText: 'e.g., B.Sc. Computer Science', labelStyle: Theme.of(context).textTheme.labelMedium),
+                      controller: _titleController,
+                      decoration: InputDecoration(labelText: 'Job Title', helperText: 'e.g., Software Engineer, Project Manager', labelStyle: Theme.of(context).textTheme.labelMedium),
                       style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter a degree';
+                          return 'Please enter a job title';
                         }
                         return null;
                       },
                     ),
                     SizedBox(height: 16.h),
                     TextFormField(
-                      controller: _instituteController,
-                      decoration: InputDecoration(labelText: 'Institute', helperText: 'e.g., MIT', labelStyle: Theme.of(context).textTheme.labelMedium),
+                      controller: _companyController,
+                      decoration: InputDecoration(labelText: 'Company', helperText: 'e.g., Google, Microsoft', labelStyle: Theme.of(context).textTheme.labelMedium),
                       style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter an institute';
+                          return 'Please enter a company name';
                         }
                         return null;
                       },
@@ -204,60 +190,60 @@ class _EducationScreenState extends State<EducationScreen> {
                     SizedBox(height: 16.h),
                     TextFormField(
                       controller: _descriptionController,
-                      decoration: InputDecoration(labelText: 'Description', helperText: 'e.g., Specialized in AI and machine learning', labelStyle: Theme.of(context).textTheme.labelMedium),
+                      decoration: InputDecoration(labelText: 'Job Description', helperText: 'e.g., Developed, managed, led team...', labelStyle: Theme.of(context).textTheme.labelMedium),
                       style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface),
                       maxLines: 3,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter a description';
+                          return 'Please enter a job description';
                         }
                         return null;
                       },
                     ),
                     SizedBox(height: 16.h),
                     TextFormField(
-                      controller: _admissionDateController,
+                      controller: _startDateController,
                       readOnly: true,
                       decoration: InputDecoration(
-                        labelText: 'Admission Date',
-                        helperText: 'Select admission date',
+                        labelText: 'Start Date',
+                        helperText: 'Select start date',
                         labelStyle: Theme.of(context).textTheme.labelMedium,
                         suffixIcon: Icon(Icons.calendar_today, size: 16.sp, color: Theme.of(context).colorScheme.onSurface),
                       ),
                       style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface),
                       validator: (value) {
-                        if (_admissionDate == null) {
-                          return 'Please select an admission date';
+                        if (_startDate == null) {
+                          return 'Please select a start date';
                         }
                         return null;
                       },
                       onTap: () async {
-                        final pickedDate = await showDatePicker(context: context, initialDate: _admissionDate ?? DateTime.now(), firstDate: DateTime(1950), lastDate: DateTime(2100));
+                        final pickedDate = await showDatePicker(context: context, initialDate: _startDate ?? DateTime.now(), firstDate: DateTime(1950), lastDate: DateTime(2100));
                         if (pickedDate != null) {
                           setState(() {
-                            _admissionDate = pickedDate;
-                            _admissionDateController.text = DateFormat.yMMMd().format(pickedDate);
+                            _startDate = pickedDate;
+                            _startDateController.text = DateFormat.yMMMd().format(pickedDate);
                           });
                         }
                       },
                     ),
                     SizedBox(height: 16.h),
                     TextFormField(
-                      controller: _graduationDateController,
+                      controller: _endDateController,
                       readOnly: true,
                       decoration: InputDecoration(
-                        labelText: 'Graduation Date',
-                        helperText: 'Optional: Select graduation date',
+                        labelText: 'End Date (Optional)',
+                        helperText: 'Select end date or leave empty for current',
                         labelStyle: Theme.of(context).textTheme.labelMedium,
                         suffixIcon: Icon(Icons.calendar_today, size: 16.sp, color: Theme.of(context).colorScheme.onSurface),
                       ),
                       style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface),
                       onTap: () async {
-                        final pickedDate = await showDatePicker(context: context, initialDate: _graduationDate ?? _admissionDate ?? DateTime.now(), firstDate: _admissionDate ?? DateTime(1950), lastDate: DateTime(2100));
+                        final pickedDate = await showDatePicker(context: context, initialDate: _endDate ?? _startDate ?? DateTime.now(), firstDate: _startDate ?? DateTime(1950), lastDate: DateTime(2100));
                         if (pickedDate != null) {
                           setState(() {
-                            _graduationDate = pickedDate;
-                            _graduationDateController.text = DateFormat.yMMMd().format(pickedDate);
+                            _endDate = pickedDate;
+                            _endDateController.text = DateFormat.yMMMd().format(pickedDate);
                           });
                         }
                       },
@@ -274,33 +260,32 @@ class _EducationScreenState extends State<EducationScreen> {
                           child: Text('Cancel', style: Theme.of(context).textTheme.labelMedium),
                         ),
                         SizedBox(width: 16.w),
-                        // Updated Save Button: Filled button with icon, primary color, no gradient
                         FilledButton.icon(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              final newDegree = _degreeController.text.trim();
-                              final newEducation = Education(
-                                degree: newDegree,
-                                institute: _instituteController.text.trim(),
+                              final newTitle = _titleController.text.trim();
+                              final newExperience = Experience(
+                                title: newTitle,
+                                company: _companyController.text.trim(),
                                 description: _descriptionController.text.trim(),
-                                admissionDate: _admissionDate!,
-                                graduationDate: _graduationDate,
+                                startDate: _startDate!,
+                                endDate: _endDate,
                                 imageUrl: _generatePicsumUrl(), // Generate Picsum for new entries
                               );
                               setState(() {
-                                _educationEntries.add(newEducation);
+                                _experienceEntries.add(newExperience);
                               });
                               Navigator.of(context).pop();
                               _clearBottomSheetFields();
                             }
                           },
                           style: FilledButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.primary, // Primary color
+                            backgroundColor: Theme.of(context).colorScheme.primary,
                             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                           ),
                           icon: Icon(Icons.add, size: 18.sp, color: Theme.of(context).colorScheme.onPrimary),
-                          label: Text('Add Education', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onPrimary)),
+                          label: Text('Add Experience', style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onPrimary)),
                         ),
                       ],
                     ),
@@ -313,18 +298,18 @@ class _EducationScreenState extends State<EducationScreen> {
   }
 
   void _clearBottomSheetFields() {
-    _degreeController.clear();
-    _instituteController.clear();
+    _titleController.clear();
+    _companyController.clear();
     _descriptionController.clear();
-    _admissionDateController.clear();
-    _graduationDateController.clear();
-    _admissionDate = null;
-    _graduationDate = null;
+    _startDateController.clear();
+    _endDateController.clear();
+    _startDate = null;
+    _endDate = null;
   }
 
-  void _saveEducation() {
-    final educationJson = jsonEncode(_educationEntries.map((entry) => entry.toJson()).toList());
-    Navigator.of(context).pop(educationJson);
+  void _saveExperience() {
+    final experienceJson = jsonEncode(_experienceEntries.map((entry) => entry.toJson()).toList());
+    Navigator.of(context).pop(experienceJson);
   }
 
   @override
@@ -339,44 +324,39 @@ class _EducationScreenState extends State<EducationScreen> {
           bottom: PreferredSize(preferredSize: Size.fromHeight(1.h), child: Container(color: Theme.of(context).colorScheme.outline, height: 1.h)),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, size: 24.sp, color: Theme.of(context).colorScheme.onSurface),
-            onPressed: _saveEducation, // Back button always saves and pops
+            onPressed: _saveExperience, // Back button always saves and pops
           ),
-          title: Text(widget.isEdit ? 'Edit Education' : 'Education', style: Theme.of(context).textTheme.headlineMedium),
+          title: Text(widget.isEdit ? 'Edit Experience' : 'Experience', style: Theme.of(context).textTheme.headlineMedium),
           centerTitle: true,
-          actions: [IconButton(icon: Icon(Icons.add, size: 24.sp, color: Theme.of(context).colorScheme.onSurface), onPressed: _showAddEducationBottomSheet)],
+          actions: [IconButton(icon: Icon(Icons.add, size: 24.sp, color: Theme.of(context).colorScheme.onSurface), onPressed: _showAddExperienceBottomSheet)],
         ),
       ),
       body:
-          _educationEntries.isEmpty
-              ? const EmptyEducationWidget()
+          _experienceEntries.isEmpty
+              ? const EmptyExperienceWidget()
               : SingleChildScrollView(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children:
-                        _educationEntries.map((entry) {
-                          final String degree = entry.degree;
-                          final bool isCardSelectedForDelete = _cardInDeleteMode == degree;
+                        _experienceEntries.map((entry) {
+                          final String title = entry.title;
+                          final bool isCardSelectedForDelete = _cardInDeleteMode == title;
 
                           return GestureDetector(
-                            onTap: () => _toggleDeleteOverlay(degree), // Tap to toggle delete overlay
+                            onTap: () => _toggleDeleteOverlay(title), // Tap to toggle delete overlay
                             child: Card(
                               margin: EdgeInsets.symmetric(horizontal: 0.w, vertical: 8.h),
-                              // The CardTheme in main.dart will handle elevation and shadowColor
-                              // No need for a specific elevation here.
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16.r), // Ensure consistent border radius
-                              ),
+                              // Uses theme's CardTheme elevation and shape
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
                               child: Stack(
-                                // Wrap content in a Stack to layer the overlay
                                 children: [
                                   Container(
                                     // Main content of the card
                                     padding: EdgeInsets.all(16.w),
                                     decoration: BoxDecoration(
-                                      // --- MODIFICATION HERE: Using secondaryContainer for darker background ---
-                                      color: Theme.of(context).colorScheme.secondaryContainer,
+                                      color: Theme.of(context).colorScheme.secondaryContainer, // Slightly darker background
                                       borderRadius: BorderRadius.circular(16.r),
                                     ),
                                     child: Column(
@@ -391,13 +371,13 @@ class _EducationScreenState extends State<EducationScreen> {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    '${DateFormat.yMMM().format(entry.admissionDate)} - ${entry.graduationDate != null ? DateFormat.yMMM().format(entry.graduationDate!) : 'Present'}',
+                                                    '${DateFormat.yMMM().format(entry.startDate)} - ${entry.endDate != null ? DateFormat.yMMM().format(entry.endDate!) : 'Present'}',
                                                     style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                                   ),
                                                   SizedBox(height: 4.h),
-                                                  Text(entry.institute, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
+                                                  Text(entry.company, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
                                                   SizedBox(height: 4.h),
-                                                  Text(entry.degree, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                                                  Text(entry.title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                                                 ],
                                               ),
                                             ),
@@ -414,10 +394,23 @@ class _EducationScreenState extends State<EducationScreen> {
                                                             entry.imageUrl,
                                                             fit: BoxFit.cover,
                                                             errorBuilder:
-                                                                (context, error, stackTrace) =>
-                                                                    Container(color: Theme.of(context).colorScheme.surfaceVariant, child: Icon(Icons.school, size: 32.sp, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                                                                (context, error, stackTrace) => Container(
+                                                                  color: Theme.of(context).colorScheme.surfaceVariant,
+                                                                  child: Icon(
+                                                                    Icons.business, // Changed icon for experience
+                                                                    size: 32.sp,
+                                                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                                  ),
+                                                                ),
                                                           )
-                                                          : Container(color: Theme.of(context).colorScheme.surfaceVariant, child: Icon(Icons.school, size: 32.sp, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                                                          : Container(
+                                                            color: Theme.of(context).colorScheme.surfaceVariant,
+                                                            child: Icon(
+                                                              Icons.business, // Changed icon for experience
+                                                              size: 32.sp,
+                                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                            ),
+                                                          ),
                                                 ),
                                               ),
                                             ),
@@ -430,16 +423,12 @@ class _EducationScreenState extends State<EducationScreen> {
                                   ),
                                   if (isCardSelectedForDelete)
                                     Positioned.fill(
-                                      // This makes the overlay cover the whole card
                                       child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.5), // Backdrop inside the card
-                                          borderRadius: BorderRadius.circular(16.r),
-                                        ),
+                                        decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), borderRadius: BorderRadius.circular(16.r)),
                                         child: Center(
                                           child: FloatingActionButton(
-                                            heroTag: 'delete_${entry.degree}', // Unique tag for each FAB
-                                            onPressed: () => _deleteEntry(degree),
+                                            heroTag: 'delete_${entry.title}', // Unique tag
+                                            onPressed: () => _deleteEntry(title),
                                             backgroundColor: Theme.of(context).colorScheme.error,
                                             mini: true,
                                             child: Icon(Icons.delete_forever, color: Theme.of(context).colorScheme.onError),
@@ -459,8 +448,8 @@ class _EducationScreenState extends State<EducationScreen> {
   }
 }
 
-class EmptyEducationWidget extends StatelessWidget {
-  const EmptyEducationWidget({super.key});
+class EmptyExperienceWidget extends StatelessWidget {
+  const EmptyExperienceWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -470,11 +459,15 @@ class EmptyEducationWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(Icons.school, size: 64.sp, color: Theme.of(context).colorScheme.primary),
+          Icon(
+            Icons.work, // Changed icon for experience
+            size: 64.sp,
+            color: Theme.of(context).colorScheme.primary,
+          ),
           SizedBox(height: 16.h),
-          Text('No Education Entries Yet', style: Theme.of(context).textTheme.headlineMedium, textAlign: TextAlign.center),
+          Text('No Experience Entries Yet', style: Theme.of(context).textTheme.headlineMedium, textAlign: TextAlign.center),
           SizedBox(height: 8.h),
-          Text('Tap the + icon in the top right to add your educational qualifications.', style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center),
+          Text('Tap the + icon in the top right to add your work experience.', style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center),
         ],
       ),
     );
