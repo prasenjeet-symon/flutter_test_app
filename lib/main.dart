@@ -15,12 +15,14 @@ import 'package:flutter_test_app/dashboard/comments_screen.dart';
 import 'package:flutter_test_app/dashboard/connection.dart';
 import 'package:flutter_test_app/dashboard/create_post_screen.dart';
 import 'package:flutter_test_app/dashboard/create_video_post_screen.dart';
+import 'package:flutter_test_app/dashboard/edit-profile.dart';
 import 'package:flutter_test_app/dashboard/followers.dart';
 import 'package:flutter_test_app/dashboard/followings.dart';
 import 'package:flutter_test_app/dashboard/organization-topics-selection.dart';
 import 'package:flutter_test_app/dashboard/post_likers_screen.dart';
 import 'package:flutter_test_app/dashboard/profile.dart';
 import 'package:flutter_test_app/dashboard/selected_topics_order_screen.dart';
+import 'package:flutter_test_app/dashboard/social_feed_page.dart';
 import 'package:flutter_test_app/dashboard/suggested-user.dart';
 import 'package:flutter_test_app/dashboard/text_feed_screen.dart';
 import 'package:flutter_test_app/dashboard/tumblr_feed_screen.dart';
@@ -171,7 +173,7 @@ class MyApp extends StatelessWidget {
           ),
           themeMode: ThemeMode.system,
           // home: PostLikersScreen(postId: '1'),
-          home: CreateVideoPostScreen(),
+          home: SocialFeedPage(),
           //home: PersonalInformationScreen(),
         );
       },
