@@ -25,6 +25,7 @@ import 'package:flutter_test_app/dashboard/selected_topics_order_screen.dart';
 import 'package:flutter_test_app/dashboard/social_feed_page.dart';
 import 'package:flutter_test_app/dashboard/suggested-user.dart';
 import 'package:flutter_test_app/dashboard/text_feed_screen.dart';
+import 'package:flutter_test_app/dashboard/topic-feed-screen.dart';
 import 'package:flutter_test_app/dashboard/tumblr_feed_screen.dart';
 import 'package:flutter_test_app/dashboard/user_activity_timeline_screen.dart';
 import 'package:flutter_test_app/dashboard/video_feed_screen.dart';
@@ -173,7 +174,7 @@ class MyApp extends StatelessWidget {
           ),
           themeMode: ThemeMode.system,
           // home: PostLikersScreen(postId: '1'),
-          home: SocialFeedPage(),
+          home: TopicPostsScreen(topicId: 'topic1'),
           //home: PersonalInformationScreen(),
         );
       },
