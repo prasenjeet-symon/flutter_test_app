@@ -20,6 +20,7 @@ import 'package:flutter_test_app/dashboard/followers.dart';
 import 'package:flutter_test_app/dashboard/followings.dart';
 import 'package:flutter_test_app/dashboard/organization-topics-selection.dart';
 import 'package:flutter_test_app/dashboard/post_likers_screen.dart';
+import 'package:flutter_test_app/dashboard/post_poll.screen.dart';
 import 'package:flutter_test_app/dashboard/profile.dart';
 import 'package:flutter_test_app/dashboard/selected_topics_order_screen.dart';
 import 'package:flutter_test_app/dashboard/social_feed_page.dart';
@@ -29,6 +30,8 @@ import 'package:flutter_test_app/dashboard/topic-feed-screen.dart';
 import 'package:flutter_test_app/dashboard/tumblr_feed_screen.dart';
 import 'package:flutter_test_app/dashboard/user_activity_timeline_screen.dart';
 import 'package:flutter_test_app/dashboard/video_feed_screen.dart';
+
+import 'dashboard/poll_feed.screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -174,7 +177,9 @@ class MyApp extends StatelessWidget {
           ),
           themeMode: ThemeMode.system,
           // home: PostLikersScreen(postId: '1'),
-          home: TopicPostsScreen(topicId: 'topic1'),
+
+          home: PollFeedScreen(),
+          // home: TextFeedScreen(),
           //home: PersonalInformationScreen(),
         );
       },
