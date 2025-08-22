@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_app/dashboard/dashbaord.dart';
+import 'package:flutter_test_app/dashboard/edit-profile.dart';
 import 'package:flutter_test_app/dashboard/initial.dart';
 import 'package:flutter_test_app/dashboard/profile.dart';
+import 'package:flutter_test_app/organization/founder-search.dart';
+import 'package:flutter_test_app/organization/org-details.dart';
+import 'package:flutter_test_app/organization/org-founder-choice.dart';
+import 'package:flutter_test_app/organization/reserve-founder.dart';
+import 'package:flutter_test_app/organization/select-parent-org.dart';
+import 'package:flutter_test_app/organization/success-screen-org-created.dart';
+import 'package:flutter_test_app/organization/welcome-onboarding.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -21,8 +29,8 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return GetMaterialApp(
           initialRoute: '/',
-          getPages: [GetPage(name: '/', page: () => const DashboardScreen()), GetPage(name: '/loading', page: () => const LoadingScreen()), GetPage(name: '/login', page: () => const LoginScreen())],
-          home: DashboardScreen(),
+          getPages: [GetPage(name: '/', page: () => const WelcomeScreen()), GetPage(name: '/loading', page: () => const LoadingScreen()), GetPage(name: '/login', page: () => const LoginScreen())],
+          home: SuccessScreen(),
         );
       },
     );
