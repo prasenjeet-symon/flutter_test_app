@@ -16,6 +16,7 @@ import 'package:flutter_test_app/organization/founder-search.dart';
 import 'package:flutter_test_app/organization/leads/create-lead.dart';
 import 'package:flutter_test_app/organization/leads/lead-list.dart';
 import 'package:flutter_test_app/organization/leads/org-lead-group.dart';
+import 'package:flutter_test_app/organization/my-organizations.dart';
 import 'package:flutter_test_app/organization/org-details.dart';
 import 'package:flutter_test_app/organization/org-founder-choice.dart';
 import 'package:flutter_test_app/organization/org-profile.dart';
@@ -48,7 +49,7 @@ class MyApp extends StatelessWidget {
             GetPage(name: '/loading', page: () => const LoadingScreen()),
             GetPage(name: '/login', page: () => const LoginScreen()),
           ],
-          home: const OrganizationProfileScreen(),
+          home: const OrganizationScreen(),
         );
       },
     );
