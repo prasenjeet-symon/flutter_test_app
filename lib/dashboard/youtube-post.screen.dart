@@ -17,6 +17,8 @@ class _CreateYouTubePostScreenState extends State<CreateYouTubePostScreen> {
   final TextEditingController _postTitleController = TextEditingController();
   final TextEditingController _postDescriptionController = TextEditingController();
   final TextEditingController _postLocationController = TextEditingController();
+  final TextEditingController _postLatitudeController = TextEditingController();
+  final TextEditingController _postLongitudeController = TextEditingController();
 
   final _scrollController = ScrollController();
 
@@ -113,7 +115,9 @@ class _CreateYouTubePostScreenState extends State<CreateYouTubePostScreen> {
         Placemark place = placemarks.first;
         String address = [place.street, place.subLocality, place.locality, place.administrativeArea, place.country].where((element) => element != null && element.isNotEmpty).join(', ');
         setState(() {
-          _postLocationController.text = address.isEmpty ? 'Lat: ${position.latitude}, Lon: ${position.longitude}' : address;
+          _postLocationController.text = address;
+          _postLatitudeController.text = position.latitude.toString();
+          _postLongitudeController.text = position.longitude.toString();
         });
       } else {
         setState(() {

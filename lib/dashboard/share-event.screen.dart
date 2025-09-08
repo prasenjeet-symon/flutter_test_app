@@ -19,6 +19,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   final TextEditingController _eventDescriptionController = TextEditingController();
   final TextEditingController _eventVenueController = TextEditingController();
   final TextEditingController _eventLocationController = TextEditingController();
+  final TextEditingController _eventLatitudeController = TextEditingController();
+  final TextEditingController _eventLongitudeController = TextEditingController();
 
   final _scrollController = ScrollController();
 
@@ -146,11 +148,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             place.country
           ].where((element) => element != null && element.isNotEmpty).join(', ');
           setState(() {
-            final locationText = address.isNotEmpty ? address : 'Lat: ${position.latitude}, Lon: ${position.longitude}';
-            _eventLocationController.text = locationText;
-            if (_eventVenueController.text.isEmpty) {
-              _eventVenueController.text = locationText;
-            }
+            _eventLocationController.text = address;
+            _eventLatitudeController.text = position.latitude.toString();
+            _eventLongitudeController.text = position.longitude.toString();
           });
         }
       }

@@ -18,6 +18,9 @@ class _CreateAudioPostScreenState extends State<CreateAudioPostScreen> {
   final TextEditingController _postTitleController = TextEditingController();
   final TextEditingController _postDescriptionController = TextEditingController();
   final TextEditingController _postLocationController = TextEditingController();
+  final TextEditingController _postLatitudeController = TextEditingController();
+  final TextEditingController _postLongitudeController = TextEditingController();
+
 
   final _scrollController = ScrollController();
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -209,9 +212,10 @@ class _CreateAudioPostScreenState extends State<CreateAudioPostScreen> {
           place.country
         ].where((element) => element != null && element.isNotEmpty).join(', ');
         setState(() {
-          _postLocationController.text =
-              address.isEmpty ? 'Lat: ${position.latitude}, Lon: ${position.longitude}' : address;
-        });
+          _postLocationController.text = address;
+          _postLatitudeController.text = position.latitude.toString();
+          _postLongitudeController.text = position.longitude.toString();
+           });
       } else {
         setState(() {
           _postLocationController.text = 'Lat: ${position.latitude}, Lon: ${position.longitude}';
@@ -601,7 +605,7 @@ class _AudioPlayerPreview extends StatelessWidget {
     final progress = (audioDuration > 0) ? currentPosition / audioDuration : 0.0;
 
     final Color backgroundColor =
-        theme.brightness == Brightness.dark  ? const Color(0xFF2A284D) : const Color(0xFFE0E7FF);
+        theme.brightness == Brightness.dark ? const Color(0xFF2A284D) : const Color(0xFFE0E7FF);
     final Color activeColor =
         theme.brightness == Brightness.dark ? const Color(0xFFa78bfa) : theme.colorScheme.primary;
     final Color inactiveColor = theme.brightness == Brightness.dark
