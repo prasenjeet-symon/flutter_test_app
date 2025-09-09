@@ -58,6 +58,8 @@ dependencies:
   google_maps_flutter: ^2.5.3
   path_provider: ^2.1.2
   url_launcher: ^6.3.2
+  add_2_calendar: ^3.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

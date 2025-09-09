@@ -492,7 +492,7 @@ class BottomAudioPlayer extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
         child: Container(
-          height: 100.h,
+          height: 110.h,
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface.withOpacity(0.85),
