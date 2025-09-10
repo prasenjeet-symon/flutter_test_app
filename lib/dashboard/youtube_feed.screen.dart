@@ -12,7 +12,7 @@ class YouTubePostModel {
   final String userName;
   final String userAvatarUrl;
   final String videoId;
-  final String title;
+  // final String title;
   final String description;
   final DateTime timestamp;
   final int likesCount;
@@ -28,7 +28,7 @@ class YouTubePostModel {
     required this.userName,
     required this.userAvatarUrl,
     required this.videoId,
-    required this.title,
+    // required this.title,
     required this.description,
     required this.timestamp,
     this.likesCount = 0,
@@ -66,7 +66,6 @@ class _YouTubeFeedScreenState extends State<YouTubeFeedScreen> {
         userName: 'dev_journey',
         userAvatarUrl: 'https://picsum.photos/id/1014/50/50',
         videoId: 'FGelGOTBSQk',
-        title: 'Building a Responsive Flutter App',
         description: 'Watch me build a beautiful responsive UI in Flutter. Link to the code: https://github.com/flutter/flutter',
         timestamp: DateTime.now().subtract(const Duration(days: 1)),
         likesCount: 120,
@@ -81,7 +80,6 @@ class _YouTubeFeedScreenState extends State<YouTubeFeedScreen> {
         userName: 'tech_talks',
         userAvatarUrl: 'https://picsum.photos/id/1018/50/50',
         videoId: 'ZiiuxXDsla8',
-        title: 'The Future of AI in Web Development',
         description: 'Exploring how AI is changing the landscape of front-end development. Share your thoughts!',
         timestamp: DateTime.now().subtract(const Duration(days: 3)),
         likesCount: 250,
@@ -96,7 +94,6 @@ class _YouTubeFeedScreenState extends State<YouTubeFeedScreen> {
         userName: 'creative_coder',
         userAvatarUrl: 'https://picsum.photos/id/1027/50/50',
         videoId: 'E_Gg_l0w-z8',
-        title: 'My First VR Experience',
         description: 'Just got my first VR headset. The possibilities are endless!',
         timestamp: DateTime.now().subtract(const Duration(hours: 12)),
         likesCount: 78,
@@ -331,10 +328,7 @@ class _YouTubePostWidgetState extends State<YouTubePostWidget> {
                 IconButton(icon: Icon(Icons.more_horiz, size: 20.sp, color: Theme.of(context).colorScheme.onSurfaceVariant), onPressed: () {}),
               ],
             ),
-            SizedBox(height: 16.h),
-            Text(widget.post.title, style: GoogleFonts.lato(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-            SizedBox(height: 8.h),
-            RichText(text: _buildRichText(context, widget.post.description)),
+
             SizedBox(height: 16.h),
             GestureDetector(
               onTap: widget.onThumbnailTap,
@@ -357,8 +351,9 @@ class _YouTubePostWidgetState extends State<YouTubePostWidget> {
                 ],
               ),
             ),
-            if (widget.post.topic != null && widget.post.topic!.isNotEmpty) ...[
-              SizedBox(height: 16.h),
+            SizedBox(height: 8.h),
+            RichText(text: _buildRichText(context, widget.post.description)),            if (widget.post.topic != null && widget.post.topic!.isNotEmpty) ...[
+              SizedBox(height: 8.h),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
                 decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.08), borderRadius: BorderRadius.circular(4.r)),

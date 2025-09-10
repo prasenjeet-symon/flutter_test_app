@@ -15,7 +15,6 @@ class CreateEventScreen extends StatefulWidget {
 }
 
 class _CreateEventScreenState extends State<CreateEventScreen> {
-  final TextEditingController _eventTitleController = TextEditingController();
   final TextEditingController _eventDescriptionController = TextEditingController();
   final TextEditingController _eventVenueController = TextEditingController();
   final TextEditingController _eventLocationController = TextEditingController();
@@ -49,7 +48,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
   @override
   void dispose() {
-    _eventTitleController.dispose();
     _eventDescriptionController.dispose();
     _eventVenueController.dispose();
     _eventLocationController.dispose();
@@ -197,7 +195,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Event Created:\nImage: ${_eventImage != null ? "Selected" : "None"}\nTitle: "${_eventTitleController.text}"\nDescription: "${_eventDescriptionController.text}"\nDate: ${_selectedDate?.toLocal().toString().split(' ')[0] ?? 'N/A'}\nTime: ${_selectedTime?.format(context) ?? 'N/A'}\nLocation: "${_eventLocationController.text}"\nOutside Visibility: $_allowOutsideVisibility',
+          'Event Created:\nImage: ${_eventImage != null ? "Selected" : "None"}\nDescription: "${_eventDescriptionController.text}"\nDate: ${_selectedDate?.toLocal().toString().split(' ')[0] ?? 'N/A'}\nTime: ${_selectedTime?.format(context) ?? 'N/A'}\nLocation: "${_eventLocationController.text}"\nOutside Visibility: $_allowOutsideVisibility',
         ),
         duration: const Duration(seconds: 3),
       ),
@@ -306,11 +304,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             ),
             SizedBox(height: 32.h),
             _buildTextField(
-              controller: _eventTitleController,
-              hintText: 'Event title...',
-              prefixIcon: Icons.title,
-            ),
-            _buildTextField(
               controller: _eventDescriptionController,
               hintText: 'Write a description...',
               maxLines: 5,
@@ -403,7 +396,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         ),
         color: Theme.of(context).colorScheme.surface,
         child: FilledButton(
-          onPressed: _eventTitleController.text.isNotEmpty && _selectedDate != null && _selectedTime != null ? _createPost : null,
+          onPressed:  _selectedDate != null && _selectedTime != null ? _createPost : null,
           style: FilledButton.styleFrom(
             minimumSize: Size(double.infinity, 48.h),
             shape: RoundedRectangleBorder(

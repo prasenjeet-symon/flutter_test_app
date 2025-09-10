@@ -14,7 +14,6 @@ class CreateYouTubePostScreen extends StatefulWidget {
 
 class _CreateYouTubePostScreenState extends State<CreateYouTubePostScreen> {
   final TextEditingController _youtubeLinkController = TextEditingController();
-  final TextEditingController _postTitleController = TextEditingController();
   final TextEditingController _postDescriptionController = TextEditingController();
   final TextEditingController _postLocationController = TextEditingController();
   final TextEditingController _postLatitudeController = TextEditingController();
@@ -47,7 +46,6 @@ class _CreateYouTubePostScreenState extends State<CreateYouTubePostScreen> {
   void dispose() {
     _youtubeLinkController.removeListener(_onYoutubeLinkChanged);
     _youtubeLinkController.dispose();
-    _postTitleController.dispose();
     _postDescriptionController.dispose();
     _postLocationController.dispose();
     _youtubePlayerController?.dispose();
@@ -145,7 +143,7 @@ class _CreateYouTubePostScreenState extends State<CreateYouTubePostScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'YouTube Post Creating:\nLink: "${_youtubeLinkController.text}"\nTitle: "${_postTitleController.text}"\nDescription: "${_postDescriptionController.text}"\nLocation: "${_postLocationController.text}"\nOutside Visibility: $_allowOutsideVisibility',
+          'YouTube Post Creating:\nLink: "${_youtubeLinkController.text}\nDescription: "${_postDescriptionController.text}"\nLocation: "${_postLocationController.text}"\nOutside Visibility: $_allowOutsideVisibility',
         ),
         duration: const Duration(seconds: 3),
       ),
@@ -246,15 +244,7 @@ class _CreateYouTubePostScreenState extends State<CreateYouTubePostScreen> {
               ),
             ),
             SizedBox(height: 32.h),
-            // Title Input
-            SizedBox(
-              width: double.infinity,
-              child: _buildTextField(
-                controller: _postTitleController,
-                hintText: 'Add a title...',
-                prefixIcon: Icons.title,
-              ),
-            ),
+
             // Description Input
             SizedBox(
               width: double.infinity,

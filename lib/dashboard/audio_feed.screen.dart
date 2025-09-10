@@ -12,7 +12,7 @@ class AudioPostModel {
   final String userName;
   final String userAvatarUrl;
   final String audioUrl;
-  final String title;
+  // final String title;
   final String description;
   final DateTime timestamp;
   final int likesCount;
@@ -28,7 +28,7 @@ class AudioPostModel {
     required this.userName,
     required this.userAvatarUrl,
     required this.audioUrl,
-    required this.title,
+    // required this.title,
     required this.description,
     required this.timestamp,
     this.likesCount = 0,
@@ -109,7 +109,6 @@ class _AudioFeedScreenState extends State<AudioFeedScreen> {
         userName: 'melodic_mind',
         userAvatarUrl: 'https://picsum.photos/id/1025/50/50',
         audioUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c8/Example.ogg',
-        title: 'Morning Reflections',
         description: 'A peaceful instrumental piece to start your day. Listen to more at https://www.soundhelix.com',
         timestamp: DateTime.now().subtract(const Duration(days: 2, hours: 5)),
         likesCount: 154,
@@ -124,7 +123,6 @@ class _AudioFeedScreenState extends State<AudioFeedScreen> {
         userName: 'podcast_pro',
         userAvatarUrl: 'https://picsum.photos/id/403/50/50',
         audioUrl: 'https://file-examples.com/storage/fe4a4a25a6fbb7c9f3d1f3a/2017/11/file_example_MP3_700KB.mp3',
-        title: 'Flutter State Management',
         description: 'An in-depth discussion on BLoC architecture for Flutter. What do you think about it? #FlutterDev',
         timestamp: DateTime.now().subtract(const Duration(hours: 18)),
         likesCount: 87,
@@ -138,7 +136,6 @@ class _AudioFeedScreenState extends State<AudioFeedScreen> {
         userName: 'story_teller',
         userAvatarUrl: 'https://picsum.photos/id/42/50/50',
         audioUrl: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3',
-        title: 'The Lost City of Oakhaven',
         description: 'A brief reading from my new fantasy novel. Hope you enjoy it! Find it here: https://www.goodreads.com/book/show/12345',
         timestamp: DateTime.now().subtract(const Duration(minutes: 50)),
         likesCount: 201,
@@ -404,15 +401,7 @@ class _AudioPostWidgetState extends State<AudioPostWidget> {
               isVerified: widget.post.isVerified,
               timestamp: _formatTimestamp(widget.post.timestamp),
             ),
-            SizedBox(height: 16.h),
-            Text(
-              widget.post.title,
-              style: GoogleFonts.lato(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
+
             if (widget.post.description.isNotEmpty) ...[
               SizedBox(height: 8.h),
               RichText(text: _buildRichText(context, widget.post.description)),
@@ -527,12 +516,6 @@ class BottomAudioPlayer extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          post.title,
-                          style: theme.textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
                         Text(
                           post.userName,
                           style: theme.textTheme.bodySmall!.copyWith(color: theme.colorScheme.onSurfaceVariant),

@@ -12,7 +12,7 @@ class EventPostModel {
   final String userId;
   final String userName;
   final String userAvatarUrl;
-  final String eventTitle;
+  // final String eventTitle;
   final String eventDescription;
   final String? eventImageUrl;
   final DateTime eventDateTime;
@@ -30,7 +30,7 @@ class EventPostModel {
     required this.userId,
     required this.userName,
     required this.userAvatarUrl,
-    required this.eventTitle,
+    // required this.eventTitle,
     required this.eventDescription,
     this.eventImageUrl,
     required this.eventDateTime,
@@ -68,7 +68,6 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
         userId: 'e_user_a',
         userName: 'Local Events Hub',
         userAvatarUrl: 'https://picsum.photos/id/10/50/50',
-        eventTitle: 'Community Garden Cleanup',
         eventDescription: 'Join us to help clean up the local community garden and prepare it for spring planting! All ages are welcome.',
         eventImageUrl: 'https://picsum.photos/id/1043/800/600',
         eventDateTime: DateTime.parse("2025-09-14T10:00:00.000Z"),
@@ -84,7 +83,6 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
         userId: 'e_user_b',
         userName: 'Tech Meetup Group',
         userAvatarUrl: 'https://picsum.photos/id/1/50/50',
-        eventTitle: 'Flutter & Dart Workshop',
         eventDescription: 'An in-depth workshop on the latest features in Flutter and Dart for building cross-platform apps. RSVP here: https://example.com/flutter-workshop',
         eventImageUrl: 'https://picsum.photos/id/1029/800/600',
         eventDateTime: DateTime.parse("2025-09-19T18:30:00.000Z"),
@@ -100,7 +98,6 @@ class _EventFeedScreenState extends State<EventFeedScreen> {
         userId: 'e_user_c',
         userName: 'Past Events Archive',
         userAvatarUrl: 'https://picsum.photos/id/20/50/50',
-        eventTitle: 'Retro Gaming Night',
         eventDescription: 'A look back at our fun retro gaming night from last month!',
         eventImageUrl: 'https://picsum.photos/id/1067/800/600',
         eventDateTime: DateTime.parse("2025-08-10T20:00:00.000Z"),
@@ -269,7 +266,7 @@ class _EventPostWidgetState extends State<EventPostWidget> {
     final DateTime eventEndDateTime = eventStartDateTime.add(const Duration(hours: 2));
 
     final Event calendarEvent = Event(
-      title: widget.post.eventTitle,
+      title: widget.post.eventDescription,
       description: widget.post.eventDescription,
       location: widget.post.location ?? '',
       startDate: eventStartDateTime,
@@ -392,8 +389,7 @@ class _EventPostWidgetState extends State<EventPostWidget> {
               ),
               SizedBox(height: 16.h),
             ],
-            Text(widget.post.eventTitle, style: GoogleFonts.lato(fontSize: 18.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-            SizedBox(height: 8.h),
+
             RichText(text: _buildRichText(context, widget.post.eventDescription)),
             SizedBox(height: 16.h),
             Row(

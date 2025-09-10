@@ -15,7 +15,6 @@ class CreateAudioPostScreen extends StatefulWidget {
 }
 
 class _CreateAudioPostScreenState extends State<CreateAudioPostScreen> {
-  final TextEditingController _postTitleController = TextEditingController();
   final TextEditingController _postDescriptionController = TextEditingController();
   final TextEditingController _postLocationController = TextEditingController();
   final TextEditingController _postLatitudeController = TextEditingController();
@@ -76,7 +75,6 @@ class _CreateAudioPostScreenState extends State<CreateAudioPostScreen> {
 
   @override
   void dispose() {
-    _postTitleController.dispose();
     _postDescriptionController.dispose();
     _postLocationController.dispose();
     _scrollController.dispose();
@@ -244,7 +242,7 @@ class _CreateAudioPostScreenState extends State<CreateAudioPostScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Audio Post Creating:\nAudio: ${_trimmedAudioPath != null ? "Trimmed" : "Original"}\nTitle: "${_postTitleController.text}"\nDescription: "${_postDescriptionController.text}"\nLocation: "${_postLocationController.text}"\nOutside Visibility: $_allowOutsideVisibility',
+          'Audio Post Creating:\nAudio: ${_trimmedAudioPath != null ? "Trimmed" : "Original"}"\nDescription: "${_postDescriptionController.text}"\nLocation: "${_postLocationController.text}"\nOutside Visibility: $_allowOutsideVisibility',
         ),
         duration: const Duration(seconds: 3),
       ),
@@ -340,11 +338,7 @@ class _CreateAudioPostScreenState extends State<CreateAudioPostScreen> {
               child: _originalAudioPath == null ? _buildUploadView() : _buildAudioPlayerView(),
             ),
             SizedBox(height: 10.h),
-            _buildTextField(
-              controller: _postTitleController,
-              hintText: 'Add a title...',
-              prefixIcon: Icons.title,
-            ),
+
             _buildTextField(
               controller: _postDescriptionController,
               hintText: 'Write a description...',
@@ -413,7 +407,7 @@ class _CreateAudioPostScreenState extends State<CreateAudioPostScreen> {
         ),
         color: Theme.of(context).colorScheme.surface,
         child: FilledButton(
-          onPressed: (_originalAudioPath != null && _postTitleController.text.isNotEmpty)
+          onPressed: (_originalAudioPath != null )
               ? _createPost
               : null,
           style: FilledButton.styleFrom(
@@ -430,7 +424,6 @@ class _CreateAudioPostScreenState extends State<CreateAudioPostScreen> {
     );
   }
 
-  // --- WIDGET FOR UPLOAD VIEW ---
   Widget _buildUploadView() {
     return InkWell(
       onTap: _pickAudioFile,
@@ -581,7 +574,6 @@ class _CreateAudioPostScreenState extends State<CreateAudioPostScreen> {
   }
 }
 
-// --- NEW WAVEFORM PLAYER WIDGET ---
 class _AudioPlayerPreview extends StatelessWidget {
   final bool isPlaying;
   final double currentPosition;
