@@ -1,43 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_test_app/dashboard/add-update-certification.dart';
-import 'package:flutter_test_app/dashboard/add-update-core-values.dart';
-import 'package:flutter_test_app/dashboard/add-update-education.dart';
-import 'package:flutter_test_app/dashboard/add-update-experience.dart';
-import 'package:flutter_test_app/dashboard/add-update-goals.dart';
-import 'package:flutter_test_app/dashboard/add-update-mision.dart';
-import 'package:flutter_test_app/dashboard/add-update-others.dart';
-import 'package:flutter_test_app/dashboard/add-update-purpose.dart';
-import 'package:flutter_test_app/dashboard/add-update-skills.dart';
-import 'package:flutter_test_app/dashboard/add_social_media_links_screen.dart';
-import 'package:flutter_test_app/dashboard/chat-groups.dart';
-import 'package:flutter_test_app/dashboard/comments_screen.dart';
-import 'package:flutter_test_app/dashboard/connection.dart';
-import 'package:flutter_test_app/dashboard/create_post_screen.dart';
-import 'package:flutter_test_app/dashboard/create_video_post_screen.dart';
-import 'package:flutter_test_app/dashboard/edit-profile.dart';
-import 'package:flutter_test_app/dashboard/followers.dart';
-import 'package:flutter_test_app/dashboard/followings.dart';
-import 'package:flutter_test_app/dashboard/organization-topics-selection.dart';
-import 'package:flutter_test_app/dashboard/post_likers_screen.dart';
-import 'package:flutter_test_app/dashboard/post_poll.screen.dart';
-import 'package:flutter_test_app/dashboard/profile.dart';
-import 'package:flutter_test_app/dashboard/selected_topics_order_screen.dart';
-import 'package:flutter_test_app/dashboard/social_feed_page.dart';
-import 'package:flutter_test_app/dashboard/suggested-user.dart';
-import 'package:flutter_test_app/dashboard/text_feed_screen.dart';
-import 'package:flutter_test_app/dashboard/topic-feed-screen.dart';
-import 'package:flutter_test_app/dashboard/tumblr_feed_screen.dart';
-import 'package:flutter_test_app/dashboard/user_activity_timeline_screen.dart';
-import 'package:flutter_test_app/dashboard/video_feed_screen.dart';
+import 'package:flutter_test_app/manage-influncers/create-warning.dart';
+import 'package:flutter_test_app/manage-influncers/goal.dart';
+import 'package:flutter_test_app/manage-influncers/manage-influncer.dart';
+import 'package:flutter_test_app/manage-influncers/mission.dart';
+import 'package:flutter_test_app/manage-influncers/problem.dart';
+import 'package:flutter_test_app/manage-influncers/profile-fill.dart';
+import 'package:flutter_test_app/manage-influncers/purpose-mission-goal-conformation.dart';
+import 'package:flutter_test_app/manage-influncers/purpose.dart';
+import 'package:flutter_test_app/manage-influncers/search-user.dart';
+import 'package:flutter_test_app/manage-influncers/source-selection.dart';
+import 'package:flutter_test_app/manage-influncers/success.dart';
+import 'package:get/get.dart';
 
-import 'dashboard/poll_feed.screen.dart';
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 1), () {
+      // Get.toNamed(OrbitCreateConfigurePaths.manageTopicsScreen, arguments: {'targetUserTypeIdfr': 6, 'organizationId': 'spiderman', 'joiningIdentifier': '1d5756dc-ca10-11f0-8088-bad69bf8025f', 'orgQuestionGroupIdfr': '1', 'orgShortName': 'n', 'orgIdentifier': 'aa7f746b-bd1b-4417-a37e-a7faeef19301', 'orgIdfr': 65, 'groupName': 'Default', 'groupIdfr': 4, 'isDefault': true});
+      // Get.toNamed(OrbitCreateConfigurePaths.organizationSettingsScreen, arguments: 'spiderman');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -45,142 +43,194 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
+        return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             brightness: Brightness.light,
             scaffoldBackgroundColor: Colors.white,
-            // primaryColor is deprecated, use colorScheme.primary instead
-            // primaryColor: const Color.fromARGB(255, 231, 17, 184),
-            colorScheme: ColorScheme.light(
-              primary: const Color.fromARGB(255, 229, 44, 186),
-              secondary: const Color(0xFF1A4971),
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF8207E0),
+              secondary: Color.fromARGB(255, 27, 166, 217),
               onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: const Color(0xFF1A202C),
-              onBackground: const Color(0xFF1A202C),
-              outline: const Color(0xFFE2E8F0),
-              error: const Color(0xFFB00020),
-              secondaryContainer: const Color(0xFFEDF2F7),
-              // Added surfaceVariant and onSurfaceVariant for better theme consistency
-              surfaceVariant: const Color(0xFFEDF2F7), // Light grey for surfaces like search input fill
-              onSurfaceVariant: const Color(0xFF4A5568), // Darker text for surfaceVariant
+              onSecondary: Colors.white,
+              surface: Color(0xFFF7F7F7),
+              onSurface: Color(0xFF424242),
+              onBackground: Color(0xFF1A202C),
+              outline: Color(0xFF9E9E9E),
+              error: Color(0xFFB00020),
+              secondaryContainer: Color(0xFFE5F6FD),
+              onSurfaceVariant: Color(0xFF8B8B8B),
             ),
             textTheme: TextTheme(
-              headlineLarge: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w700, color: const Color(0xFF1A202C)),
-              headlineMedium: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: const Color(0xFF1A202C)),
-              bodyLarge: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w400, color: const Color(0xFF4A5568)),
-              bodyMedium: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400, color: const Color(0xFF4A5568)),
-              labelMedium: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color(0xFF6B7280)),
-              labelSmall: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color(0xFF6B7280)),
-              // Ensure headlineSmall for AppBar title is also covered if needed
-              headlineSmall: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600, color: const Color(0xFF1A202C)),
-              titleMedium: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: const Color(0xFF1A202C)), // Used in PostLikersScreen
-              labelLarge: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color(0xFF4A5568)), // Used in buttons
-            ),
-            inputDecorationTheme: InputDecorationTheme(
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFF2C7BE5), width: 2)),
-              errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFFB00020))),
-              focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFFB00020), width: 2)),
-              labelStyle: TextStyle(fontSize: 14.sp, color: const Color(0xFF6B7280)),
-              helperStyle: TextStyle(fontSize: 12.sp, color: const Color(0xFF6B7280)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+              headlineLarge: TextStyle(
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1A202C),
+              ),
+              headlineMedium: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF1A202C),
+              ),
+              bodyLarge: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF4A5568),
+              ),
+              bodyMedium: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF4A5568),
+              ),
+              labelMedium: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF6B7280),
+              ),
+              labelSmall: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF6B7280),
+              ),
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
-                // Removed backgroundColor and foregroundColor here to allow button's own styleFrom to apply
-                // backgroundColor: Colors.transparent, // This was causing issues
-                // foregroundColor: Colors.white, // This was causing issues
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
                 padding: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
                 elevation: 0,
               ),
             ),
-            textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: const Color(0xFF6B7280), textStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600))),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF6B7280),
+                textStyle: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
             iconTheme: const IconThemeData(color: Color(0xFF1A202C)),
             appBarTheme: AppBarTheme(
               backgroundColor: Colors.white,
               elevation: 2,
               shadowColor: const Color(0x1A000000),
-              titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: const Color(0xFF1A202C)),
+              titleTextStyle: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF1A202C),
+              ),
               iconTheme: const IconThemeData(color: Color(0xFF1A202C)),
             ),
-            cardTheme: CardTheme(color: Colors.white, elevation: 3, shadowColor: const Color(0x1A000000), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)), margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h)),
+            cardTheme: CardThemeData(
+              color: Colors.white,
+              elevation: 3,
+              shadowColor: const Color(0x1A000000),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            ),
           ),
           darkTheme: ThemeData(
             brightness: Brightness.dark,
             scaffoldBackgroundColor: const Color(0xFF121212),
-            // primaryColor is deprecated
-            // primaryColor: const Color(0xFF2C7BE5),
-            colorScheme: ColorScheme.dark(
-              primary: const Color(0xFF2C7BE5),
-              secondary: const Color(0xFF1A4971),
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFF8207E0),
+              secondary: Color(0xFFB0BEC5),
               onPrimary: Colors.white,
-              surface: const Color(0xFF1E1E1E),
+              onSecondary: Colors.black,
+              surface: Color(0xFF1E1E1E),
               onSurface: Colors.white,
               onBackground: Colors.white,
-              outline: const Color(0xFF374151),
-              error: const Color(0xFFCF6679),
-              secondaryContainer: const Color(0xFF2D3748),
-              // Added surfaceVariant and onSurfaceVariant for better theme consistency
-              surfaceVariant: const Color(0xFF2D3748), // Darker grey for surfaces like search input fill
-              onSurfaceVariant: const Color(0xFFD1D5DB), // Lighter text for surfaceVariant
+              outline: Color(0xFF374151),
+              error: Color(0xFFCF6679),
+              secondaryContainer: Color(0xFF2D3748),
+              onSurfaceVariant: Color(0xFFD1D5DB),
             ),
             textTheme: TextTheme(
-              headlineLarge: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w700, color: Colors.white),
-              headlineMedium: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Colors.white),
-              bodyLarge: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w400, color: const Color(0xFFD1D5DB)),
-              bodyMedium: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w400, color: const Color(0xFFD1D5DB)),
-              labelMedium: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color(0xFF9CA3AF)),
-              labelSmall: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color(0xFF9CA3AF)),
-              // Ensure headlineSmall for AppBar title is also covered if needed
-              headlineSmall: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600, color: Colors.white),
-              titleMedium: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: Colors.white),
-              labelLarge: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: const Color(0xFFD1D5DB)),
-            ),
-            inputDecorationTheme: InputDecorationTheme(
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFF374151))),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFF2C7BE5), width: 2)),
-              errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFFCF6679))),
-              focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r), borderSide: const BorderSide(color: Color(0xFFCF6679), width: 2)),
-              labelStyle: TextStyle(fontSize: 14.sp, color: const Color(0xFF9CA3AF)),
-              helperStyle: TextStyle(fontSize: 12.sp, color: const Color(0xFF9CA3AF)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+              headlineLarge: TextStyle(
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+              headlineMedium: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              bodyLarge: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFFD1D5DB),
+              ),
+              bodyMedium: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFFD1D5DB),
+              ),
+              labelMedium: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF9CA3AF),
+              ),
+              labelSmall: TextStyle(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF9CA3AF),
+              ),
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
-                // Removed backgroundColor and foregroundColor here to allow button's own styleFrom to apply
-                // backgroundColor: Colors.transparent, // This was causing issues
-                // foregroundColor: Colors.white, // This was causing issues
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
                 padding: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
                 elevation: 0,
               ),
             ),
-            textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: const Color(0xFF9CA3AF), textStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600))),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF9CA3AF),
+                textStyle: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
             iconTheme: const IconThemeData(color: Colors.white),
             appBarTheme: AppBarTheme(
               backgroundColor: const Color(0xFF1E1E1E),
               elevation: 2,
               shadowColor: const Color(0x1AFFFFFF),
-              titleTextStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Colors.white),
+              titleTextStyle: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
               iconTheme: const IconThemeData(color: Colors.white),
             ),
-            cardTheme: CardTheme(
+            cardTheme: CardThemeData(
               color: const Color(0xFF1E1E1E),
               elevation: 3,
               shadowColor: const Color(0x1AFFFFFF),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
               margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             ),
           ),
           themeMode: ThemeMode.system,
-          // home: PostLikersScreen(postId: '1'),
-
-          home: PollFeedScreen(),
-          // home: TextFeedScreen(),
-          //home: PersonalInformationScreen(),
+          home: const InfluencerSubmissionSuccessScreen(
+            influencerName: ' Peter Pan',
+            profileImagePath:
+                'https://finlink.co.uk/wp-content/uploads/2023/11/LinkedIn-Logo-e1700490108143.png',
+          ),
         );
       },
     );
