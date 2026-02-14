@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_test_app/voice_gate_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
@@ -46,7 +47,7 @@ class MyApp extends StatelessWidget {
               brightness: Brightness.dark,
             ),
           ),
-          home: const SherpaScreen(),
+          home: const VoiceIdentificationScreen(),
         );
       },
     );
