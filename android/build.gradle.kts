@@ -6,6 +6,7 @@ allprojects {
 }
 
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
+val kotlin_version = "1.9.22"
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
