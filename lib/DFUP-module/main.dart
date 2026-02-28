@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'dfup_models.dart';
 import 'dfup_layout_widget.dart';
 import 'dfup_theme.dart';
@@ -173,8 +174,42 @@ class _JsonPage extends StatefulWidget {
 class _JsonPageState extends State<_JsonPage> {
   final _ctrl = TextEditingController();
   String? _err;
+  String? _pickedFileName;
+  bool _isPicking = false;
+
   @override
   void dispose() { _ctrl.dispose(); super.dispose(); }
+
+  Future<void> _pickFile() async {
+    setState(() { _isPicking = true; _err = null; });
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        withData: true,
+      );
+      if (result == null || result.files.isEmpty) {
+        setState(() => _isPicking = false);
+        return;
+      }
+      final file = result.files.first;
+      final bytes = file.bytes;
+      if (bytes == null) {
+        setState(() { _isPicking = false; _err = 'Could not read file data.'; });
+        return;
+      }
+      final content = utf8.decode(bytes);
+      setState(() {
+        _ctrl.text = content;
+        _pickedFileName = file.name;
+        _isPicking = false;
+        _err = null;
+      });
+    } catch (e) {
+      setState(() { _isPicking = false; _err = 'Failed to pick file: $e'; });
+    }
+  }
+
   void _load() {
     try {
       final parsed = jsonDecode(_ctrl.text) as Map<String, dynamic>;
@@ -182,21 +217,75 @@ class _JsonPageState extends State<_JsonPage> {
       Navigator.push(context, MaterialPageRoute(builder: (_) => _FormPage(layout: layout, title: layout.title ?? 'Custom Form')));
     } catch (e) { setState(() => _err = 'Invalid JSON: $e'); }
   }
+
   @override
   Widget build(BuildContext context) {
     final c = Cx.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Load Custom JSON')),
-      body: Padding(padding: const EdgeInsets.all(S.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text('Paste your DFUP JSON document below:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: c.text1)),
-        const SizedBox(height: S.md),
-        Expanded(child: TextField(controller: _ctrl, maxLines: null, expands: true, textAlignVertical: TextAlignVertical.top,
-          style: TextStyle(fontSize: 13, fontFamily: 'monospace', color: c.text1),
-          decoration: InputDecoration(hintText: '{\n  "id": "...",\n  ...\n}', errorText: _err))),
-        const SizedBox(height: S.lg),
-        ElevatedButton(onPressed: _load, style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: S.lg)),
-          child: const Text('Render Form')),
-      ])),
+      body: Padding(
+        padding: const EdgeInsets.all(S.lg),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          // ── Upload button row ────────────────────────────────
+          OutlinedButton.icon(
+            onPressed: _isPicking ? null : _pickFile,
+            icon: _isPicking
+                ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: c.primary))
+                : Icon(Icons.upload_file_outlined, color: c.primary),
+            label: Text(_isPicking ? 'Picking file…' : 'Upload JSON File',
+                style: TextStyle(color: c.primary, fontWeight: FontWeight.w600)),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: S.md),
+              side: BorderSide(color: c.primary),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(R.md)),
+            ),
+          ),
+          // ── Picked filename chip ─────────────────────────────
+          if (_pickedFileName != null) ...[
+            const SizedBox(height: S.sm),
+            Row(children: [
+              Icon(Icons.check_circle_outline, size: 16, color: Colors.green.shade600),
+              const SizedBox(width: S.xs),
+              Expanded(child: Text(_pickedFileName!, overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: Colors.green.shade700, fontWeight: FontWeight.w500))),
+              GestureDetector(
+                onTap: () => setState(() { _ctrl.clear(); _pickedFileName = null; _err = null; }),
+                child: Icon(Icons.close, size: 16, color: c.hint),
+              ),
+            ]),
+          ],
+          const SizedBox(height: S.md),
+          // ── Divider with label ───────────────────────────────
+          Row(children: [
+            Expanded(child: Divider(color: c.border)),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: S.sm),
+                child: Text('or paste JSON', style: TextStyle(fontSize: 12, color: c.hint))),
+            Expanded(child: Divider(color: c.border)),
+          ]),
+          const SizedBox(height: S.md),
+          Text('Paste your DFUP JSON document below:',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: c.text1)),
+          const SizedBox(height: S.md),
+          // ── JSON text area ───────────────────────────────────
+          Expanded(child: TextField(
+            controller: _ctrl, maxLines: null, expands: true,
+            textAlignVertical: TextAlignVertical.top,
+            onChanged: (_) => setState(() { _err = null; _pickedFileName = null; }),
+            style: TextStyle(fontSize: 13, fontFamily: 'monospace', color: c.text1),
+            decoration: InputDecoration(
+              hintText: '{\n  "id": "...",\n  ...\n}',
+              errorText: _err,
+            ),
+          )),
+          const SizedBox(height: S.lg),
+          // ── Render button ────────────────────────────────────
+          ElevatedButton(
+            onPressed: _load,
+            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: S.lg)),
+            child: const Text('Render Form'),
+          ),
+        ]),
+      ),
     );
   }
 }
