@@ -8,8 +8,9 @@ import 'dfup_label_row.dart';
 
 class DfupFileInput extends StatefulWidget {
   final DataPoint dataPoint;
+  final Map<String, DataPoint>? registry;
   final VoidCallback onMutated;
-  const DfupFileInput({super.key, required this.dataPoint, required this.onMutated});
+  const DfupFileInput({super.key, required this.dataPoint, this.registry, required this.onMutated});
   @override
   State<DfupFileInput> createState() => _DfupFileInputState();
 }
@@ -72,7 +73,7 @@ class _DfupFileInputState extends State<DfupFileInput> {
     final maxSize = dp.fileValidation?.maxSizeMb;
 
     return SizedBox(width: double.infinity, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      DfupLabelRow(label: dp.label, isRequired: dp.fileValidation?.isRequired ?? false, info: dp.info),
+      DfupLabelRow(label: dp.label, isRequired: dp.fileValidation?.isRequired ?? false, info: dp.info, registry: widget.registry),
       const SizedBox(height: S.sm),
       GestureDetector(
         onTap: _pickFiles,

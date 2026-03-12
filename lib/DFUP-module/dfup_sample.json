@@ -1,0 +1,1133 @@
+{
+  "id": "layout_full_demo",
+  "code": "FULL_DEMO_FORM",
+  "component_type": "layout",
+  "layout_type": "scroll",
+  "title": "DFUP 3.1 — Complete Feature Demo",
+  "children": [
+
+    {
+      "id": "grp_basics",
+      "code": "BASICS",
+      "component_type": "data_frame_group",
+      "title": "1. Basic Inputs (v{{dp_form_version}})",
+      "description": "Every data-point type in one group — form version interpolated from a hidden field",
+      "frames": [
+        {
+          "id": "frame_text_types",
+          "code": "TEXT_TYPES",
+          "component_type": "data_frame",
+          "title": "Text-Based Types",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_form_version",
+              "code": "FORM_VERSION",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Form Version",
+              "is_hidden": true,
+              "response": {
+                "data_type": "text",
+                "value": "3.1",
+                "status": "valid",
+                "timestamp": "2026-03-01T00:00:00Z"
+              }
+            },
+            {
+              "id": "dp_access_level",
+              "code": "ACCESS_LEVEL",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Access Level",
+              "is_hidden": true,
+              "response": {
+                "data_type": "text",
+                "value": "admin",
+                "status": "valid",
+                "timestamp": "2026-03-01T00:00:00Z"
+              }
+            },
+            {
+              "id": "dp_fullname",
+              "code": "FULL_NAME",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Full Name",
+              "placeholder": "John Doe",
+              "validation": {
+                "is_required": true,
+                "min_length": 2,
+                "max_length": 100
+              }
+            },
+            {
+              "id": "dp_email",
+              "code": "EMAIL",
+              "component_type": "data_point",
+              "type": "email",
+              "label": "Email Address",
+              "placeholder": "john@example.com",
+              "is_searchable": true,
+              "validation": {
+                "is_required": true
+              }
+            },
+            {
+              "id": "dp_phone",
+              "code": "PHONE",
+              "component_type": "data_point",
+              "type": "phone",
+              "label": "Phone Number",
+              "placeholder": "+1 (555) 123-4567",
+              "info": "We'll use this to reach {{FULL_NAME}}"
+            },
+            {
+              "id": "dp_password",
+              "code": "PASSWORD",
+              "component_type": "data_point",
+              "type": "password",
+              "label": "Secret Code",
+              "placeholder": "Enter your code",
+              "info": "Optional referral code"
+            },
+            {
+              "id": "dp_bio",
+              "code": "BIO",
+              "component_type": "data_point",
+              "type": "multiline",
+              "label": "Short Bio",
+              "placeholder": "Tell us about yourself...",
+              "validation": {
+                "max_length": 500
+              }
+            },
+            {
+              "id": "dp_linkedin",
+              "code": "LINKEDIN",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "LinkedIn Profile URL",
+              "placeholder": "https://linkedin.com/in/...",
+              "validation": {
+                "regex_pattern": "^https?://(www\\.)?linkedin\\.com/in/.+",
+                "error_message": "Enter a valid LinkedIn URL"
+              }
+            },
+            {
+              "id": "dp_admin_notes",
+              "code": "ADMIN_NOTES",
+              "component_type": "data_point",
+              "type": "multiline",
+              "label": "Admin Notes (hidden-field driven)",
+              "placeholder": "Visible because access_level = admin",
+              "info": "This field depends on a hidden data point",
+              "dependency": {
+                "target_id": "dp_access_level",
+                "operator": "=",
+                "comparison_value": "admin"
+              }
+            }
+          ]
+        },
+        {
+          "id": "frame_numeric_types",
+          "code": "NUMERIC_TYPES",
+          "component_type": "data_frame",
+          "title": "Numeric Types",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_age",
+              "code": "AGE",
+              "component_type": "data_point",
+              "type": "number",
+              "label": "Age",
+              "placeholder": "e.g. 25",
+              "validation": {
+                "is_required": true,
+                "min_value": 16,
+                "max_value": 120
+              }
+            },
+            {
+              "id": "dp_experience",
+              "code": "EXPERIENCE",
+              "component_type": "data_point",
+              "type": "slider",
+              "label": "Years of Experience",
+              "validation": {
+                "min_value": 0,
+                "max_value": 30
+              }
+            },
+            {
+              "id": "dp_rating",
+              "code": "RATING",
+              "component_type": "data_point",
+              "type": "rating",
+              "label": "Self Rating (1–5)",
+              "info": "Tap to rate, tap again to reset",
+              "validation": {
+                "max_value": 5
+              }
+            },
+            {
+              "id": "dp_notice_period",
+              "code": "NOTICE_PERIOD",
+              "component_type": "data_point",
+              "type": "number",
+              "label": "Notice Period (days)",
+              "placeholder": "e.g. 30",
+              "default_value": 30,
+              "validation": {
+                "min_value": 0,
+                "max_value": 180
+              }
+            }
+          ]
+        },
+        {
+          "id": "frame_bool_types",
+          "code": "BOOL_TYPES",
+          "component_type": "data_frame",
+          "title": "Boolean Types",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_newsletter",
+              "code": "NEWSLETTER",
+              "component_type": "data_point",
+              "type": "switch",
+              "label": "Subscribe to newsletter",
+              "info": "Weekly updates on new features",
+              "default_value": true
+            },
+            {
+              "id": "dp_terms",
+              "code": "TERMS",
+              "component_type": "data_point",
+              "type": "checkbox",
+              "label": "I agree to the Terms of Service",
+              "validation": {
+                "is_required": true,
+                "error_message": "You must agree to continue"
+              }
+            },
+            {
+              "id": "dp_has_referral",
+              "code": "HAS_REFERRAL",
+              "component_type": "data_point",
+              "type": "boolean",
+              "label": "I have a referral"
+            }
+          ]
+        },
+        {
+          "id": "frame_date_types",
+          "code": "DATE_TYPES",
+          "component_type": "data_frame",
+          "title": "Date & Time Types",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_dob",
+              "code": "DOB",
+              "component_type": "data_point",
+              "type": "date",
+              "label": "Date of Birth",
+              "validation": {
+                "is_required": true
+              }
+            },
+            {
+              "id": "dp_contact_time",
+              "code": "CONTACT_TIME",
+              "component_type": "data_point",
+              "type": "time",
+              "label": "Preferred Contact Time",
+              "placeholder": "Select a time"
+            },
+            {
+              "id": "dp_meeting_time",
+              "code": "MEETING_TIME",
+              "component_type": "data_point",
+              "type": "datetime",
+              "label": "Preferred Meeting Slot for {{FULL_NAME}}",
+              "placeholder": "Select date and time",
+              "default_value": "2026-06-15 09:00"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "grp_deps",
+      "code": "DEPENDENCIES",
+      "component_type": "data_frame_group",
+      "title": "2. Dependencies & Visibility",
+      "description": "Every dependency operator + compound AND/OR + chains + response clearing",
+      "frames": [
+        {
+          "id": "frame_single_deps",
+          "code": "SINGLE_DEPS",
+          "component_type": "data_frame",
+          "title": "Single-Condition Dependencies (Old 2.x Format)",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_dep_toggle",
+              "code": "DEP_TOGGLE",
+              "component_type": "data_point",
+              "type": "switch",
+              "label": "Enable dependent fields below"
+            },
+            {
+              "id": "dp_dep_eq_bool",
+              "code": "DEP_EQ_BOOL",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Visible when toggle = true  (op: =)",
+              "placeholder": "I appear when switch is ON",
+              "dependency": {
+                "target_id": "dp_dep_toggle",
+                "operator": "=",
+                "comparison_value": true
+              }
+            },
+            {
+              "id": "dp_dep_neq_bool",
+              "code": "DEP_NEQ_BOOL",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Visible when toggle != true  (op: !=)",
+              "placeholder": "I appear when switch is OFF",
+              "dependency": {
+                "target_id": "dp_dep_toggle",
+                "operator": "!=",
+                "comparison_value": true
+              }
+            },
+            {
+              "id": "dp_dep_slider",
+              "code": "DEP_SLIDER",
+              "component_type": "data_point",
+              "type": "slider",
+              "label": "Adjust value (0–50)",
+              "validation": {
+                "min_value": 0,
+                "max_value": 50
+              }
+            },
+            {
+              "id": "dp_dep_gt",
+              "code": "DEP_GT",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Visible when slider > 10  (op: >)",
+              "dependency": {
+                "target_id": "dp_dep_slider",
+                "operator": ">",
+                "comparison_value": 10
+              }
+            },
+            {
+              "id": "dp_dep_lt",
+              "code": "DEP_LT",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Visible when slider < 5  (op: <)",
+              "dependency": {
+                "target_id": "dp_dep_slider",
+                "operator": "<",
+                "comparison_value": 5
+              }
+            },
+            {
+              "id": "dp_dep_gte",
+              "code": "DEP_GTE",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Visible when slider >= 25  (op: >=)",
+              "dependency": {
+                "target_id": "dp_dep_slider",
+                "operator": ">=",
+                "comparison_value": 25
+              }
+            },
+            {
+              "id": "dp_dep_lte",
+              "code": "DEP_LTE",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Visible when slider <= 3  (op: <=)",
+              "dependency": {
+                "target_id": "dp_dep_slider",
+                "operator": "<=",
+                "comparison_value": 3
+              }
+            }
+          ]
+        },
+        {
+          "id": "frame_compound_deps",
+          "code": "COMPOUND_DEPS",
+          "component_type": "data_frame",
+          "title": "Compound Dependencies (3.1 Format)",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_compound_and",
+              "code": "COMPOUND_AND",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "AND: toggle ON + slider > 10",
+              "placeholder": "Both conditions must be true",
+              "dependency": {
+                "mode": "AND",
+                "conditions": [
+                  { "target_id": "dp_dep_toggle", "operator": "=", "comparison_value": true },
+                  { "target_id": "dp_dep_slider", "operator": ">", "comparison_value": 10 }
+                ]
+              }
+            },
+            {
+              "id": "dp_compound_or",
+              "code": "COMPOUND_OR",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "OR: slider > 40 OR rating >= 4",
+              "placeholder": "Either condition suffices",
+              "info": "Uses the rating and slider from Section 1",
+              "dependency": {
+                "mode": "OR",
+                "conditions": [
+                  { "target_id": "dp_dep_slider", "operator": ">", "comparison_value": 40 },
+                  { "target_id": "dp_rating", "operator": ">=", "comparison_value": 4 }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "frame_chain",
+          "code": "DEP_CHAIN",
+          "component_type": "data_frame",
+          "title": "Dependency Chain (3 Levels) + Response Clearing",
+          "description": "Toggle L1 off to see L2 and L3 disappear and their responses clear",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_chain_l1",
+              "code": "CHAIN_L1",
+              "component_type": "data_point",
+              "type": "switch",
+              "label": "Level 1: Master Switch"
+            },
+            {
+              "id": "dp_chain_l2",
+              "code": "CHAIN_L2",
+              "component_type": "data_point",
+              "type": "single_select",
+              "label": "Level 2: Choose frequency (depends on L1 = true)",
+              "options": [
+                {
+                  "id": "opt_freq_daily", "code": "FREQ_DAILY", "component_type": "selection_option",
+                  "value": { "title": "{{dp_fd_t}}", "subtitle": "{{dp_fd_s}}",
+                    "DFUP": { "id": "dfup_fd", "code": "DFUP_FD", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_fd", "code": "FR_FD", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_fd_t", "code": "FD_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Daily", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_fd_s", "code": "FD_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Every day", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_freq_weekly", "code": "FREQ_WEEKLY", "component_type": "selection_option",
+                  "value": { "title": "{{dp_fw_t}}", "subtitle": "{{dp_fw_s}}",
+                    "DFUP": { "id": "dfup_fw", "code": "DFUP_FW", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_fw", "code": "FR_FW", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_fw_t", "code": "FW_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Weekly", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_fw_s", "code": "FW_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Once a week", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_freq_custom", "code": "FREQ_CUSTOM", "component_type": "selection_option",
+                  "value": { "title": "{{dp_fc_t}}", "subtitle": "{{dp_fc_s}}",
+                    "is_user_editable": true,
+                    "DFUP": { "id": "dfup_fc", "code": "DFUP_FC", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_fc", "code": "FR_FC", "component_type": "data_frame", "title": "Customize Schedule", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_fc_t", "code": "FC_T", "component_type": "data_point", "type": "text", "label": "Schedule Name",
+                            "validation": { "is_required": true, "max_length": 50 },
+                            "response": { "data_type": "text", "value": "Custom", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_fc_s", "code": "FC_S", "component_type": "data_point", "type": "text", "label": "Description",
+                            "response": { "data_type": "text", "value": "Set your own", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_fc_interval", "code": "FC_INTERVAL", "component_type": "data_point", "type": "number", "label": "Repeat every N days",
+                            "placeholder": "e.g. 14",
+                            "validation": { "is_required": true, "min_value": 1, "max_value": 365 }}
+                        ]}]}
+                  }
+                }
+              ],
+              "dependency": { "target_id": "dp_chain_l1", "operator": "=", "comparison_value": true }
+            },
+            {
+              "id": "dp_chain_l3",
+              "code": "CHAIN_L3",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Level 3: Custom schedule (depends on L2 = Custom)",
+              "placeholder": "e.g. 1st and 15th of each month",
+              "dependency": {
+                "target_id": "dp_chain_l2",
+                "operator": "IN",
+                "comparison_value": ["opt_freq_custom"]
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "grp_selections",
+      "code": "SELECTIONS",
+      "component_type": "data_frame_group",
+      "title": "3. Selection Inputs for {{FULL_NAME}}",
+      "description": "Inline cards, chips, bottom sheets, per-option deps, disabled options",
+      "frames": [
+        {
+          "id": "frame_sel_inline",
+          "code": "SEL_INLINE",
+          "component_type": "data_frame",
+          "title": "Inline Cards (<=5 options)",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_department",
+              "code": "DEPARTMENT",
+              "component_type": "data_point",
+              "type": "single_select",
+              "label": "Department",
+              "is_filterable": true,
+              "validation": { "is_required": true },
+              "options": [
+                {
+                  "id": "opt_dept_eng", "code": "DEPT_ENG", "component_type": "selection_option",
+                  "value": { "title": "{{dp_de_t}}", "subtitle": "{{dp_de_s}}",
+                    "DFUP": { "id": "dfup_de", "code": "DFUP_DE", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_de", "code": "FR_DE", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_de_t", "code": "DE_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Engineering", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_de_s", "code": "DE_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Build products", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_dept_design", "code": "DEPT_DESIGN", "component_type": "selection_option",
+                  "value": { "title": "{{dp_dd_t}}", "subtitle": "{{dp_dd_s}}",
+                    "DFUP": { "id": "dfup_dd", "code": "DFUP_DD", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_dd", "code": "FR_DD", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_dd_t", "code": "DD_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Design", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_dd_s", "code": "DD_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Craft experiences", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_dept_mkt", "code": "DEPT_MKT", "component_type": "selection_option",
+                  "value": { "title": "{{dp_dm_t}}", "subtitle": "{{dp_dm_s}}",
+                    "DFUP": { "id": "dfup_dm", "code": "DFUP_DM", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_dm", "code": "FR_DM", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_dm_t", "code": "DM_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Marketing", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_dm_s", "code": "DM_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Grow the brand", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_dept_sales", "code": "DEPT_SALES", "component_type": "selection_option",
+                  "is_disabled": true,
+                  "value": { "title": "{{dp_ds_t}}", "subtitle": "{{dp_ds_s}}", "description": "Currently not hiring",
+                    "DFUP": { "id": "dfup_ds", "code": "DFUP_DS", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_ds", "code": "FR_DS", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_ds_t", "code": "DS_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Sales", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_ds_s", "code": "DS_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Close deals", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                }
+              ]
+            },
+            {
+              "id": "dp_gender",
+              "code": "GENDER",
+              "component_type": "data_point",
+              "type": "single_select",
+              "label": "Gender",
+              "validation": { "is_required": true },
+              "options": [
+                {
+                  "id": "opt_male", "code": "MALE", "component_type": "selection_option",
+                  "value": { "title": "{{dp_m_t}}", "subtitle": "{{dp_m_s}}",
+                    "DFUP": { "id": "dfup_m", "code": "DFUP_M", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_m", "code": "FR_M", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_m_t", "code": "M_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Male", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_m_s", "code": "M_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "He/Him", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_female", "code": "FEMALE", "component_type": "selection_option",
+                  "value": { "title": "{{dp_f_t}}", "subtitle": "{{dp_f_s}}",
+                    "DFUP": { "id": "dfup_f", "code": "DFUP_F", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_f", "code": "FR_F", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_f_t", "code": "F_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Female", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_f_s", "code": "F_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "She/Her", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_other_g", "code": "OTHER_G", "component_type": "selection_option",
+                  "value": { "title": "{{dp_og_t}}", "subtitle": "{{dp_og_s}}",
+                    "DFUP": { "id": "dfup_og", "code": "DFUP_OG", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_og", "code": "FR_OG", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_og_t", "code": "OG_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Other", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_og_s", "code": "OG_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Prefer to specify", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                }
+              ]
+            },
+            {
+              "id": "dp_gender_other",
+              "code": "GENDER_OTHER",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Please Specify Gender",
+              "placeholder": "Enter your gender identity",
+              "validation": { "is_required": true },
+              "dependency": { "target_id": "dp_gender", "operator": "IN", "comparison_value": ["opt_other_g"] }
+            }
+          ]
+        },
+        {
+          "id": "frame_sel_sheet",
+          "code": "SEL_SHEET",
+          "component_type": "data_frame",
+          "title": "Bottom Sheet (>5 options) + Per-Option Deps",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_role",
+              "code": "ROLE",
+              "component_type": "data_point",
+              "type": "single_select",
+              "label": "Primary Role",
+              "is_searchable": true,
+              "validation": { "is_required": true },
+              "dependency": { "target_id": "dp_department", "operator": "!=", "comparison_value": "" },
+              "options": [
+                {
+                  "id": "opt_dev", "code": "DEVELOPER", "component_type": "selection_option",
+                  "dependency": { "target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_eng"] },
+                  "value": { "title": "{{dp_dev_t}}", "subtitle": "{{dp_dev_s}}", "description": "Software engineers",
+                    "DFUP": { "id": "dfup_dev", "code": "DFUP_DEV", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_dev", "code": "FR_DEV", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_dev_t", "code": "DEV_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Developer", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_dev_s", "code": "DEV_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Build & ship code", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_qa", "code": "QA", "component_type": "selection_option",
+                  "dependency": { "target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_eng"] },
+                  "value": { "title": "{{dp_qa_t}}", "subtitle": "{{dp_qa_s}}", "description": "Testing & QA",
+                    "DFUP": { "id": "dfup_qa", "code": "DFUP_QA", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_qa", "code": "FR_QA", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_qa_t", "code": "QA_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "QA Engineer", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_qa_s", "code": "QA_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Ensure quality", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_designer", "code": "DESIGNER", "component_type": "selection_option",
+                  "dependency": { "target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_design"] },
+                  "value": { "title": "{{dp_des_t}}", "subtitle": "{{dp_des_s}}", "description": "UX/UI design",
+                    "DFUP": { "id": "dfup_des", "code": "DFUP_DES", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_des", "code": "FR_DES", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_des_t", "code": "DES_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Designer", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_des_s", "code": "DES_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Craft visual experiences", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_data", "code": "DATA", "component_type": "selection_option",
+                  "dependency": { "target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_eng", "opt_dept_mkt"] },
+                  "value": { "title": "{{dp_da_t}}", "subtitle": "{{dp_da_s}}", "description": "Multi-department role",
+                    "DFUP": { "id": "dfup_da", "code": "DFUP_DA", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_da", "code": "FR_DA", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_da_t", "code": "DA_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Data Scientist", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_da_s", "code": "DA_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "ML & analytics", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_architect", "code": "ARCHITECT", "component_type": "selection_option",
+                  "dependency": {
+                    "mode": "AND",
+                    "conditions": [
+                      { "target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_eng"] },
+                      { "target_id": "dp_experience", "operator": ">", "comparison_value": 5 }
+                    ]
+                  },
+                  "value": { "title": "{{dp_ar_t}}", "subtitle": "{{dp_ar_s}}", "description": "Compound AND per-option dep: Engineering + exp > 5",
+                    "DFUP": { "id": "dfup_ar", "code": "DFUP_AR", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_ar", "code": "FR_AR", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_ar_t", "code": "AR_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Architect", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_ar_s", "code": "AR_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "System design & leadership", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                },
+                {
+                  "id": "opt_pm", "code": "PM", "component_type": "selection_option",
+                  "value": { "title": "{{dp_pm_t}}", "subtitle": "{{dp_pm_s}}", "description": "Available in all departments",
+                    "DFUP": { "id": "dfup_pm", "code": "DFUP_PM", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_pm", "code": "FR_PM", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [
+                          { "id": "dp_pm_t", "code": "PM_T", "component_type": "data_point", "type": "text", "label": "Title",
+                            "response": { "data_type": "text", "value": "Product Manager", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }},
+                          { "id": "dp_pm_s", "code": "PM_S", "component_type": "data_point", "type": "text", "label": "Subtitle",
+                            "response": { "data_type": "text", "value": "Drive strategy", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}
+                        ]}]}
+                  }
+                }
+              ]
+            },
+            {
+              "id": "dp_dev_lang",
+              "code": "DEV_LANG",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Preferred Language (visible when role = Developer)",
+              "placeholder": "e.g. Dart, Python, Rust...",
+              "dependency": { "target_id": "dp_role", "operator": "=", "comparison_value": "opt_dev" }
+            },
+            {
+              "id": "dp_senior_dept_note",
+              "code": "SENIOR_DEPT_NOTE",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "Senior Role Notes (AND: dept set + exp > 5)",
+              "placeholder": "Describe your leadership style...",
+              "dependency": {
+                "mode": "AND",
+                "conditions": [
+                  { "target_id": "dp_department", "operator": "!=", "comparison_value": "" },
+                  { "target_id": "dp_experience", "operator": ">", "comparison_value": 5 }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "frame_sel_multi",
+          "code": "SEL_MULTI",
+          "component_type": "data_frame",
+          "title": "Multi-Select + Chips + ALL Operator",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_work_mode",
+              "code": "WORK_MODE",
+              "component_type": "data_point",
+              "type": "single_select",
+              "label": "Work Mode (compact chips — no subtitle)",
+              "options": [
+                {
+                  "id": "opt_wm_remote", "code": "WM_REMOTE", "component_type": "selection_option",
+                  "value": { "title": "{{dp_wm_r_t}}",
+                    "DFUP": { "id": "dfup_wm_r", "code": "DFUP_WM_R", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_wm_r", "code": "FR_WM_R", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [{ "id": "dp_wm_r_t", "code": "WM_R_T", "component_type": "data_point", "type": "text", "label": "Title",
+                          "response": { "data_type": "text", "value": "Remote", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }
+                },
+                {
+                  "id": "opt_wm_hybrid", "code": "WM_HYBRID", "component_type": "selection_option",
+                  "value": { "title": "{{dp_wm_h_t}}",
+                    "DFUP": { "id": "dfup_wm_h", "code": "DFUP_WM_H", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_wm_h", "code": "FR_WM_H", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [{ "id": "dp_wm_h_t", "code": "WM_H_T", "component_type": "data_point", "type": "text", "label": "Title",
+                          "response": { "data_type": "text", "value": "Hybrid", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }
+                },
+                {
+                  "id": "opt_wm_onsite", "code": "WM_ONSITE", "component_type": "selection_option",
+                  "value": { "title": "{{dp_wm_o_t}}",
+                    "DFUP": { "id": "dfup_wm_o", "code": "DFUP_WM_O", "component_type": "layout", "layout_type": "scroll",
+                      "children": [{ "id": "fr_wm_o", "code": "FR_WM_O", "component_type": "data_frame", "title": "", "allow_multiples": false,
+                        "points": [{ "id": "dp_wm_o_t", "code": "WM_O_T", "component_type": "data_point", "type": "text", "label": "Title",
+                          "response": { "data_type": "text", "value": "On-site", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }
+                }
+              ]
+            },
+            {
+              "id": "dp_skills",
+              "code": "SKILLS",
+              "component_type": "data_point",
+              "type": "multi_select",
+              "label": "Key Skills (>10 opts = bottom sheet + search)",
+              "is_searchable": true,
+              "is_suggestable": true,
+              "validation": { "is_required": true },
+              "options": [
+                { "id": "sk_flutter", "code": "FLUTTER", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_fl_t}}", "subtitle": "{{dp_sk_fl_s}}", "description": "Dart-based mobile & web framework",
+                    "DFUP": { "id": "dfup_fl", "code": "DFUP_FL", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_fl", "code": "FR_FL", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_fl_t", "code": "SK_FL_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Flutter", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_fl_s", "code": "SK_FL_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Cross-platform UI", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "sk_dart", "code": "DART", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_da_t}}", "subtitle": "{{dp_sk_da_s}}",
+                    "DFUP": { "id": "dfup_da2", "code": "DFUP_DA2", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_da2", "code": "FR_DA2", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_da_t", "code": "SK_DA_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Dart", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_da_s", "code": "SK_DA_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Flutter's language", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "sk_react", "code": "REACT", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_re_t}}", "subtitle": "{{dp_sk_re_s}}",
+                    "DFUP": { "id": "dfup_re", "code": "DFUP_RE", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_re", "code": "FR_RE", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_re_t", "code": "SK_RE_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "React", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_re_s", "code": "SK_RE_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Web frontend", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "sk_python", "code": "PYTHON", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_py_t}}", "subtitle": "{{dp_sk_py_s}}",
+                    "DFUP": { "id": "dfup_py", "code": "DFUP_PY", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_py", "code": "FR_PY", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_py_t", "code": "SK_PY_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Python", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_py_s", "code": "SK_PY_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Backend & ML", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "sk_swift", "code": "SWIFT", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_sw_t}}", "subtitle": "{{dp_sk_sw_s}}",
+                    "DFUP": { "id": "dfup_sw", "code": "DFUP_SW", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_sw", "code": "FR_SW", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_sw_t", "code": "SK_SW_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Swift", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_sw_s", "code": "SK_SW_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "iOS native", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "sk_kotlin", "code": "KOTLIN", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_kt_t}}", "subtitle": "{{dp_sk_kt_s}}",
+                    "DFUP": { "id": "dfup_kt", "code": "DFUP_KT", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_kt", "code": "FR_KT", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_kt_t", "code": "SK_KT_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Kotlin", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_kt_s", "code": "SK_KT_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Android native", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "sk_rust", "code": "RUST", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_rs_t}}", "subtitle": "{{dp_sk_rs_s}}",
+                    "DFUP": { "id": "dfup_rs", "code": "DFUP_RS", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_rs", "code": "FR_RS", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_rs_t", "code": "SK_RS_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Rust", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_rs_s", "code": "SK_RS_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Systems programming", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "sk_go", "code": "GO", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_go_t}}", "subtitle": "{{dp_sk_go_s}}",
+                    "DFUP": { "id": "dfup_go", "code": "DFUP_GO", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_go", "code": "FR_GO", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_go_t", "code": "SK_GO_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Go", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_go_s", "code": "SK_GO_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Cloud services", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "sk_docker", "code": "DOCKER", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_dk_t}}", "subtitle": "{{dp_sk_dk_s}}",
+                    "DFUP": { "id": "dfup_dk", "code": "DFUP_DK", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_dk", "code": "FR_DK", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_dk_t", "code": "SK_DK_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Docker", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_dk_s", "code": "SK_DK_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Containerization", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "sk_k8s", "code": "K8S", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_k8_t}}", "subtitle": "{{dp_sk_k8_s}}",
+                    "DFUP": { "id": "dfup_k8", "code": "DFUP_K8", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_k8", "code": "FR_K8", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_k8_t", "code": "SK_K8_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Kubernetes", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_k8_s", "code": "SK_K8_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Orchestration", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "sk_aws", "code": "AWS", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sk_aw_t}}", "subtitle": "{{dp_sk_aw_s}}",
+                    "DFUP": { "id": "dfup_aw", "code": "DFUP_AW", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_aw", "code": "FR_AW", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sk_aw_t", "code": "SK_AW_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "AWS", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sk_aw_s", "code": "SK_AW_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Cloud platform", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }}
+              ]
+            },
+            {
+              "id": "dp_flutter_dart_level",
+              "code": "FLUTTER_DART_LEVEL",
+              "component_type": "data_point",
+              "type": "single_select",
+              "label": "Flutter+Dart Proficiency (ALL: both Flutter AND Dart selected)",
+              "dependency": { "target_id": "dp_skills", "operator": "ALL", "comparison_value": ["sk_flutter", "sk_dart"] },
+              "options": [
+                { "id": "opt_fdl_beg", "code": "FDL_BEG", "component_type": "selection_option",
+                  "value": { "title": "{{dp_fdl_b_t}}", "subtitle": "{{dp_fdl_b_s}}",
+                    "DFUP": { "id": "dfup_fb", "code": "DFUP_FB", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_fb", "code": "FR_FB", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_fdl_b_t", "code": "FDL_B_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Beginner", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_fdl_b_s", "code": "FDL_B_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "< 1 year", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "opt_fdl_int", "code": "FDL_INT", "component_type": "selection_option",
+                  "value": { "title": "{{dp_fdl_i_t}}", "subtitle": "{{dp_fdl_i_s}}",
+                    "DFUP": { "id": "dfup_fi", "code": "DFUP_FI", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_fi", "code": "FR_FI", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_fdl_i_t", "code": "FDL_I_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Intermediate", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_fdl_i_s", "code": "FDL_I_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "1-3 years", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "opt_fdl_exp", "code": "FDL_EXP", "component_type": "selection_option",
+                  "value": { "title": "{{dp_fdl_e_t}}", "subtitle": "{{dp_fdl_e_s}}",
+                    "DFUP": { "id": "dfup_fe", "code": "DFUP_FE", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_fe", "code": "FR_FE", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_fdl_e_t", "code": "FDL_E_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Expert", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_fdl_e_s", "code": "FDL_E_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "3+ years", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }}
+              ]
+            },
+            {
+              "id": "dp_benefits",
+              "code": "BENEFITS",
+              "component_type": "data_point",
+              "type": "multi_select",
+              "label": "Preferred Benefits (<=10 opts = inline cards)",
+              "options": [
+                { "id": "opt_ben_health", "code": "BEN_HEALTH", "component_type": "selection_option",
+                  "value": { "title": "{{dp_bh_t}}", "subtitle": "{{dp_bh_s}}",
+                    "DFUP": { "id": "dfup_bh", "code": "DFUP_BH", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_bh", "code": "FR_BH", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_bh_t", "code": "BH_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Health Insurance", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_bh_s", "code": "BH_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Medical coverage", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "opt_ben_dental", "code": "BEN_DENTAL", "component_type": "selection_option",
+                  "value": { "title": "{{dp_bd_t}}", "subtitle": "{{dp_bd_s}}",
+                    "DFUP": { "id": "dfup_bd", "code": "DFUP_BD", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_bd", "code": "FR_BD", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_bd_t", "code": "BD_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Dental", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_bd_s", "code": "BD_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Dental plan", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "opt_ben_pto", "code": "BEN_PTO", "component_type": "selection_option",
+                  "value": { "title": "{{dp_bp_t}}", "subtitle": "{{dp_bp_s}}",
+                    "DFUP": { "id": "dfup_bp", "code": "DFUP_BP", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_bp", "code": "FR_BP", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_bp_t", "code": "BP_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "PTO", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_bp_s", "code": "BP_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Paid time off", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "opt_ben_401k", "code": "BEN_401K", "component_type": "selection_option",
+                  "value": { "title": "{{dp_b4_t}}", "subtitle": "{{dp_b4_s}}",
+                    "DFUP": { "id": "dfup_b4", "code": "DFUP_B4", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_b4", "code": "FR_B4", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_b4_t", "code": "B4_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "401(k)", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_b4_s", "code": "B4_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Retirement savings", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "opt_ben_remote", "code": "BEN_REMOTE", "component_type": "selection_option",
+                  "value": { "title": "{{dp_br_t}}", "subtitle": "{{dp_br_s}}",
+                    "DFUP": { "id": "dfup_br", "code": "DFUP_BR", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_br", "code": "FR_BR", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_br_t", "code": "BR_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Remote Stipend", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_br_s", "code": "BR_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Home office budget", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "frame_work",
+      "code": "WORK_HISTORY",
+      "component_type": "data_frame",
+      "title": "4. Work History — {{FULL_NAME}}",
+      "description": "Multi-instance data frame with intra-instance + cross-frame deps",
+      "allow_multiples": true,
+      "points": [
+        {
+          "id": "dp_company",
+          "code": "COMPANY_NAME",
+          "component_type": "data_point",
+          "type": "text",
+          "label": "Company Name",
+          "validation": { "is_required": true }
+        },
+        {
+          "id": "dp_jobtitle",
+          "code": "JOB_TITLE",
+          "component_type": "data_point",
+          "type": "text",
+          "label": "Job Title",
+          "validation": { "is_required": true }
+        },
+        {
+          "id": "dp_startdate",
+          "code": "START_DATE",
+          "component_type": "data_point",
+          "type": "date",
+          "label": "Start Date",
+          "validation": { "is_required": true }
+        },
+        {
+          "id": "dp_current",
+          "code": "IS_CURRENT",
+          "component_type": "data_point",
+          "type": "switch",
+          "label": "Currently working here"
+        },
+        {
+          "id": "dp_enddate",
+          "code": "END_DATE",
+          "component_type": "data_point",
+          "type": "date",
+          "label": "End Date (visible when current = false)",
+          "dependency": { "target_id": "dp_current", "operator": "=", "comparison_value": false }
+        },
+        {
+          "id": "dp_reason_leaving",
+          "code": "REASON_LEAVING",
+          "component_type": "data_point",
+          "type": "text",
+          "label": "Reason for Leaving (visible when current != true)",
+          "placeholder": "e.g. Career growth, relocation...",
+          "dependency": { "target_id": "dp_current", "operator": "!=", "comparison_value": true }
+        },
+        {
+          "id": "dp_achievements",
+          "code": "ACHIEVEMENTS",
+          "component_type": "data_point",
+          "type": "multiline",
+          "label": "Key Achievements (AND: not current + job title filled)",
+          "placeholder": "Describe accomplishments...",
+          "dependency": {
+            "mode": "AND",
+            "conditions": [
+              { "target_id": "dp_current", "operator": "=", "comparison_value": false },
+              { "target_id": "dp_jobtitle", "operator": "!=", "comparison_value": "" }
+            ]
+          }
+        },
+        {
+          "id": "dp_management_exp",
+          "code": "MGMT_EXP",
+          "component_type": "data_point",
+          "type": "multiline",
+          "label": "Management Experience (cross-frame: role = PM)",
+          "placeholder": "Team size, responsibilities...",
+          "dependency": { "target_id": "dp_role", "operator": "IN", "comparison_value": ["opt_pm"] }
+        }
+      ]
+    },
+
+    {
+      "id": "grp_docs",
+      "code": "DOCUMENTS",
+      "component_type": "data_frame_group",
+      "title": "5. Documents & Defaults",
+      "description": "File uploads, default values, and remaining dependency operators",
+      "frames": [
+        {
+          "id": "frame_docs",
+          "code": "DOC_UPLOADS",
+          "component_type": "data_frame",
+          "title": "Attachments",
+          "allow_multiples": false,
+          "points": [
+            {
+              "id": "dp_submission_type",
+              "code": "SUBMISSION_TYPE",
+              "component_type": "data_point",
+              "type": "single_select",
+              "label": "Submission Type",
+              "validation": { "is_required": true },
+              "options": [
+                { "id": "opt_sub_standard", "code": "SUB_STANDARD", "component_type": "selection_option",
+                  "value": { "title": "{{dp_ss_t}}", "subtitle": "{{dp_ss_s}}",
+                    "DFUP": { "id": "dfup_ss", "code": "DFUP_SS", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_ss", "code": "FR_SS", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_ss_t", "code": "SS_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Standard", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_ss_s", "code": "SS_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Normal processing", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "opt_sub_express", "code": "SUB_EXPRESS", "component_type": "selection_option",
+                  "value": { "title": "{{dp_se_t}}", "subtitle": "{{dp_se_s}}",
+                    "DFUP": { "id": "dfup_se", "code": "DFUP_SE", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_se", "code": "FR_SE", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_se_t", "code": "SE_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Express", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_se_s", "code": "SE_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "3-5 business days", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }},
+                { "id": "opt_sub_priority", "code": "SUB_PRIORITY", "component_type": "selection_option",
+                  "value": { "title": "{{dp_sp_t}}", "subtitle": "{{dp_sp_s}}",
+                    "DFUP": { "id": "dfup_sp", "code": "DFUP_SP", "component_type": "layout", "layout_type": "scroll", "children": [{ "id": "fr_sp", "code": "FR_SP", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{ "id": "dp_sp_t", "code": "SP_T", "component_type": "data_point", "type": "text", "label": "Title", "response": { "data_type": "text", "value": "Priority", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}, { "id": "dp_sp_s", "code": "SP_S", "component_type": "data_point", "type": "text", "label": "Subtitle", "response": { "data_type": "text", "value": "Within 24 hours", "status": "valid", "timestamp": "2026-01-01T00:00:00Z" }}]}]}
+                  }}
+              ]
+            },
+            {
+              "id": "dp_priority_reason",
+              "code": "PRIORITY_REASON",
+              "component_type": "data_point",
+              "type": "multiline",
+              "label": "Why priority? (IN single value)",
+              "placeholder": "Explain urgency...",
+              "validation": { "is_required": true },
+              "dependency": { "target_id": "dp_submission_type", "operator": "IN", "comparison_value": ["opt_sub_priority"] }
+            },
+            {
+              "id": "dp_rush_fee_ack",
+              "code": "RUSH_FEE_ACK",
+              "component_type": "data_point",
+              "type": "checkbox",
+              "label": "I acknowledge rush fees (IN multiple values: Express OR Priority)",
+              "validation": { "is_required": true, "error_message": "You must acknowledge the rush fee" },
+              "dependency": { "target_id": "dp_submission_type", "operator": "IN", "comparison_value": ["opt_sub_express", "opt_sub_priority"] }
+            },
+            {
+              "id": "dp_resume",
+              "code": "RESUME",
+              "component_type": "data_point",
+              "type": "file_upload",
+              "label": "Resume / CV",
+              "info": "Upload your latest resume",
+              "validation": {
+                "is_required": true,
+                "allowed_extensions": ["pdf", "doc", "docx"],
+                "max_size_mb": 10,
+                "min_files": 1,
+                "max_files": 1
+              }
+            },
+            {
+              "id": "dp_portfolio",
+              "code": "PORTFOLIO",
+              "component_type": "data_point",
+              "type": "file_upload",
+              "label": "Portfolio (optional, multi-file)",
+              "validation": {
+                "allowed_extensions": ["pdf", "zip", "jpg", "png"],
+                "max_size_mb": 25,
+                "max_files": 5
+              }
+            },
+            {
+              "id": "dp_cover_note",
+              "code": "COVER_NOTE",
+              "component_type": "data_point",
+              "type": "multiline",
+              "label": "Cover Note (default_value: text)",
+              "default_value": "Dear Hiring Manager,\n\nI am excited to apply for this position.",
+              "validation": { "max_length": 1000 }
+            },
+            {
+              "id": "dp_salary",
+              "code": "SALARY",
+              "component_type": "data_point",
+              "type": "number",
+              "label": "Expected Salary in K (visible when experience > 0)",
+              "placeholder": "e.g. 120",
+              "validation": { "min_value": 0, "max_value": 999 },
+              "dependency": { "target_id": "dp_experience", "operator": ">", "comparison_value": 0 }
+            },
+            {
+              "id": "dp_vip_note",
+              "code": "VIP_NOTE",
+              "component_type": "data_point",
+              "type": "text",
+              "label": "VIP Note (OR: experience > 20 OR rating >= 5)",
+              "placeholder": "You've been flagged as VIP...",
+              "info": "Compound OR dependency across sections",
+              "dependency": {
+                "mode": "OR",
+                "conditions": [
+                  { "target_id": "dp_experience", "operator": ">", "comparison_value": 20 },
+                  { "target_id": "dp_rating", "operator": ">=", "comparison_value": 5 }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

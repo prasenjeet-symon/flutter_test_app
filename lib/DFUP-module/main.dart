@@ -61,7 +61,7 @@ class _Home extends StatelessWidget {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Container(padding: const EdgeInsets.symmetric(horizontal: S.md, vertical: S.xs),
                 decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(R.pill)),
-                child: const Text('DFUP 2.2', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.5))),
+                child: const Text('DFUP 3', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 1.5))),
               const SizedBox(height: S.lg),
               const Text('Data Frame\nUI Protocol', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white, height: 1.2)),
               const SizedBox(height: S.sm),
@@ -325,19 +325,23 @@ class _JsonSheet extends StatelessWidget {
 Map<String, dynamic> _opt(String id, String code,
     {required String titleDpId, required String titleDefault,
      required String subDpId, required String subDefault,
-     String? description, bool disabled = false}) {
+     String? description, bool disabled = false,
+     Map<String, dynamic>? dependency}) {
   return {
     "id": id, "code": code, "component_type": "selection_option", "is_disabled": disabled,
+    if (dependency != null) "dependency": dependency,
     "value": {
-      "code": code, "title": titleDpId, "subtitle": subDpId,
+      "title": "{{$titleDpId}}", "subtitle": "{{$subDpId}}",
       if (description != null) "description": description,
       "DFUP": {
         "id": "dfup_$id", "code": "DFUP_$code", "component_type": "layout", "layout_type": "scroll",
         "children": [{"id": "frame_$id", "code": "FRAME_$code", "component_type": "data_frame",
           "title": "", "allow_multiples": false,
           "points": [
-            {"id": titleDpId, "code": "${code}_TITLE", "component_type": "data_point", "type": "text", "label": "Title", "default_value": titleDefault},
-            {"id": subDpId, "code": "${code}_SUBTITLE", "component_type": "data_point", "type": "text", "label": "Subtitle", "default_value": subDefault},
+            {"id": titleDpId, "code": "${code}_TITLE", "component_type": "data_point", "type": "text", "label": "Title", "default_value": titleDefault,
+             "response": {"data_type": "text", "value": titleDefault, "status": "valid", "timestamp": "2026-02-12T00:00:00Z"}},
+            {"id": subDpId, "code": "${code}_SUBTITLE", "component_type": "data_point", "type": "text", "label": "Subtitle", "default_value": subDefault,
+             "response": {"data_type": "text", "value": subDefault, "status": "valid", "timestamp": "2026-02-12T00:00:00Z"}},
           ]}]
       }
     }
@@ -351,11 +355,19 @@ Map<String, dynamic> _demoJson(String layoutType) => {
     // ── 1. Personal Details ──
     {
       "id": "grp_personal", "code": "PERSONAL_DETAILS", "component_type": "data_frame_group",
-      "title": "Personal Details", "description": "Tell us about yourself",
+      "title": "Personal Details (v{{dp_form_version}})", "description": "Tell us about yourself",
       "frames": [{
         "id": "frame_basic", "code": "BASIC_INFO", "component_type": "data_frame",
         "title": "Basic Information", "allow_multiples": false,
         "points": [
+          // Hidden data point — never rendered, used for interpolation in group title
+          {"id": "dp_form_version", "code": "FORM_VERSION", "component_type": "data_point", "type": "text",
+            "label": "Form Version", "is_hidden": true,
+            "response": {"data_type": "text", "value": "3.1", "status": "valid", "timestamp": "2026-03-01T00:00:00Z"}},
+          // Hidden data point as dependency target — controls visibility of admin-only field
+          {"id": "dp_access_level", "code": "ACCESS_LEVEL", "component_type": "data_point", "type": "text",
+            "label": "Access Level", "is_hidden": true,
+            "response": {"data_type": "text", "value": "admin", "status": "valid", "timestamp": "2026-03-01T00:00:00Z"}},
           {"id": "dp_fullname", "code": "FULL_NAME", "component_type": "data_point", "type": "text",
             "label": "Full Name", "placeholder": "John Doe",
             "validation": {"is_required": true, "min_length": 2, "max_length": 100}},
@@ -363,7 +375,7 @@ Map<String, dynamic> _demoJson(String layoutType) => {
             "label": "Email Address", "placeholder": "john@example.com", "is_searchable": true,
             "validation": {"is_required": true}},
           {"id": "dp_phone", "code": "PHONE", "component_type": "data_point", "type": "phone",
-            "label": "Phone Number", "placeholder": "+1 (555) 123-4567", "info": "Include country code"},
+            "label": "Phone Number", "placeholder": "+1 (555) 123-4567", "info": "We'll use this to reach {{FULL_NAME}}"},
           {"id": "dp_dob", "code": "DOB", "component_type": "data_point", "type": "date",
             "label": "Date of Birth", "validation": {"is_required": true}},
           // Inline single-select ≤5 — shows selected card UI
@@ -379,8 +391,25 @@ Map<String, dynamic> _demoJson(String layoutType) => {
               _opt("opt_pnts", "PNTS", titleDpId: "dp_pn_t", titleDefault: "Prefer not to say", subDpId: "dp_pn_s", subDefault: ""),
             ]
           },
+          // ── Visibility: IN on single_select ── gender = "Other" → show specify field
+          {"id": "dp_gender_other", "code": "GENDER_OTHER", "component_type": "data_point", "type": "text",
+            "label": "Please Specify Gender", "placeholder": "Enter your gender identity",
+            "validation": {"is_required": true},
+            "dependency": {"target_id": "dp_gender", "operator": "IN", "comparison_value": ["opt_other_g"]}},
           {"id": "dp_bio", "code": "BIO", "component_type": "data_point", "type": "multiline",
             "label": "Short Bio", "placeholder": "Tell us about yourself...", "validation": {"max_length": 500}},
+          // ── time type ──
+          {"id": "dp_contact_time", "code": "CONTACT_TIME", "component_type": "data_point", "type": "time",
+            "label": "Preferred Contact Time", "placeholder": "Select a time"},
+          // ── regex_pattern validation ──
+          {"id": "dp_linkedin", "code": "LINKEDIN", "component_type": "data_point", "type": "text",
+            "label": "LinkedIn Profile URL", "placeholder": "https://linkedin.com/in/...",
+            "validation": {"regex_pattern": "^https?://(www\\.)?linkedin\\.com/in/.+", "error_message": "Enter a valid LinkedIn URL"}},
+          // ── Hidden data point as dependency target ── visible only when access_level = "admin"
+          {"id": "dp_admin_notes", "code": "ADMIN_NOTES", "component_type": "data_point", "type": "multiline",
+            "label": "Admin Notes (hidden-field driven)", "placeholder": "Only visible because access_level = admin",
+            "info": "This field depends on a hidden data point",
+            "dependency": {"target_id": "dp_access_level", "operator": "=", "comparison_value": "admin"}},
         ]
       }]
     },
@@ -388,30 +417,93 @@ Map<String, dynamic> _demoJson(String layoutType) => {
     // ── 2. Preferences — single_select 7 opts (>5 → sheet), multi_select 12 opts (>10 → sheet) ──
     {
       "id": "grp_prefs", "code": "PREFERENCES", "component_type": "data_frame_group",
-      "title": "Preferences", "description": "Customize your experience",
+      "title": "Preferences for {{FULL_NAME}}", "description": "Customize your experience, {{FULL_NAME}}",
       "frames": [{
         "id": "frame_prefs", "code": "PREF_OPTIONS", "component_type": "data_frame",
         "title": "Options", "allow_multiples": false,
         "points": [
-          // 7 options → bottom sheet with search
+          // ── Per-option cascade: Department → Role ──
+          // 4 options → inline cards
+          {
+            "id": "dp_department", "code": "DEPARTMENT", "component_type": "data_point",
+            "type": "single_select", "label": "Department",
+            "is_filterable": true,
+            "validation": {"is_required": true},
+            "options": [
+              _opt("opt_dept_eng", "DEPT_ENG", titleDpId: "dp_de_t", titleDefault: "Engineering", subDpId: "dp_de_s", subDefault: "Build products"),
+              _opt("opt_dept_design", "DEPT_DESIGN", titleDpId: "dp_dd_t", titleDefault: "Design", subDpId: "dp_dd_s", subDefault: "Craft experiences"),
+              _opt("opt_dept_mkt", "DEPT_MKT", titleDpId: "dp_dm_t", titleDefault: "Marketing", subDpId: "dp_dm_s", subDefault: "Grow the brand"),
+              _opt("opt_dept_sales", "DEPT_SALES", titleDpId: "dp_ds_t", titleDefault: "Sales", subDpId: "dp_ds_s", subDefault: "Close deals",
+                disabled: true, description: "Currently not hiring"),
+            ]
+          },
+          // 7 options with per-option deps → role list cascades based on department
           {
             "id": "dp_role", "code": "ROLE", "component_type": "data_point",
             "type": "single_select", "label": "Primary Role",
             "is_searchable": true,
             "validation": {"is_required": true},
+            "dependency": {"target_id": "dp_department", "operator": "!=", "comparison_value": ""},
             "options": [
-              _opt("opt_dev", "DEVELOPER", titleDpId: "dp_dev_t", titleDefault: "Developer", subDpId: "dp_dev_s", subDefault: "Build & ship code", description: "Software engineers building products"),
-              _opt("opt_design", "DESIGNER", titleDpId: "dp_des_t", titleDefault: "Designer", subDpId: "dp_des_s", subDefault: "Craft visual experiences", description: "UX/UI design professionals"),
+              // Engineering-only roles
+              _opt("opt_dev", "DEVELOPER", titleDpId: "dp_dev_t", titleDefault: "Developer", subDpId: "dp_dev_s", subDefault: "Build & ship code", description: "Software engineers building products",
+                dependency: {"target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_eng"]}),
+              _opt("opt_qa", "QA", titleDpId: "dp_qa_t", titleDefault: "QA Engineer", subDpId: "dp_qa_s", subDefault: "Ensure quality", description: "Testing & quality assurance",
+                dependency: {"target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_eng"]}),
+              _opt("opt_devops", "DEVOPS", titleDpId: "dp_do_t", titleDefault: "DevOps", subDpId: "dp_do_s", subDefault: "Infrastructure & CI/CD", description: "Platform & operations",
+                dependency: {"target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_eng"]}),
+              // Design-only role
+              _opt("opt_design", "DESIGNER", titleDpId: "dp_des_t", titleDefault: "Designer", subDpId: "dp_des_s", subDefault: "Craft visual experiences", description: "UX/UI design professionals",
+                dependency: {"target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_design"]}),
+              // Engineering + Marketing (multi-department)
+              _opt("opt_data", "DATA", titleDpId: "dp_da_t", titleDefault: "Data Scientist", subDpId: "dp_da_s", subDefault: "ML & analytics", description: "Machine learning & data analysis",
+                dependency: {"target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_eng", "opt_dept_mkt"]}),
+              // Per-option compound AND: Engineering dept AND experience > 5
+              _opt("opt_architect", "ARCHITECT", titleDpId: "dp_ar_t", titleDefault: "Architect", subDpId: "dp_ar_s", subDefault: "System design & leadership", description: "Senior technical leadership role",
+                dependency: {"mode": "AND", "conditions": [
+                  {"target_id": "dp_department", "operator": "IN", "comparison_value": ["opt_dept_eng"]},
+                  {"target_id": "dp_experience", "operator": ">", "comparison_value": 5}
+                ]}),
+              // Available in all departments (no per-option dep)
               _opt("opt_pm", "PM", titleDpId: "dp_pm_t", titleDefault: "Product Manager", subDpId: "dp_pm_s", subDefault: "Drive product strategy", description: "Product leadership & roadmaps"),
-              _opt("opt_qa", "QA", titleDpId: "dp_qa_t", titleDefault: "QA Engineer", subDpId: "dp_qa_s", subDefault: "Ensure quality", description: "Testing & quality assurance"),
-              _opt("opt_devops", "DEVOPS", titleDpId: "dp_do_t", titleDefault: "DevOps", subDpId: "dp_do_s", subDefault: "Infrastructure & CI/CD", description: "Platform & operations"),
-              _opt("opt_data", "DATA", titleDpId: "dp_da_t", titleDefault: "Data Scientist", subDpId: "dp_da_s", subDefault: "ML & analytics", description: "Machine learning & data analysis"),
               _opt("opt_other", "OTHER", titleDpId: "dp_ot_t", titleDefault: "Other", subDpId: "dp_ot_s", subDefault: "Something else", description: "Any other role not listed"),
             ]
           },
+          // ── Visibility: = on single_select ── role = Developer → show preferred language
+          {"id": "dp_dev_lang", "code": "DEV_LANG", "component_type": "data_point", "type": "text",
+            "label": "Preferred Programming Language", "placeholder": "e.g. Dart, Python, Rust...",
+            "dependency": {"target_id": "dp_role", "operator": "=", "comparison_value": "opt_dev"}},
           {"id": "dp_experience", "code": "EXPERIENCE", "component_type": "data_point",
             "type": "slider", "label": "Years of Experience", "validation": {"min_value": 0, "max_value": 30}},
-          // 12 options → bottom sheet with search
+          // ── Visibility: > numeric (slider) ── experience > 10 → show senior detail
+          {"id": "dp_exp_detail", "code": "EXP_DETAIL", "component_type": "data_point", "type": "multiline",
+            "label": "Describe Your Senior Experience", "placeholder": "Share key achievements...",
+            "dependency": {"target_id": "dp_experience", "operator": ">", "comparison_value": 10}},
+          // ── Visibility: <= numeric ── experience ≤ 2 → show beginner tips
+          {"id": "dp_beginner_tips", "code": "BEGINNER_TIPS", "component_type": "data_point", "type": "text",
+            "label": "Tip: Check our onboarding guide!", "placeholder": "We'll help you get started",
+            "dependency": {"target_id": "dp_experience", "operator": "<=", "comparison_value": 2}},
+          // ── Compound AND: visible only when department is set AND experience > 5 ──
+          {"id": "dp_senior_dept_note", "code": "SENIOR_DEPT_NOTE", "component_type": "data_point", "type": "text",
+            "label": "Senior Role Notes", "placeholder": "Describe your leadership style...",
+            "dependency": {"mode": "AND", "conditions": [
+              {"target_id": "dp_department", "operator": "!=", "comparison_value": ""},
+              {"target_id": "dp_experience", "operator": ">", "comparison_value": 5}
+            ]}},
+          // ── Compound OR: visible when experience > 20 OR rating >= 5 ──
+          {"id": "dp_vip_note", "code": "VIP_NOTE", "component_type": "data_point", "type": "text",
+            "label": "VIP Candidate Note", "placeholder": "You've been flagged as VIP...",
+            "info": "Visible when experience > 20 OR rating >= 5",
+            "dependency": {"mode": "OR", "conditions": [
+              {"target_id": "dp_experience", "operator": ">", "comparison_value": 20},
+              {"target_id": "dp_rating", "operator": ">=", "comparison_value": 5}
+            ]}},
+          // ── number type with numeric dependency ──
+          {"id": "dp_salary", "code": "SALARY", "component_type": "data_point", "type": "number",
+            "label": "Expected Salary (K)", "placeholder": "e.g. 120",
+            "validation": {"min_value": 0, "max_value": 999},
+            "dependency": {"target_id": "dp_experience", "operator": ">", "comparison_value": 0}},
+          // 13 options → bottom sheet with search
           {
             "id": "dp_skills", "code": "SKILLS", "component_type": "data_point",
             "type": "multi_select", "label": "Key Skills",
@@ -419,6 +511,7 @@ Map<String, dynamic> _demoJson(String layoutType) => {
             "validation": {"is_required": true},
             "options": [
               _opt("sk_flutter", "FLUTTER", titleDpId: "dp_sk_fl_t", titleDefault: "Flutter", subDpId: "dp_sk_fl_s", subDefault: "Cross-platform UI", description: "Dart-based mobile & web framework"),
+              _opt("sk_dart", "DART", titleDpId: "dp_sk_da_t", titleDefault: "Dart", subDpId: "dp_sk_da_s", subDefault: "Flutter's language", description: "Modern language for Flutter apps"),
               _opt("sk_react", "REACT", titleDpId: "dp_sk_re_t", titleDefault: "React", subDpId: "dp_sk_re_s", subDefault: "Web frontend", description: "JavaScript UI library by Meta"),
               _opt("sk_python", "PYTHON", titleDpId: "dp_sk_py_t", titleDefault: "Python", subDpId: "dp_sk_py_s", subDefault: "Backend & ML", description: "Versatile scripting language"),
               _opt("sk_figma", "FIGMA", titleDpId: "dp_sk_fi_t", titleDefault: "Figma", subDpId: "dp_sk_fi_s", subDefault: "Design tool", description: "Collaborative design platform"),
@@ -432,15 +525,76 @@ Map<String, dynamic> _demoJson(String layoutType) => {
               _opt("sk_sql", "SQL", titleDpId: "dp_sk_sq_t", titleDefault: "SQL", subDpId: "dp_sk_sq_s", subDefault: "Database queries", description: "Structured Query Language"),
             ]
           },
+          // ── Visibility: ALL on multi_select ── skills include BOTH Flutter AND Dart → show proficiency
+          {
+            "id": "dp_flutter_dart_level", "code": "FLUTTER_DART_LEVEL", "component_type": "data_point",
+            "type": "single_select", "label": "Flutter+Dart Proficiency",
+            "options": [
+              _opt("opt_fdl_beg", "FDL_BEGINNER", titleDpId: "dp_fdl_b_t", titleDefault: "Beginner", subDpId: "dp_fdl_b_s", subDefault: "< 1 year"),
+              _opt("opt_fdl_int", "FDL_INTERMEDIATE", titleDpId: "dp_fdl_i_t", titleDefault: "Intermediate", subDpId: "dp_fdl_i_s", subDefault: "1-3 years"),
+              _opt("opt_fdl_exp", "FDL_EXPERT", titleDpId: "dp_fdl_e_t", titleDefault: "Expert", subDpId: "dp_fdl_e_s", subDefault: "3+ years"),
+            ],
+            "dependency": {"target_id": "dp_skills", "operator": "ALL", "comparison_value": ["sk_flutter", "sk_dart"]}
+          },
           {"id": "dp_rating", "code": "SATISFACTION", "component_type": "data_point",
             "type": "rating", "label": "How satisfied are you with your current tools?",
             "info": "Tap to rate, tap again to reset", "validation": {"max_value": 5}},
+          // ── Visibility: < numeric (rating) ── rating < 3 → ask for feedback
+          {"id": "dp_low_rating_feedback", "code": "LOW_RATING_FB", "component_type": "data_point", "type": "multiline",
+            "label": "What can we improve?", "placeholder": "Help us do better...",
+            "dependency": {"target_id": "dp_rating", "operator": "<", "comparison_value": 3}},
+          // ── Visibility: >= numeric ── rating ≥ 4 → nominate
+          {"id": "dp_top_performer", "code": "TOP_PERFORMER", "component_type": "data_point", "type": "text",
+            "label": "Nominate for Team Lead?", "placeholder": "Enter nominee name",
+            "dependency": {"target_id": "dp_rating", "operator": ">=", "comparison_value": 4}},
           {"id": "dp_newsletter", "code": "NEWSLETTER", "component_type": "data_point",
             "type": "switch", "label": "Subscribe to newsletter",
             "info": "Weekly updates on new features", "default_value": true},
+          // ── Visibility: = boolean (Chain Level 1) ── newsletter = true → show frequency
+          {
+            "id": "dp_newsletter_freq", "code": "NEWSLETTER_FREQ", "component_type": "data_point",
+            "type": "single_select", "label": "Newsletter Frequency",
+            "options": [
+              _opt("opt_freq_daily", "FREQ_DAILY", titleDpId: "dp_fd_t", titleDefault: "Daily", subDpId: "dp_fd_s", subDefault: "Every day"),
+              _opt("opt_freq_weekly", "FREQ_WEEKLY", titleDpId: "dp_fw_t", titleDefault: "Weekly", subDpId: "dp_fw_s", subDefault: "Once a week"),
+              _opt("opt_freq_monthly", "FREQ_MONTHLY", titleDpId: "dp_fm_t", titleDefault: "Monthly", subDpId: "dp_fm_s", subDefault: "Once a month"),
+              _opt("opt_freq_custom", "FREQ_CUSTOM", titleDpId: "dp_fc_t", titleDefault: "Custom", subDpId: "dp_fc_s", subDefault: "Set your own schedule"),
+            ],
+            "dependency": {"target_id": "dp_newsletter", "operator": "=", "comparison_value": true}
+          },
+          // ── Visibility: IN (Chain Level 2) ── frequency = Custom → show schedule input
+          {"id": "dp_custom_schedule", "code": "CUSTOM_SCHEDULE", "component_type": "data_point", "type": "text",
+            "label": "Custom Schedule", "placeholder": "e.g. 1st and 15th of each month",
+            "dependency": {"target_id": "dp_newsletter_freq", "operator": "IN", "comparison_value": ["opt_freq_custom"]}},
           {"id": "dp_terms", "code": "TERMS", "component_type": "data_point",
             "type": "checkbox", "label": "I agree to the Terms of Service",
             "validation": {"is_required": true, "error_message": "You must agree to continue"}},
+          // ── Compact chips: ≤4 options, NO subtitle/description ──
+          {
+            "id": "dp_work_mode", "code": "WORK_MODE", "component_type": "data_point",
+            "type": "single_select", "label": "Preferred Work Mode",
+            "options": [
+              {"id": "opt_wm_remote", "code": "WM_REMOTE", "component_type": "selection_option",
+                "value": {"title": "Remote", "DFUP": {"id": "dfup_wm_r", "code": "DFUP_WM_R", "component_type": "layout", "layout_type": "scroll", "children": [{"id": "fr_wm_r", "code": "FR_WM_R", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{"id": "dp_wm_r_t", "code": "WM_R_T", "component_type": "data_point", "type": "text", "label": "T", "response": {"data_type": "text", "value": "Remote", "status": "valid", "timestamp": "2026-02-12T00:00:00Z"}}]}]}}},
+              {"id": "opt_wm_hybrid", "code": "WM_HYBRID", "component_type": "selection_option",
+                "value": {"title": "Hybrid", "DFUP": {"id": "dfup_wm_h", "code": "DFUP_WM_H", "component_type": "layout", "layout_type": "scroll", "children": [{"id": "fr_wm_h", "code": "FR_WM_H", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{"id": "dp_wm_h_t", "code": "WM_H_T", "component_type": "data_point", "type": "text", "label": "T", "response": {"data_type": "text", "value": "Hybrid", "status": "valid", "timestamp": "2026-02-12T00:00:00Z"}}]}]}}},
+              {"id": "opt_wm_onsite", "code": "WM_ONSITE", "component_type": "selection_option",
+                "value": {"title": "On-site", "DFUP": {"id": "dfup_wm_o", "code": "DFUP_WM_O", "component_type": "layout", "layout_type": "scroll", "children": [{"id": "fr_wm_o", "code": "FR_WM_O", "component_type": "data_frame", "title": "", "allow_multiples": false, "points": [{"id": "dp_wm_o_t", "code": "WM_O_T", "component_type": "data_point", "type": "text", "label": "T", "response": {"data_type": "text", "value": "On-site", "status": "valid", "timestamp": "2026-02-12T00:00:00Z"}}]}]}}},
+            ]
+          },
+          // ── Multi-select inline cards: 6 options with subtitles (≤10 → inline, not sheet) ──
+          {
+            "id": "dp_benefits", "code": "BENEFITS", "component_type": "data_point",
+            "type": "multi_select", "label": "Preferred Benefits",
+            "options": [
+              _opt("opt_ben_health", "BEN_HEALTH", titleDpId: "dp_bh_t", titleDefault: "Health Insurance", subDpId: "dp_bh_s", subDefault: "Medical coverage"),
+              _opt("opt_ben_dental", "BEN_DENTAL", titleDpId: "dp_bd_t", titleDefault: "Dental", subDpId: "dp_bd_s", subDefault: "Dental plan"),
+              _opt("opt_ben_vision", "BEN_VISION", titleDpId: "dp_bv_t", titleDefault: "Vision", subDpId: "dp_bv_s", subDefault: "Eye care"),
+              _opt("opt_ben_401k", "BEN_401K", titleDpId: "dp_b4_t", titleDefault: "401(k)", subDpId: "dp_b4_s", subDefault: "Retirement savings"),
+              _opt("opt_ben_pto", "BEN_PTO", titleDpId: "dp_bp_t", titleDefault: "PTO", subDpId: "dp_bp_s", subDefault: "Paid time off"),
+              _opt("opt_ben_remote", "BEN_REMOTE", titleDpId: "dp_br_t", titleDefault: "Remote Stipend", subDpId: "dp_br_s", subDefault: "Home office budget"),
+            ]
+          },
         ]
       }]
     },
@@ -448,7 +602,7 @@ Map<String, dynamic> _demoJson(String layoutType) => {
     // ── 3. Work History (multi-instance) ──
     {
       "id": "frame_work", "code": "WORK_HISTORY", "component_type": "data_frame",
-      "title": "Work History", "description": "Add your previous positions",
+      "title": "Work History — {{dp_fullname}}", "description": "Add your previous positions",
       "allow_multiples": true,
       "points": [
         {"id": "dp_company", "code": "COMPANY_NAME", "component_type": "data_point", "type": "text", "label": "Company Name", "validation": {"is_required": true}},
@@ -457,27 +611,74 @@ Map<String, dynamic> _demoJson(String layoutType) => {
         {"id": "dp_current", "code": "IS_CURRENT", "component_type": "data_point", "type": "switch", "label": "Currently working here"},
         {"id": "dp_enddate", "code": "END_DATE", "component_type": "data_point", "type": "date", "label": "End Date",
           "dependency": {"target_id": "dp_current", "operator": "=", "comparison_value": false}},
+        // ── Visibility: != boolean + multi-instance ── current != true → show reason
+        {"id": "dp_reason_leaving", "code": "REASON_LEAVING", "component_type": "data_point", "type": "text",
+          "label": "Reason for Leaving", "placeholder": "e.g. Career growth, relocation...",
+          "dependency": {"target_id": "dp_current", "operator": "!=", "comparison_value": true}},
+        // ── Compound AND intra-instance ── NOT current AND has job title → show achievements
+        {"id": "dp_achievements", "code": "ACHIEVEMENTS", "component_type": "data_point", "type": "multiline",
+          "label": "Key Achievements", "placeholder": "Describe key accomplishments in this role...",
+          "dependency": {"mode": "AND", "conditions": [
+            {"target_id": "dp_current", "operator": "=", "comparison_value": false},
+            {"target_id": "dp_jobtitle", "operator": "!=", "comparison_value": ""}
+          ]}},
+        // ── Visibility: Cross-frame dependency ── dp_role (Step 2) = PM → show management exp
+        {"id": "dp_management_exp", "code": "MGMT_EXP", "component_type": "data_point", "type": "multiline",
+          "label": "Management Experience", "placeholder": "Describe team size, responsibilities...",
+          "dependency": {"target_id": "dp_role", "operator": "IN", "comparison_value": ["opt_pm"]}},
       ]
     },
 
     // ── 4. Documents ──
     {
       "id": "grp_docs", "code": "DOCUMENTS", "component_type": "data_frame_group",
-      "title": "Documents", "description": "Upload supporting documents",
+      "title": "Documents", "description": "Upload supporting documents for {{FULL_NAME}}",
       "frames": [{
         "id": "frame_docs", "code": "DOC_UPLOADS", "component_type": "data_frame",
         "title": "Attachments", "allow_multiples": false,
         "points": [
+          // ── Visibility: Parent for two children ──
+          {
+            "id": "dp_submission_type", "code": "SUBMISSION_TYPE", "component_type": "data_point",
+            "type": "single_select", "label": "Submission Type",
+            "validation": {"is_required": true},
+            "options": [
+              _opt("opt_sub_standard", "SUB_STANDARD", titleDpId: "dp_ss_t", titleDefault: "Standard", subDpId: "dp_ss_s", subDefault: "Normal processing time"),
+              _opt("opt_sub_express", "SUB_EXPRESS", titleDpId: "dp_se_t", titleDefault: "Express", subDpId: "dp_se_s", subDefault: "3-5 business days"),
+              _opt("opt_sub_priority", "SUB_PRIORITY", titleDpId: "dp_sp_t", titleDefault: "Priority", subDpId: "dp_sp_s", subDefault: "Within 24 hours"),
+            ]
+          },
+          // ── Visibility: IN single value ── submission = Priority → show reason
+          {"id": "dp_priority_reason", "code": "PRIORITY_REASON", "component_type": "data_point", "type": "multiline",
+            "label": "Why do you need priority processing?", "placeholder": "Explain urgency...",
+            "validation": {"is_required": true},
+            "dependency": {"target_id": "dp_submission_type", "operator": "IN", "comparison_value": ["opt_sub_priority"]}},
+          // ── Visibility: IN multiple values ── submission = Express OR Priority → show fee ack
+          {"id": "dp_rush_fee_ack", "code": "RUSH_FEE_ACK", "component_type": "data_point", "type": "checkbox",
+            "label": "I understand rush processing fees apply",
+            "validation": {"is_required": true, "error_message": "You must acknowledge the rush fee"},
+            "dependency": {"target_id": "dp_submission_type", "operator": "IN", "comparison_value": ["opt_sub_express", "opt_sub_priority"]}},
           {"id": "dp_resume", "code": "RESUME", "component_type": "data_point", "type": "file_upload",
             "label": "Resume / CV", "info": "Upload your latest resume",
-            "validation": {"is_required": true, "allowed_extensions": ["pdf", "doc", "docx"], "max_size_mb": 10}},
+            "validation": {"is_required": true, "allowed_extensions": ["pdf", "doc", "docx"], "max_size_mb": 10, "min_files": 1, "max_files": 1}},
           {"id": "dp_portfolio", "code": "PORTFOLIO", "component_type": "data_point", "type": "file_upload",
             "label": "Portfolio (optional)",
-            "validation": {"allowed_extensions": ["pdf", "zip", "jpg", "png"], "max_size_mb": 25}},
+            "validation": {"allowed_extensions": ["pdf", "zip", "jpg", "png"], "max_size_mb": 25, "max_files": 5}},
+          // ── default_value: text ── pre-filled greeting
+          {"id": "dp_cover_note", "code": "COVER_NOTE", "component_type": "data_point", "type": "multiline",
+            "label": "Cover Note", "default_value": "Dear Hiring Manager,\n\nI am excited to apply for this position.",
+            "validation": {"max_length": 1000}},
+          // ── default_value: number ── pre-filled notice period
+          {"id": "dp_notice_period", "code": "NOTICE_PERIOD", "component_type": "data_point", "type": "number",
+            "label": "Notice Period (days)", "default_value": 30, "placeholder": "e.g. 30",
+            "validation": {"min_value": 0, "max_value": 180}},
+          // ── boolean type ──
+          {"id": "dp_has_referral", "code": "HAS_REFERRAL", "component_type": "data_point", "type": "boolean",
+            "label": "I have a referral"},
           {"id": "dp_password_test", "code": "SECRET_CODE", "component_type": "data_point", "type": "password",
             "label": "Referral Code", "placeholder": "Enter code if you have one", "info": "Optional referral code"},
           {"id": "dp_meeting_time", "code": "MEETING_TIME", "component_type": "data_point", "type": "datetime",
-            "label": "Preferred Meeting Time", "placeholder": "Select interview slot"},
+            "label": "Preferred Meeting Time for {{FULL_NAME}}", "placeholder": "Select interview slot"},
         ]
       }]
     },

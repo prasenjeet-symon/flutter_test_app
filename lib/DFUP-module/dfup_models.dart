@@ -24,9 +24,10 @@ class ValidationSchema {
 }
 
 class FileValidationSchema {
-  final bool isRequired; final List<String>? allowedExtensions; final double? maxSizeMb; final String? errorMessage;
-  const FileValidationSchema({this.isRequired = false, this.allowedExtensions, this.maxSizeMb, this.errorMessage});
-  factory FileValidationSchema.fromJson(Map<String, dynamic> j) => FileValidationSchema(isRequired: j['is_required'] ?? false, allowedExtensions: (j['allowed_extensions'] as List?)?.map((e) => e.toString()).toList(), maxSizeMb: (j['max_size_mb'] as num?)?.toDouble(), errorMessage: j['error_message']);
+  final bool isRequired; final List<String>? allowedExtensions; final double? maxSizeMb; final int? minFiles; final int? maxFiles; final String? errorMessage;
+  const FileValidationSchema({this.isRequired = false, this.allowedExtensions, this.maxSizeMb, this.minFiles, this.maxFiles, this.errorMessage});
+  factory FileValidationSchema.fromJson(Map<String, dynamic> j) => FileValidationSchema(isRequired: j['is_required'] ?? false, allowedExtensions: (j['allowed_extensions'] as List?)?.map((e) => e.toString()).toList(), maxSizeMb: (j['max_size_mb'] as num?)?.toDouble(), minFiles: j['min_files'], maxFiles: j['max_files'], errorMessage: j['error_message']);
+  Map<String, dynamic> toJson() { final m = <String, dynamic>{}; if (isRequired) m['is_required'] = true; if (allowedExtensions != null) m['allowed_extensions'] = allowedExtensions; if (maxSizeMb != null) m['max_size_mb'] = maxSizeMb; if (minFiles != null) m['min_files'] = minFiles; if (maxFiles != null) m['max_files'] = maxFiles; if (errorMessage != null) m['error_message'] = errorMessage; return m; }
 }
 
 class DependencySchema {
@@ -34,6 +35,42 @@ class DependencySchema {
   const DependencySchema({required this.targetId, required this.operator, required this.comparisonValue});
   factory DependencySchema.fromJson(Map<String, dynamic> j) => DependencySchema(targetId: j['target_id'], operator: j['operator'], comparisonValue: j['comparison_value']);
   Map<String, dynamic> toJson() => {'target_id': targetId, 'operator': operator, 'comparison_value': comparisonValue};
+}
+
+class DependencyConfig {
+  final String mode; // 'AND' or 'OR', defaults to 'AND'
+  final List<DependencySchema> conditions;
+  const DependencyConfig({this.mode = 'AND', required this.conditions});
+
+  /// Backward-compatible: accepts old flat format (single DependencySchema)
+  /// or new compound format with conditions array.
+  factory DependencyConfig.fromJson(Map<String, dynamic> j) {
+    if (j.containsKey('conditions')) {
+      return DependencyConfig(
+        mode: (j['mode'] as String?) ?? 'AND',
+        conditions: (j['conditions'] as List)
+            .map((e) => DependencySchema.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+    }
+    // Old 2.x format: single DependencySchema at top level
+    return DependencyConfig(mode: 'AND', conditions: [DependencySchema.fromJson(j)]);
+  }
+
+  Map<String, dynamic> toJson() => {
+    'mode': mode,
+    'conditions': conditions.map((c) => c.toJson()).toList(),
+  };
+
+  DependencyConfig remapIds(Map<String, String> idMap) {
+    final remapped = conditions.map((c) {
+      if (idMap.containsKey(c.targetId)) {
+        return DependencySchema(targetId: idMap[c.targetId]!, operator: c.operator, comparisonValue: c.comparisonValue);
+      }
+      return c;
+    }).toList();
+    return DependencyConfig(mode: mode, conditions: remapped);
+  }
 }
 
 class TextResponse { final String dataType = 'text'; String timestamp; ResponseStatus status; String value; TextResponse({required this.value, this.status = ResponseStatus.pending, String? timestamp}) : timestamp = timestamp ?? DateTime.now().toUtc().toIso8601String(); factory TextResponse.fromJson(Map<String, dynamic> j) => TextResponse(value: j['value'] ?? '', status: responseStatusFromString(j['status'] ?? 'pending'), timestamp: j['timestamp']); Map<String, dynamic> toJson() => {'data_type': dataType, 'timestamp': timestamp, 'status': responseStatusToString(status), 'value': value}; }
@@ -53,49 +90,58 @@ class FileUploadResponse { final String dataType = 'file_upload'; String timesta
 class SelectionResponse {
   final String dataType = 'selection'; String timestamp; ResponseStatus status; List<String> selectedIds; dynamic value;
   SelectionResponse({required this.selectedIds, required this.value, this.status = ResponseStatus.pending, String? timestamp}) : timestamp = timestamp ?? DateTime.now().toUtc().toIso8601String();
-  factory SelectionResponse.fromJson(Map<String, dynamic> j) => SelectionResponse(selectedIds: (j['selected_ids'] as List?)?.map((e) => e.toString()).toList() ?? [], value: j['value'], status: responseStatusFromString(j['status'] ?? 'pending'), timestamp: j['timestamp']);
-  Map<String, dynamic> toJson() { dynamic sv; if (value is List) { sv = (value as List).map((e) => e is SelectionOptionContent ? e.toJson() : e).toList(); } else if (value is SelectionOptionContent) { sv = (value as SelectionOptionContent).toJson(); } else { sv = value; } return {'data_type': dataType, 'timestamp': timestamp, 'status': responseStatusToString(status), 'selected_ids': selectedIds, 'value': sv}; }
+  factory SelectionResponse.fromJson(Map<String, dynamic> j) {
+    dynamic parsedValue;
+    final rawVal = j['value'];
+    if (rawVal is List) { parsedValue = rawVal.map((e) => e is Map<String, dynamic> ? SelectionDataPointOption.fromJson(e) : e).toList(); }
+    else if (rawVal is Map<String, dynamic>) { parsedValue = SelectionDataPointOption.fromJson(rawVal); }
+    else { parsedValue = rawVal; }
+    return SelectionResponse(selectedIds: (j['selected_ids'] as List?)?.map((e) => e.toString()).toList() ?? [], value: parsedValue, status: responseStatusFromString(j['status'] ?? 'pending'), timestamp: j['timestamp']);
+  }
+  Map<String, dynamic> toJson() { dynamic sv; if (value is List) { sv = (value as List).map((e) => e is SelectionDataPointOption ? e.toJson() : e).toList(); } else if (value is SelectionDataPointOption) { sv = (value as SelectionDataPointOption).toJson(); } else { sv = value; } return {'data_type': dataType, 'timestamp': timestamp, 'status': responseStatusToString(status), 'selected_ids': selectedIds, 'value': sv}; }
 }
 
 class SelectionOptionContent {
-  final String code; final String? title; final String? subtitle; final String? description; final String? logo; final Layout? dfup;
-  const SelectionOptionContent({required this.code, this.title, this.subtitle, this.description, this.logo, this.dfup});
-  String resolveField(String? raw) { if (raw == null || raw.isEmpty || dfup == null) return raw ?? ''; final pts = dfup!.collectAllDataPoints(); String r = raw; for (final dp in pts) { if (r.contains(dp.id)) { r = r.replaceAll(dp.id, dp.responseValue?.toString() ?? ''); } } return r; }
+  final String? title; final String? subtitle; final String? description; final String? logo; final bool isUserEditable; final Layout? dfup;
+  const SelectionOptionContent({this.title, this.subtitle, this.description, this.logo, this.isUserEditable = false, this.dfup});
+  static final _tokenRe = RegExp(r'\{\{([^}]+)\}\}');
+  String resolveField(String? raw) { if (raw == null || raw.isEmpty || dfup == null) return raw ?? ''; final pts = dfup!.collectAllDataPoints(); final reg = <String, DataPoint>{}; for (final dp in pts) { reg[dp.id] = dp; reg[dp.code] = dp; } return raw.replaceAllMapped(_tokenRe, (m) { final key = m.group(1)!.trim(); final dp = reg[key]; return dp?.responseValue?.toString() ?? ''; }); }
   String get resolvedTitle => resolveField(title);
   String get resolvedSubtitle => resolveField(subtitle);
   String get resolvedDescription => resolveField(description);
-  factory SelectionOptionContent.fromJson(Map<String, dynamic> j) => SelectionOptionContent(code: j['code'] ?? '', title: j['title'], subtitle: j['subtitle'], description: j['description'], logo: j['logo'], dfup: j['DFUP'] != null ? Layout.fromJson(j['DFUP']) : null);
-  Map<String, dynamic> toJson() { final m = <String, dynamic>{'code': code}; if (title != null) m['title'] = title; if (subtitle != null) m['subtitle'] = subtitle; if (description != null) m['description'] = description; if (logo != null) m['logo'] = logo; if (dfup != null) m['DFUP'] = dfup!.toJson(); return m; }
+  factory SelectionOptionContent.fromJson(Map<String, dynamic> j) => SelectionOptionContent(title: j['title'], subtitle: j['subtitle'], description: j['description'], logo: j['logo'], isUserEditable: j['is_user_editable'] ?? false, dfup: j['DFUP'] != null ? Layout.fromJson(j['DFUP']) : null);
+  Map<String, dynamic> toJson() { final m = <String, dynamic>{}; if (title != null) m['title'] = title; if (subtitle != null) m['subtitle'] = subtitle; if (description != null) m['description'] = description; if (logo != null) m['logo'] = logo; if (isUserEditable) m['is_user_editable'] = true; if (dfup != null) m['DFUP'] = dfup!.toJson(); return m; }
 }
 
 class SelectionDataPointOption {
-  final String id; final String code; final String componentType = 'selection_option'; final bool isDisabled; final SelectionOptionContent value;
-  SelectionDataPointOption({required this.id, required this.code, this.isDisabled = false, required this.value});
-  factory SelectionDataPointOption.fromJson(Map<String, dynamic> j) => SelectionDataPointOption(id: j['id'] ?? _uuid.v4(), code: j['code'] ?? '', isDisabled: j['is_disabled'] ?? false, value: SelectionOptionContent.fromJson(j['value'] ?? {}));
-  Map<String, dynamic> toJson() => {'id': id, 'code': code, 'component_type': componentType, 'is_disabled': isDisabled, 'value': value.toJson()};
+  final String id; final String code; final String componentType = 'selection_option'; final bool isDisabled; DependencyConfig? dependency; final SelectionOptionContent value;
+  SelectionDataPointOption({required this.id, required this.code, this.isDisabled = false, this.dependency, required this.value});
+  factory SelectionDataPointOption.fromJson(Map<String, dynamic> j) => SelectionDataPointOption(id: j['id'] ?? _uuid.v4(), code: j['code'] ?? '', isDisabled: j['is_disabled'] ?? false, dependency: j['dependency'] != null ? DependencyConfig.fromJson(j['dependency']) : null, value: SelectionOptionContent.fromJson(j['value'] ?? {}));
+  Map<String, dynamic> toJson() { final m = <String, dynamic>{'id': id, 'code': code, 'component_type': componentType, 'is_disabled': isDisabled, 'value': value.toJson()}; if (dependency != null) m['dependency'] = dependency!.toJson(); return m; }
 }
 
 class DataPoint {
-  final String id; final String code; final String componentType = 'data_point'; final DataPointType type; final String label;
-  String? placeholder; String? info; bool isSearchable; bool isFilterable; bool isSuggestable;
+  String id; final String code; final String componentType = 'data_point'; final DataPointType type; final String label;
+  String? placeholder; String? info; bool isSearchable; bool isFilterable; bool isSuggestable; bool isHidden;
   dynamic defaultValue; ValidationSchema? validation; FileValidationSchema? fileValidation;
-  DependencySchema? dependency; List<SelectionDataPointOption>? options; dynamic response;
-  DataPoint({required this.id, required this.code, required this.type, required this.label, this.placeholder, this.info, this.isSearchable = false, this.isFilterable = false, this.isSuggestable = false, this.defaultValue, this.validation, this.fileValidation, this.dependency, this.options, this.response});
+  DependencyConfig? dependency; List<SelectionDataPointOption>? options; dynamic response;
+  DataPoint({required this.id, required this.code, required this.type, required this.label, this.placeholder, this.info, this.isSearchable = false, this.isFilterable = false, this.isSuggestable = false, this.isHidden = false, this.defaultValue, this.validation, this.fileValidation, this.dependency, this.options, this.response});
   factory DataPoint.fromJson(Map<String, dynamic> j) {
     final dpType = dataPointTypeFromString(j['type'] ?? 'text');
     ValidationSchema? v; FileValidationSchema? fv;
     if (dpType == DataPointType.fileUpload && j['validation'] != null) { fv = FileValidationSchema.fromJson(j['validation']); } else if (j['validation'] != null) { v = ValidationSchema.fromJson(j['validation']); }
     dynamic resp; if (j['response'] != null) { final r = j['response'] as Map<String, dynamic>; switch (r['data_type']) { case 'text': resp = TextResponse.fromJson(r); case 'number': resp = NumberResponse.fromJson(r); case 'boolean': resp = BooleanResponse.fromJson(r); case 'datetime': resp = DateTimeResponse.fromJson(r); case 'file_upload': resp = FileUploadResponse.fromJson(r); case 'selection': resp = SelectionResponse.fromJson(r); } }
     List<SelectionDataPointOption>? opts; if (j['options'] != null) { opts = (j['options'] as List).map((e) => SelectionDataPointOption.fromJson(e as Map<String, dynamic>)).toList(); }
-    return DataPoint(id: j['id'] ?? _uuid.v4(), code: j['code'] ?? '', type: dpType, label: j['label'] ?? '', placeholder: j['placeholder'], info: j['info'], isSearchable: j['is_searchable'] ?? false, isFilterable: j['is_filterable'] ?? false, isSuggestable: j['is_suggestable'] ?? false, defaultValue: j['default_value'], validation: v, fileValidation: fv, dependency: j['dependency'] != null ? DependencySchema.fromJson(j['dependency']) : null, options: opts, response: resp);
+    return DataPoint(id: j['id'] ?? _uuid.v4(), code: j['code'] ?? '', type: dpType, label: j['label'] ?? '', placeholder: j['placeholder'], info: j['info'], isSearchable: j['is_searchable'] ?? false, isFilterable: j['is_filterable'] ?? false, isSuggestable: j['is_suggestable'] ?? false, isHidden: j['is_hidden'] ?? false, defaultValue: j['default_value'], validation: v, fileValidation: fv, dependency: j['dependency'] != null ? DependencyConfig.fromJson(j['dependency']) : null, options: opts, response: resp);
   }
-  Map<String, dynamic> toJson() { final m = <String, dynamic>{'id': id, 'code': code, 'component_type': componentType, 'type': dataPointTypeToString(type), 'label': label}; if (placeholder != null) m['placeholder'] = placeholder; if (info != null) m['info'] = info; if (isSearchable) m['is_searchable'] = true; if (isFilterable) m['is_filterable'] = true; if (isSuggestable) m['is_suggestable'] = true; if (defaultValue != null) m['default_value'] = defaultValue; if (validation != null) m['validation'] = validation!.toJson(); if (dependency != null) m['dependency'] = dependency!.toJson(); if (options != null) m['options'] = options!.map((e) => e.toJson()).toList(); if (response != null) m['response'] = response is Map ? response : response.toJson(); return m; }
+  Map<String, dynamic> toJson() { final m = <String, dynamic>{'id': id, 'code': code, 'component_type': componentType, 'type': dataPointTypeToString(type), 'label': label}; if (placeholder != null) m['placeholder'] = placeholder; if (info != null) m['info'] = info; if (isSearchable) m['is_searchable'] = true; if (isFilterable) m['is_filterable'] = true; if (isSuggestable) m['is_suggestable'] = true; if (isHidden) m['is_hidden'] = true; if (defaultValue != null) m['default_value'] = defaultValue; if (validation != null) m['validation'] = validation!.toJson(); if (fileValidation != null) m['validation'] = fileValidation!.toJson(); if (dependency != null) m['dependency'] = dependency!.toJson(); if (options != null) m['options'] = options!.map((e) => e.toJson()).toList(); if (response != null) m['response'] = response is Map ? response : response.toJson(); return m; }
   DataPoint deepCopy() => DataPoint.fromJson(toJson());
+  void _overrideId(String newId) { id = newId; }
   String? get textValue => response is TextResponse ? (response as TextResponse).value : null;
   double? get numberValue => response is NumberResponse ? (response as NumberResponse).value : null;
   bool? get boolValue => response is BooleanResponse ? (response as BooleanResponse).value : null;
   String? get dateValue => response is DateTimeResponse ? (response as DateTimeResponse).value : null;
-  dynamic get responseValue { if (response == null) return null; if (response is TextResponse) return (response as TextResponse).value; if (response is NumberResponse) return (response as NumberResponse).value; if (response is BooleanResponse) return (response as BooleanResponse).value; if (response is DateTimeResponse) return (response as DateTimeResponse).value; if (response is SelectionResponse) { final sel = response as SelectionResponse; if (sel.value is SelectionOptionContent) return (sel.value as SelectionOptionContent).resolvedTitle; if (sel.value is List) return (sel.value as List).map((e) => e is SelectionOptionContent ? e.resolvedTitle : e.toString()).join(', '); } return null; }
+  dynamic get responseValue { if (response == null) return null; if (response is TextResponse) return (response as TextResponse).value; if (response is NumberResponse) return (response as NumberResponse).value; if (response is BooleanResponse) return (response as BooleanResponse).value; if (response is DateTimeResponse) return (response as DateTimeResponse).value; if (response is SelectionResponse) { final sel = response as SelectionResponse; if (sel.value is SelectionDataPointOption) return (sel.value as SelectionDataPointOption).value.resolvedTitle; if (sel.value is List) return (sel.value as List).map((e) => e is SelectionDataPointOption ? e.value.resolvedTitle : e.toString()).join(', '); } return null; }
 }
 
 class DataFrame {
@@ -103,7 +149,30 @@ class DataFrame {
   DataFrame({required this.id, required this.code, required this.title, this.description, this.allowMultiples = false, required this.points, this.instances});
   factory DataFrame.fromJson(Map<String, dynamic> j) { final pts = (j['points'] as List?)?.map((e) => DataPoint.fromJson(e as Map<String, dynamic>)).toList() ?? []; List<List<DataPoint>>? inst; if (j['instances'] != null) { inst = (j['instances'] as List).map((i) => (i as List).map((e) => DataPoint.fromJson(e as Map<String, dynamic>)).toList()).toList(); } return DataFrame(id: j['id'] ?? _uuid.v4(), code: j['code'] ?? '', title: j['title'] ?? '', description: j['description'], allowMultiples: j['allow_multiples'] ?? false, points: pts, instances: inst); }
   Map<String, dynamic> toJson() { final m = <String, dynamic>{'id': id, 'code': code, 'component_type': componentType, 'title': title, 'allow_multiples': allowMultiples, 'points': points.map((e) => e.toJson()).toList()}; if (description != null) m['description'] = description; if (instances != null) m['instances'] = instances!.map((i) => i.map((e) => e.toJson()).toList()).toList(); return m; }
-  void addInstance() { instances ??= []; instances!.add(points.map((p) => p.deepCopy()).toList()); }
+  void addInstance() {
+    instances ??= [];
+    final idMap = <String, String>{};
+    final copied = points.map((p) {
+      final newId = _uuid.v4();
+      idMap[p.id] = newId;
+      final cp = p.deepCopy();
+      cp._overrideId(newId);
+      return cp;
+    }).toList();
+    for (final cp in copied) {
+      if (cp.dependency != null) {
+        cp.dependency = cp.dependency!.remapIds(idMap);
+      }
+      if (cp.options != null) {
+        for (final opt in cp.options!) {
+          if (opt.dependency != null) {
+            opt.dependency = opt.dependency!.remapIds(idMap);
+          }
+        }
+      }
+    }
+    instances!.add(copied);
+  }
   void removeInstance(int i) { if (instances != null && i < instances!.length) instances!.removeAt(i); }
 }
 
@@ -131,5 +200,6 @@ class Layout {
   factory Layout.fromJson(Map<String, dynamic> j) { final ch = j['children'] as List? ?? []; return Layout(id: j['id'] ?? _uuid.v4(), code: j['code'] ?? '', layoutType: layoutTypeFromString(j['layout_type'] ?? 'scroll'), title: j['title'], children: ch.map((e) => LayoutChild.fromJson(e as Map<String, dynamic>)).toList()); }
   Map<String, dynamic> toJson() { final m = <String, dynamic>{'id': id, 'code': code, 'component_type': componentType, 'layout_type': layoutTypeToString(layoutType), 'children': children.map((e) => e.toJson()).toList()}; if (title != null) m['title'] = title; return m; }
   List<DataPoint> collectAllDataPoints() { final r = <DataPoint>[]; for (final c in children) { if (c.isGroup) { for (final f in c.group!.frames) _col(f, r); } else if (c.isFrame) _col(c.frame!, r); } return r; }
-  void _col(DataFrame f, List<DataPoint> r) { r.addAll(f.points); if (f.allowMultiples && f.instances != null) { for (final i in f.instances!) r.addAll(i); } }
+  void _col(DataFrame f, List<DataPoint> r) { _colPoints(f.points, r); if (f.allowMultiples && f.instances != null) { for (final i in f.instances!) _colPoints(i, r); } }
+  void _colPoints(List<DataPoint> pts, List<DataPoint> r) { for (final dp in pts) { r.add(dp); } }
 }

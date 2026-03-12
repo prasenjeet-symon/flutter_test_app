@@ -8,8 +8,9 @@ import 'dfup_label_row.dart';
 
 class DfupBooleanInput extends StatefulWidget {
   final DataPoint dataPoint;
+  final Map<String, DataPoint>? registry;
   final VoidCallback onMutated;
-  const DfupBooleanInput({super.key, required this.dataPoint, required this.onMutated});
+  const DfupBooleanInput({super.key, required this.dataPoint, this.registry, required this.onMutated});
   @override
   State<DfupBooleanInput> createState() => _DfupBooleanInputState();
 }
@@ -47,7 +48,7 @@ class _DfupBooleanInputState extends State<DfupBooleanInput> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            DfupLabelRow(label: dp.label, isRequired: dp.validation?.isRequired ?? false),
+            DfupLabelRow(label: dp.label, isRequired: dp.validation?.isRequired ?? false, registry: widget.registry),
             if (dp.info != null) ...[const SizedBox(height: S.xs),
               Text(dp.info!, style: TextStyle(fontSize: 13, color: c.text2))],
           ])),

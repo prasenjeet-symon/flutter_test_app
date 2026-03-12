@@ -9,8 +9,9 @@ import 'dfup_label_row.dart';
 
 class DfupDateInput extends StatefulWidget {
   final DataPoint dataPoint;
+  final Map<String, DataPoint>? registry;
   final VoidCallback onMutated;
-  const DfupDateInput({super.key, required this.dataPoint, required this.onMutated});
+  const DfupDateInput({super.key, required this.dataPoint, this.registry, required this.onMutated});
   @override
   State<DfupDateInput> createState() => _DfupDateInputState();
 }
@@ -75,7 +76,7 @@ class _DfupDateInputState extends State<DfupDateInput> {
     final c = Cx.of(context);
     final has = _date != null || _time != null;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      DfupLabelRow(label: dp.label, isRequired: dp.validation?.isRequired ?? false, info: dp.info),
+      DfupLabelRow(label: dp.label, isRequired: dp.validation?.isRequired ?? false, info: dp.info, registry: widget.registry),
       const SizedBox(height: S.sm),
       GestureDetector(
         onTap: () => dp.type == DataPointType.time ? _pickTime() : _pickDate(),

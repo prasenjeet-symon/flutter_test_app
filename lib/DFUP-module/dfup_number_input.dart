@@ -9,8 +9,9 @@ import 'dfup_label_row.dart';
 
 class DfupNumberInput extends StatefulWidget {
   final DataPoint dataPoint;
+  final Map<String, DataPoint>? registry;
   final VoidCallback onMutated;
-  const DfupNumberInput({super.key, required this.dataPoint, required this.onMutated});
+  const DfupNumberInput({super.key, required this.dataPoint, this.registry, required this.onMutated});
   @override
   State<DfupNumberInput> createState() => _DfupNumberInputState();
 }
@@ -55,7 +56,7 @@ class _DfupNumberInputState extends State<DfupNumberInput> {
   Widget _field(bool req) {
     final c = Cx.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      DfupLabelRow(label: dp.label, isRequired: req, info: dp.info),
+      DfupLabelRow(label: dp.label, isRequired: req, info: dp.info, registry: widget.registry),
       const SizedBox(height: S.sm),
       TextFormField(
         controller: _ctrl,
@@ -73,7 +74,7 @@ class _DfupNumberInputState extends State<DfupNumberInput> {
     final c = Cx.of(context);
     final mn = dp.validation?.minValue ?? 0, mx = dp.validation?.maxValue ?? 100;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      DfupLabelRow(label: dp.label, isRequired: req, info: dp.info),
+      DfupLabelRow(label: dp.label, isRequired: req, info: dp.info, registry: widget.registry),
       const SizedBox(height: S.md),
       Container(
         padding: const EdgeInsets.symmetric(horizontal: S.lg, vertical: S.md),
@@ -112,7 +113,7 @@ class _DfupNumberInputState extends State<DfupNumberInput> {
     final c = Cx.of(context);
     final max = dp.validation?.maxValue?.toInt() ?? 5;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      DfupLabelRow(label: dp.label, isRequired: req, info: dp.info),
+      DfupLabelRow(label: dp.label, isRequired: req, info: dp.info, registry: widget.registry),
       const SizedBox(height: S.md),
       Container(
         padding: const EdgeInsets.symmetric(horizontal: S.lg, vertical: S.md),
