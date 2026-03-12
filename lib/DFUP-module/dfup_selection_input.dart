@@ -5,6 +5,7 @@ import 'dfup_models.dart';
 import 'dfup_utils.dart';
 import 'dfup_theme.dart';
 import 'dfup_label_row.dart';
+import 'dfup_layout_widget.dart';
 
 // ═══════════════════════════════════════════════════════════════
 // Global search helper — case-insensitive across title/subtitle/description
@@ -56,8 +57,9 @@ class _SearchBar extends StatelessWidget {
 
 class DfupSelectionInput extends StatefulWidget {
   final DataPoint dataPoint;
+  final Map<String, DataPoint>? registry;
   final VoidCallback onMutated;
-  const DfupSelectionInput({super.key, required this.dataPoint, required this.onMutated});
+  const DfupSelectionInput({super.key, required this.dataPoint, this.registry, required this.onMutated});
   @override
   State<DfupSelectionInput> createState() => _DfupSelectionInputState();
 }
@@ -75,9 +77,13 @@ class _DfupSelectionInputState extends State<DfupSelectionInput> {
     _sel = dp.response is SelectionResponse ? (dp.response as SelectionResponse).selectedIds.toSet() : {};
   }
 
-  bool get _useSheet {
-    final count = dp.options?.length ?? 0;
-    return isMulti ? count > 10 : count > 5;
+  List<SelectionDataPointOption> get _visibleOpts {
+    final registry = widget.registry ?? {};
+    return (dp.options ?? []).where((o) => DependencyEvaluator.isOptionVisible(o, registry)).toList();
+  }
+
+  bool _useSheetFor(List<SelectionDataPointOption> opts) {
+    return isMulti ? opts.length > 10 : opts.length > 5;
   }
 
   void _toggle(SelectionDataPointOption opt) {
@@ -91,19 +97,17 @@ class _DfupSelectionInputState extends State<DfupSelectionInput> {
   void _mutate() {
     final selOpts = dp.options?.where((o) => _sel.contains(o.id)).toList() ?? [];
     final err = DfupValidator.validateSelection(dp, _sel.toList());
-    final snaps = selOpts.map((o) => o.value).toList();
     dp.response = SelectionResponse(
       selectedIds: _sel.toList(),
-      value: isMulti ? snaps : (snaps.isNotEmpty ? snaps.first : null),
-      status: err == null ? ResponseStatus.valid : ResponseStatus.invalid,
+      value: isMulti ? selOpts : (selOpts.isNotEmpty ? selOpts.first : null),
+      status: err == null && _nestedDfupsValid() ? ResponseStatus.valid : ResponseStatus.invalid,
     );
     setState(() => _error = err);
     widget.onMutated();
   }
 
-  bool get _useCompactChips {
-    if (_useSheet) return false;
-    final opts = dp.options ?? [];
+  bool _useCompactChipsFor(List<SelectionDataPointOption> opts) {
+    if (_useSheetFor(opts)) return false;
     return opts.length <= 4 && opts.every((o) =>
       o.value.resolvedSubtitle.isEmpty && o.value.resolvedDescription.isEmpty);
   }
@@ -111,28 +115,79 @@ class _DfupSelectionInputState extends State<DfupSelectionInput> {
   // The selected option for single-select
   SelectionDataPointOption? get _selectedOpt {
     if (isMulti || _sel.isEmpty) return null;
-    return dp.options?.firstWhere((o) => _sel.contains(o.id));
+    if (dp.options == null) return null;
+    for (final o in dp.options!) {
+      if (_sel.contains(o.id)) return o;
+    }
+    return null;
+  }
+
+  void _openNestedDfup(SelectionDataPointOption opt) {
+    if (opt.value.dfup == null) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => _NestedDfupPage(option: opt, onSaved: () { setState(() {}); _mutate(); }),
+    ));
+  }
+
+  bool _nestedDfupsValid() {
+    final selOpts = dp.options?.where((o) => _sel.contains(o.id)).toList() ?? [];
+    for (final opt in selOpts) {
+      if (!opt.value.isUserEditable || opt.value.dfup == null) continue;
+      for (final p in opt.value.dfup!.collectAllDataPoints()) {
+        if (p.isHidden) continue;
+        final req = p.validation?.isRequired == true || p.fileValidation?.isRequired == true;
+        if (req && p.response == null) return false;
+        if (p.response != null) {
+          final s = _responseStatus(p.response);
+          if (s == ResponseStatus.invalid) return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  static ResponseStatus? _responseStatus(dynamic resp) {
+    if (resp is TextResponse) return resp.status;
+    if (resp is NumberResponse) return resp.status;
+    if (resp is BooleanResponse) return resp.status;
+    if (resp is DateTimeResponse) return resp.status;
+    if (resp is FileUploadResponse) return resp.status;
+    if (resp is SelectionResponse) return resp.status;
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final c = Cx.of(context);
     final req = dp.validation?.isRequired ?? false;
-    final allOpts = dp.options ?? [];
+    final allOpts = _visibleOpts;
     final filteredOpts = _filterOptions(allOpts, _search);
+    final useSheet = _useSheetFor(allOpts);
+    final useCompactChips = _useCompactChipsFor(allOpts);
+
+    // Auto-clear selections whose options are no longer visible
+    final visibleIds = allOpts.map((o) => o.id).toSet();
+    if (_sel.any((id) => !visibleIds.contains(id))) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _sel.removeWhere((id) => !visibleIds.contains(id));
+        _mutate();
+      });
+    }
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      DfupLabelRow(label: dp.label, isRequired: req, info: dp.info),
+      DfupLabelRow(label: dp.label, isRequired: req, info: dp.info, registry: widget.registry),
       if (isMulti) Padding(padding: const EdgeInsets.only(top: S.xs),
         child: Text('Select one or more options', style: TextStyle(fontSize: 12, color: c.hint))),
       const SizedBox(height: S.sm),
 
       // ── Bottom-sheet mode ──
-      if (_useSheet) ...[
+      if (useSheet) ...[
         // Single select with selection → show selected card + change button
         if (!isMulti && _selectedOpt != null)
           _SelectedCard(opt: _selectedOpt!, onClear: () { setState(() => _sel.clear()); _mutate(); },
-            onChange: () => _openSheet())
+            onChange: () => _openSheet(),
+            onEdit: _selectedOpt!.value.isUserEditable ? () => _openNestedDfup(_selectedOpt!) : null)
         else
           _sheetTrigger(c),
       ]
@@ -142,14 +197,15 @@ class _DfupSelectionInputState extends State<DfupSelectionInput> {
         // Single select with selection → show selected card inline
         if (!isMulti && _selectedOpt != null) ...[
           _SelectedCard(opt: _selectedOpt!, onClear: () { setState(() => _sel.clear()); _mutate(); },
-            onChange: () { setState(() => _sel.clear()); _mutate(); }),
+            onChange: () { setState(() => _sel.clear()); _mutate(); },
+            onEdit: _selectedOpt!.value.isUserEditable ? () => _openNestedDfup(_selectedOpt!) : null),
         ] else ...[
           // Search bar — always visible when ≥3 options
           if (allOpts.length >= 3) ...[
             _SearchBar(hint: 'Search ${dp.label.toLowerCase()}...', onChanged: (v) => setState(() => _search = v)),
             const SizedBox(height: S.md),
           ],
-          _useCompactChips ? _chips(filteredOpts, c) : _cards(filteredOpts, c),
+          useCompactChips ? _chips(filteredOpts, c) : _cards(filteredOpts, c),
           if (filteredOpts.isEmpty && _search.isNotEmpty)
             Padding(padding: const EdgeInsets.symmetric(vertical: S.lg),
               child: Center(child: Column(children: [
@@ -206,6 +262,11 @@ class _DfupSelectionInputState extends State<DfupSelectionInput> {
               border: Border.all(color: c.primary.withValues(alpha: 0.3))),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: c.primary)),
+              if (o.value.isUserEditable) ...[
+                const SizedBox(width: S.xs),
+                GestureDetector(onTap: () => _openNestedDfup(o),
+                  child: Icon(Icons.edit_outlined, size: 14, color: c.primary)),
+              ],
               const SizedBox(width: S.xs),
               GestureDetector(onTap: () { _sel.remove(o.id); _mutate(); },
                 child: Icon(Icons.close, size: 14, color: c.primary)),
@@ -221,7 +282,11 @@ class _DfupSelectionInputState extends State<DfupSelectionInput> {
       context: context, isScrollControlled: true, backgroundColor: Colors.transparent,
       builder: (ctx) => _SelectionBottomSheet(
         dataPoint: dp, isMulti: isMulti, initialSelection: Set.from(_sel),
+        registry: widget.registry ?? {},
         onDone: (newSel) { _sel = newSel; _mutate(); },
+        onEditOption: (opt) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => _openNestedDfup(opt));
+        },
       ),
     );
   }
@@ -283,6 +348,10 @@ class _DfupSelectionInputState extends State<DfupSelectionInput> {
               if (rDesc.isNotEmpty) ...[const SizedBox(height: S.xs),
                 Text(rDesc, style: TextStyle(fontSize: 12, color: c.hint, height: 1.4))],
             ])),
+            if (on && o.value.isUserEditable) GestureDetector(
+              onTap: () => _openNestedDfup(o),
+              child: Padding(padding: const EdgeInsets.only(right: S.sm),
+                child: Icon(Icons.edit_outlined, size: 20, color: c.primary))),
             if (on) Icon(Icons.check_circle, size: 22, color: c.primary),
           ]),
         ),
@@ -291,11 +360,13 @@ class _DfupSelectionInputState extends State<DfupSelectionInput> {
   );
 
   Widget _indicator(bool on, Cx c) {
-    if (isMulti) return AnimatedContainer(
-      duration: const Duration(milliseconds: 200), width: 22, height: 22,
-      decoration: BoxDecoration(color: on ? c.primary : Colors.transparent, borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: on ? c.primary : c.hint, width: 2)),
-      child: on ? const Icon(Icons.check, size: 16, color: Colors.white) : null);
+    if (isMulti) {
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 200), width: 22, height: 22,
+        decoration: BoxDecoration(color: on ? c.primary : Colors.transparent, borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: on ? c.primary : c.hint, width: 2)),
+        child: on ? const Icon(Icons.check, size: 16, color: Colors.white) : null);
+    }
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200), width: 22, height: 22,
       decoration: BoxDecoration(color: on ? c.primary : Colors.transparent, shape: BoxShape.circle,
@@ -312,7 +383,8 @@ class _SelectedCard extends StatelessWidget {
   final SelectionDataPointOption opt;
   final VoidCallback onClear;
   final VoidCallback onChange;
-  const _SelectedCard({required this.opt, required this.onClear, required this.onChange});
+  final VoidCallback? onEdit;
+  const _SelectedCard({required this.opt, required this.onClear, required this.onChange, this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -362,6 +434,21 @@ class _SelectedCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: S.sm),
+          if (onEdit != null) ...[
+            GestureDetector(
+              onTap: onEdit,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: S.md, vertical: S.xs + 2),
+                decoration: BoxDecoration(color: c.accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(R.pill)),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.edit_outlined, size: 14, color: c.accent),
+                  const SizedBox(width: S.xs),
+                  Text('Edit', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: c.accent)),
+                ]),
+              ),
+            ),
+            const SizedBox(width: S.sm),
+          ],
           GestureDetector(
             onTap: onChange,
             child: Container(
@@ -388,11 +475,14 @@ class _SelectionBottomSheet extends StatefulWidget {
   final DataPoint dataPoint;
   final bool isMulti;
   final Set<String> initialSelection;
+  final Map<String, DataPoint> registry;
   final void Function(Set<String>) onDone;
+  final void Function(SelectionDataPointOption)? onEditOption;
 
   const _SelectionBottomSheet({
     required this.dataPoint, required this.isMulti,
-    required this.initialSelection, required this.onDone,
+    required this.initialSelection, required this.registry, required this.onDone,
+    this.onEditOption,
   });
 
   @override
@@ -409,8 +499,10 @@ class _SelectionBottomSheetState extends State<_SelectionBottomSheet> {
   @override
   void dispose() { _searchCtrl.dispose(); super.dispose(); }
 
-  List<SelectionDataPointOption> get _opts =>
-    _filterOptions(widget.dataPoint.options ?? [], _search);
+  List<SelectionDataPointOption> get _opts {
+    final visible = (widget.dataPoint.options ?? []).where((o) => DependencyEvaluator.isOptionVisible(o, widget.registry)).toList();
+    return _filterOptions(visible, _search);
+  }
 
   void _toggle(SelectionDataPointOption opt) {
     setState(() {
@@ -429,7 +521,7 @@ class _SelectionBottomSheetState extends State<_SelectionBottomSheet> {
   Widget build(BuildContext context) {
     final c = Cx.of(context);
     final opts = _opts;
-    final total = widget.dataPoint.options?.length ?? 0;
+    final total = (widget.dataPoint.options ?? []).where((o) => DependencyEvaluator.isOptionVisible(o, widget.registry)).length;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.6, minChildSize: 0.35, maxChildSize: 0.9,
@@ -517,6 +609,15 @@ class _SelectionBottomSheetState extends State<_SelectionBottomSheet> {
                       if (rDesc.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 2),
                         child: Text(rDesc, style: TextStyle(fontSize: 11, color: c.hint), maxLines: 2, overflow: TextOverflow.ellipsis)),
                     ])),
+                    if (on && o.value.isUserEditable) Padding(
+                      padding: const EdgeInsets.only(right: S.sm),
+                      child: GestureDetector(
+                        onTap: () {
+                          widget.onDone(_sel);
+                          Navigator.pop(context);
+                          widget.onEditOption?.call(o);
+                        },
+                        child: Icon(Icons.edit_outlined, size: 18, color: c.primary))),
                     if (on) Icon(Icons.check_circle, size: 20, color: c.primary),
                   ]),
                 ),
@@ -524,6 +625,37 @@ class _SelectionBottomSheetState extends State<_SelectionBottomSheet> {
             },
           )),
         ]),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Nested DFUP Full-Screen Popover (Section 5.8)
+// ═══════════════════════════════════════════════════════════════
+
+class _NestedDfupPage extends StatelessWidget {
+  final SelectionDataPointOption option;
+  final VoidCallback onSaved;
+  const _NestedDfupPage({required this.option, required this.onSaved});
+
+  @override
+  Widget build(BuildContext context) {
+    final ct = option.value;
+    final rTitle = ct.resolvedTitle.isNotEmpty ? ct.resolvedTitle : option.code;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(rTitle),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () { onSaved(); Navigator.pop(context); },
+        ),
+      ),
+      body: DfupLayoutWidget(
+        layout: ct.dfup!,
+        submitLabel: 'Save & Close',
+        onSubmit: () { onSaved(); Navigator.pop(context); },
       ),
     );
   }

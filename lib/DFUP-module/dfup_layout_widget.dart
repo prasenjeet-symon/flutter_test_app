@@ -10,7 +10,8 @@ import 'dfup_data_frame_widget.dart';
 class DfupLayoutWidget extends StatefulWidget {
   final Layout layout;
   final VoidCallback? onSubmit;
-  const DfupLayoutWidget({super.key, required this.layout, this.onSubmit});
+  final String submitLabel;
+  const DfupLayoutWidget({super.key, required this.layout, this.onSubmit, this.submitLabel = 'Submit'});
   @override
   State<DfupLayoutWidget> createState() => DfupLayoutWidgetState();
 }
@@ -156,14 +157,16 @@ class DfupLayoutWidgetState extends State<DfupLayoutWidget> with TickerProviderS
     final cx = Cx.of(context);
     if (c.isGroup) return DfupDataFrameGroupWidget(group: c.group!, registry: _reg, onMutated: _onMutated);
     final f = c.frame!;
+    final fTitle = DynamicResolver.resolve(f.title, _reg);
+    final fDesc = f.description != null ? DynamicResolver.resolve(f.description, _reg) : null;
     return Container(
       decoration: BoxDecoration(color: cx.card, borderRadius: BorderRadius.circular(R.lg), boxShadow: cx.cardShadow),
       child: Padding(padding: const EdgeInsets.all(S.xl), child: Column(
         crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (f.title.isNotEmpty) ...[
-            Text(f.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: cx.text1)),
-            if (f.description != null) Padding(padding: const EdgeInsets.only(top: S.xs),
-              child: Text(f.description!, style: TextStyle(fontSize: 13, color: cx.text2))),
+          if (fTitle.isNotEmpty) ...[
+            Text(fTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: cx.text1)),
+            if (fDesc != null && fDesc.isNotEmpty) Padding(padding: const EdgeInsets.only(top: S.xs),
+              child: Text(fDesc, style: TextStyle(fontSize: 13, color: cx.text2))),
             const SizedBox(height: S.xl),
           ],
           DfupDataFrameWidget(dataFrame: f, registry: _reg, onMutated: _onMutated),
@@ -190,10 +193,41 @@ class DfupLayoutWidgetState extends State<DfupLayoutWidget> with TickerProviderS
     ]);
   }
 
+  /// Returns true if all visible required DataPoints have a valid response.
+  bool _validateForSubmit() {
+    for (final dp in layout.collectAllDataPoints()) {
+      if (dp.isHidden) continue;
+      if (!DependencyEvaluator.isVisible(dp, _reg)) continue;
+      final req = dp.validation?.isRequired == true || dp.fileValidation?.isRequired == true;
+      if (!req) continue;
+      if (dp.response == null) return false;
+      final r = dp.response;
+      final ResponseStatus? st;
+      if (r is TextResponse) { st = r.status; }
+      else if (r is NumberResponse) { st = r.status; }
+      else if (r is BooleanResponse) { st = r.status; }
+      else if (r is DateTimeResponse) { st = r.status; }
+      else if (r is FileUploadResponse) { st = r.status; }
+      else if (r is SelectionResponse) { st = r.status; }
+      else { st = null; }
+      if (st == ResponseStatus.invalid) { return false; }
+    }
+    return true;
+  }
+
   Widget _submitBtn() {
     final cx = Cx.of(context);
     return SizedBox(width: double.infinity, child: ElevatedButton(
       onPressed: () {
+        if (!_validateForSubmit()) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Row(children: [Icon(Icons.error_outline, color: Colors.white, size: 20),
+              SizedBox(width: S.sm), Expanded(child: Text('Please fill in all required fields'))]),
+            backgroundColor: cx.error, behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(R.md)),
+            margin: const EdgeInsets.all(S.lg)));
+          return;
+        }
         widget.onSubmit?.call();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -204,7 +238,7 @@ class DfupLayoutWidgetState extends State<DfupLayoutWidget> with TickerProviderS
           margin: const EdgeInsets.all(S.lg)));
       },
       style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: S.lg), backgroundColor: cx.primary),
-      child: const Text('Submit', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+      child: Text(widget.submitLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
     ));
   }
 }
